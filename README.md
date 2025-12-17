@@ -4,6 +4,28 @@
 
 Paste a URL, get instant brand insights in 60 seconds.
 
+---
+
+## Implementation Status (December 17, 2025)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Next.js 14 + TypeScript | ✅ | App Router, Turbopack |
+| Supabase Integration | ✅ | Types, clients, schema ready |
+| Web Scraper | ✅ | Homepage scraping with Cheerio |
+| Three AI Analyzers | ✅ | Basics, Customer, Products |
+| Two-Step AI Pattern | ✅ | Analysis → Parsing |
+| Brand Profile Page | ✅ | Shows all analysis results |
+| Add Brand Form | ✅ | URL input, triggers full pipeline |
+| Auth UI | ❌ | Login/signup pages needed |
+| Dashboard/Brand List | ❌ | Need list view |
+| Realtime Updates | 🔶 | Backend ready, UI needs hook |
+| Edit Forms | ❌ | View-only currently |
+
+**Build Status**: ✅ Passing
+
+> **For AI Developers**: See `AI_DEV_DOCS/00-SESSION_NOTES.md` for implementation details, gotchas, and common fixes.
+
 ## Quick Start
 
 ### 1. Install Dependencies
@@ -338,3 +360,51 @@ Private - All Rights Reserved
 ---
 
 Built with care by a scrappy indie hacker.
+
+---
+
+## Known Gotchas (For AI Devs)
+
+Quick reference for common issues. See `AI_DEV_DOCS/00-SESSION_NOTES.md` for full details.
+
+### 1. Supabase Type Errors
+If you get `never` type errors with Supabase queries:
+```typescript
+// Always cast results from Supabase queries:
+const { data } = await supabase.from('brands').select('*').single();
+return data as Brand; // Cast to proper type
+```
+
+### 2. OpenAI Function Schema
+Cast the schema to avoid TypeScript errors:
+```typescript
+parameters: schema as unknown as Record<string, unknown>
+```
+
+### 3. OpenAI tool_calls Access
+Add type guard before accessing function:
+```typescript
+if (!toolCall || toolCall.type !== 'function') throw new Error('...');
+const args = toolCall.function.arguments; // Now safe
+```
+
+### 4. Adding New Analyzers
+1. Create `lib/analyzers/{name}/` with 5 files
+2. Register in `lib/analyzers/index.ts`
+3. Add to DB enum: `ALTER TYPE analyzer_type ADD VALUE 'name';`
+4. Create UI card in `components/analysis/cards/`
+
+---
+
+## AI Developer Documentation
+
+Full documentation for AI developers working on this codebase:
+
+| Document | Purpose |
+|----------|---------|
+| `AI_DEV_DOCS/00-SESSION_NOTES.md` | **Start here** - Implementation status, gotchas, fixes |
+| `AI_DEV_DOCS/01-PROJECT_OVERVIEW.md` | What the app does, who it's for |
+| `AI_DEV_DOCS/02-ARCHITECTURE.md` | System design, data flow |
+| `AI_DEV_DOCS/05-ANALYZERS.md` | Deep dive on analyzer architecture |
+| `AI_DEV_DOCS/09-FILE_STRUCTURE.md` | Where things go, naming conventions |
+| `AI_DEV_DOCS/11-IMPLEMENTATION_ROADMAP.md` | Checklist with completion status |
