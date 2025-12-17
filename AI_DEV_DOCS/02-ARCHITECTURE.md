@@ -1,5 +1,7 @@
 # Architecture
 
+> **Implementation Status (December 17, 2025)**: Core architecture implemented and working. See `00-SESSION_NOTES.md` for implementation notes.
+
 ## System Overview
 
 ```

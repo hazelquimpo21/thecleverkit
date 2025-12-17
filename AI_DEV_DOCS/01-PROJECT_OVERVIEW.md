@@ -1,5 +1,7 @@
 # The Clever Kit — Project Overview
 
+> **Implementation Status (December 17, 2025)**: Core MVP implemented. Build passes. See `00-SESSION_NOTES.md` for details.
+
 ## What Is This?
 
 The Clever Kit is a web app that helps marketing agencies and freelancers quickly understand any brand by analyzing their website. Users paste a URL, and the app scrapes the site, runs it through multiple AI "analyzers," and produces structured brand intelligence.
@@ -27,17 +29,23 @@ Instead of manually combing through a website taking notes, The Clever Kit does 
 
 ## MVP Scope
 
-### What's In
-- User auth (Supabase Auth — magic link + Google OAuth)
-- Add brands via URL
-- Web scraping (homepage only for MVP)
-- Three concurrent AI analyzers:
+### What's Implemented ✅
+- [x] Add brands via URL
+- [x] Web scraping (homepage with Cheerio)
+- [x] Three concurrent AI analyzers:
   - **Basics**: Business name, founder, industry, what they do, business model
   - **Customer Profile**: Subcultures, problems, sophistication, buying motivation
   - **Products & Pricing**: What they sell, prices, positioning
-- Brand profile view with all analyzed data
-- Manual editing of AI-extracted fields
-- Re-analyze capability
+- [x] Brand profile view with all analyzed data
+- [x] Supabase database schema with RLS
+- [x] Two-step AI pattern (analysis → parsing)
+
+### Still Needed ⚠️
+- [ ] User auth UI (login/signup pages)
+- [ ] Dashboard with brand list
+- [ ] Manual editing of AI-extracted fields
+- [ ] Re-analyze capability
+- [ ] Realtime UI updates (backend ready)
 
 ### What's Out (Future)
 - Additional scrapers (LinkedIn, social profiles, Google search)
