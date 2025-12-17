@@ -21,42 +21,30 @@ clever-kit/
 clever-kit/
 │
 ├── app/
-│   ├── layout.tsx                    ← Root layout (providers, fonts)
-│   ├── page.tsx                      ← Redirect to /dashboard or /login
+│   ├── layout.tsx                    ← Root layout with Header
+│   ├── page.tsx                      ← Home page (add brand form)
 │   ├── globals.css                   ← Global styles, CSS variables
 │   │
-│   ├── (auth)/                       ← Auth route group (no layout)
-│   │   ├── login/
-│   │   │   └── page.tsx              ← Login page
-│   │   └── signup/
-│   │       └── page.tsx              ← Signup page
+│   ├── login/
+│   │   └── page.tsx                  ← Login page (magic link auth) ✅
 │   │
-│   ├── (dashboard)/                  ← Dashboard route group (shared layout)
-│   │   ├── layout.tsx                ← Dashboard layout (header, etc.)
-│   │   ├── dashboard/
-│   │   │   └── page.tsx              ← Brand list / home
-│   │   ├── brands/
-│   │   │   ├── new/
-│   │   │   │   └── page.tsx          ← Add brand flow
-│   │   │   └── [brandId]/
-│   │   │       ├── page.tsx          ← Brand profile
-│   │   │       └── edit/
-│   │   │           └── page.tsx      ← Edit mode (or use modal)
-│   │   └── settings/
-│   │       └── page.tsx              ← User settings
+│   ├── brands/
+│   │   └── [brandId]/
+│   │       └── page.tsx              ← Brand profile page ✅
+│   │
+│   ├── dashboard/                    ← (planned)
+│   │   └── page.tsx                  ← Brand list view
+│   │
+│   ├── settings/                     ← (planned)
+│   │   └── page.tsx                  ← User settings
 │   │
 │   └── api/
 │       ├── auth/
 │       │   └── callback/
-│       │       └── route.ts          ← Supabase auth callback
+│       │       └── route.ts          ← Supabase auth callback ✅
 │       └── brands/
-│           └── [brandId]/
-│               ├── scrape/
-│               │   └── route.ts      ← Trigger scraping
-│               ├── analyze/
-│               │   └── route.ts      ← Trigger analysis
-│               └── retry/
-│                   └── route.ts      ← Retry failed analyzer
+│           └── analyze/
+│               └── route.ts          ← Main analysis endpoint ✅
 │
 ├── components/
 │   ├── ui/                           ← shadcn/ui primitives
@@ -72,10 +60,13 @@ clever-kit/
 │   │   └── form.tsx                  ← react-hook-form integration
 │   │
 │   ├── layout/
-│   │   ├── header.tsx                ← App header with nav
-│   │   ├── user-menu.tsx             ← Avatar dropdown
+│   │   ├── header.tsx                ← App header with auth-aware nav
 │   │   ├── page-container.tsx        ← Page width wrapper
 │   │   └── page-header.tsx           ← Title + actions pattern
+│   │
+│   ├── auth/
+│   │   ├── login-form.tsx            ← Magic link login form
+│   │   └── index.ts                  ← Auth component exports
 │   │
 │   ├── brands/
 │   │   ├── brand-card.tsx            ← Single brand in list
@@ -157,11 +148,12 @@ clever-kit/
 │       └── format.ts                 ← Date, URL formatters
 │
 ├── hooks/
-│   ├── use-brands.ts                 ← TanStack Query: brands
-│   ├── use-brand.ts                  ← TanStack Query: single brand
-│   ├── use-analysis-runs.ts          ← TanStack Query: analysis runs
-│   ├── use-realtime-analysis.ts      ← Supabase realtime subscription
-│   └── use-user.ts                   ← Current user hook
+│   ├── use-auth.ts                   ← Auth hook (user, isLoading, signOut)
+│   ├── use-brands.ts                 ← TanStack Query: brands (planned)
+│   ├── use-brand.ts                  ← TanStack Query: single brand (planned)
+│   ├── use-analysis-runs.ts          ← TanStack Query: analysis runs (planned)
+│   ├── use-realtime-analysis.ts      ← Supabase realtime subscription (planned)
+│   └── index.ts                      ← Hook exports
 │
 ├── types/
 │   ├── database.ts                   ← Supabase table types

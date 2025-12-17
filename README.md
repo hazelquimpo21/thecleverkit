@@ -17,7 +17,8 @@ Paste a URL, get instant brand insights in 60 seconds.
 | Two-Step AI Pattern | ✅ | Analysis → Parsing |
 | Brand Profile Page | ✅ | Shows all analysis results |
 | Add Brand Form | ✅ | URL input, triggers full pipeline |
-| Auth UI | ❌ | Login/signup pages needed |
+| Auth UI | ✅ | Login page with magic link, header sign in/out |
+| Route Protection | ✅ | Middleware protects /dashboard, /brands |
 | Dashboard/Brand List | ❌ | Need list view |
 | Realtime Updates | 🔶 | Backend ready, UI needs hook |
 | Edit Forms | ❌ | View-only currently |

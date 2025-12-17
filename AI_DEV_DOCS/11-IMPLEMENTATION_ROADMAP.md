@@ -12,7 +12,7 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 
 **Goal**: Basic Next.js app with Supabase auth working.
 
-**STATUS: ✅ CORE COMPLETE** (Auth UI not built, but infrastructure ready)
+**STATUS: ✅ COMPLETE** (Auth UI with magic links implemented)
 
 ### 1.1 Project Setup
 - [x] Create Next.js 14 app with App Router
@@ -32,19 +32,19 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 ### 1.3 Auth Flow
 - [x] Create `lib/supabase/client.ts`, `server.ts`
 - [x] Auth callback route (`/api/auth/callback`)
-- [ ] Build `/login` page
-- [ ] Build `/signup` page
-- [ ] Create middleware for protected routes
-- [ ] Test: Can sign up, log in, log out
+- [x] Build `/login` page (magic link authentication)
+- [x] Create `useAuth` hook for user state management
+- [x] Create middleware for protected routes
+- [x] Test: Can sign in via magic link, log out
 
 ### 1.4 Layout Shell
 - [x] Create root layout with Header component
 - [x] Create PageContainer component
 - [x] Build home page with add brand form
-- [ ] Create UserMenu (avatar dropdown with logout)
+- [x] Create UserMenu (shows user email + sign out)
 - [ ] Build `/dashboard` page
 
-**Checkpoint**: ⚠️ Infrastructure ready, auth UI needed.
+**Checkpoint**: ✅ Auth complete. Users can sign in with magic link, protected routes work.
 
 ---
 
@@ -306,7 +306,7 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 
 | Phase | Status | Remaining Effort |
 |-------|--------|------------------|
-| 1. Foundation | ✅ Core done | Auth UI: ~0.5 day |
+| 1. Foundation | ✅ Complete | - |
 | 2. Brand Management | ✅ Core done | Dashboard: ~0.5 day |
 | 3. Scraping | ✅ Complete | - |
 | 4. Analyzers | ✅ Complete | - |
@@ -316,13 +316,13 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 | 8. Polish | 🔶 Partial | ~1 day |
 | 9. Deploy | ❌ Not started | ~0.5 day |
 
-**Remaining: ~4 days for full MVP completion**
+**Remaining: ~3.5 days for full MVP completion**
 
 ---
 
 ## Definition of Done (MVP)
 
-- [ ] User can sign up and log in
+- [x] User can sign up and log in (via magic link)
 - [x] User can add brands via URL
 - [x] Scraping completes within 15 seconds
 - [x] All three analyzers run concurrently
