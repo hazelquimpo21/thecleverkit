@@ -37,14 +37,22 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 - [x] Create middleware for protected routes
 - [x] Test: Can sign in via magic link, log out
 
-### 1.4 Layout Shell
+### 1.4 Auth-Gated Analysis Flow ✅ NEW
+- [x] Create `lib/utils/auth-intent.ts` (save/load/clear intent)
+- [x] Create `hooks/use-auth-gate.ts` (gate actions behind auth)
+- [x] Update AddBrandForm to use auth gating
+- [x] Create `/analyze` continuation page
+- [x] Create intent-aware login UI (`login-page-content.tsx`)
+- [x] Add `/analyze` to protected routes in middleware
+
+### 1.5 Layout Shell
 - [x] Create root layout with Header component
 - [x] Create PageContainer component
 - [x] Build home page with add brand form
 - [x] Create UserMenu (shows user email + sign out)
 - [ ] Build `/dashboard` page
 
-**Checkpoint**: ✅ Auth complete. Users can sign in with magic link, protected routes work.
+**Checkpoint**: ✅ Auth complete. Users can sign in with magic link, protected routes work. Unauthenticated users trying to analyze get a smooth redirect flow that preserves their URL.
 
 ---
 
@@ -324,6 +332,7 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 
 - [x] User can sign up and log in (via magic link)
 - [x] User can add brands via URL
+- [x] Unauthenticated users get smooth redirect flow (URL preserved)
 - [x] Scraping completes within 15 seconds
 - [x] All three analyzers run concurrently
 - [x] Analysis completes within 90 seconds
