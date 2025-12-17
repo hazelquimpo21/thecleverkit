@@ -1,53 +1,340 @@
-# The Clever Kit — Documentation
+# The Clever Kit
 
 > AI-powered brand intelligence for agencies and freelancers.
 
+Paste a URL, get instant brand insights in 60 seconds.
+
 ## Quick Start
 
-Read the docs in order for full context, or jump to specific areas:
+### 1. Install Dependencies
 
-| Doc | Purpose | Read When... |
-|-----|---------|--------------|
-| [01-PROJECT_OVERVIEW](./01-PROJECT_OVERVIEW.md) | What this is, who it's for | Starting the project |
-| [02-ARCHITECTURE](./02-ARCHITECTURE.md) | System design, data flow | Planning implementation |
-| [03-DATA_MODEL](./03-DATA_MODEL.md) | Database schema, types | Setting up Supabase |
-| [04-USER_STORIES](./04-USER_STORIES.md) | Features, acceptance criteria | Building any feature |
-| [05-ANALYZERS](./05-ANALYZERS.md) | How AI extraction works | Building/adding analyzers |
-| [06-RUNNER](./06-RUNNER.md) | Analyzer orchestration | Understanding execution flow |
-| [07-SCRAPERS](./07-SCRAPERS.md) | Content fetching | Building/adding scrapers |
-| [08-UI_COMPONENTS](./08-UI_COMPONENTS.md) | Design system, components | Building UI |
-| [09-FILE_STRUCTURE](./09-FILE_STRUCTURE.md) | Where files go | Creating new files |
-| [10-API_PATTERNS](./10-API_PATTERNS.md) | OpenAI, Supabase, queries | Writing API code |
-| [11-IMPLEMENTATION_ROADMAP](./11-IMPLEMENTATION_ROADMAP.md) | Build order, checklist | Planning sprints |
+```bash
+npm install
+```
 
-## Key Decisions
+### 2. Set Up Environment Variables
 
-1. **Naming**: "Brands" not "Clients" — users have "Your Brand" + "Brands You Manage"
-2. **Two-step AI**: Analysis (natural language) → Parsing (function calling)
-3. **Modular analyzers**: Each in its own folder, easy to add more
-4. **Modular scrapers**: Same pattern, ready for LinkedIn/social later
-5. **Realtime updates**: Supabase Realtime for live progress
-6. **Small files**: Target <200 lines, max 400 lines per file
+Copy the example env file and fill in your values:
 
-## Tech Stack
+```bash
+cp .env.example .env.local
+```
 
-- **Framework**: Next.js 14 (App Router)
-- **Database**: Supabase (Postgres + Auth + Realtime)
-- **AI**: OpenAI GPT-4o-mini
-- **Styling**: Tailwind CSS + shadcn/ui
-- **State**: TanStack Query + Supabase Realtime
-- **Hosting**: Vercel
+You'll need:
+- **Supabase** project URL and keys (get from [supabase.com](https://supabase.com))
+- **OpenAI** API key (get from [platform.openai.com](https://platform.openai.com/api-keys))
 
-## MVP Scope
+### 3. Set Up Database
 
-**In**: Auth, add brands via URL, scrape homepage, 3 analyzers (basics, customer, products), real-time progress, brand profile, edit fields, retry/re-analyze
+Run the SQL schema in your Supabase SQL Editor:
 
-**Out**: Additional scrapers, additional analyzers, doc generation, chat input, teams
+```bash
+# Copy contents of supabase/schema.sql and run in Supabase SQL Editor
+```
 
-## Design Vibe
+### 4. Run Development Server
 
-Warm, breathable, clean. Soft cream backgrounds, orange accent, generous whitespace, soft shadows. Professional enough for agencies, delightful enough to enjoy using.
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
 ---
 
-*Built by a savvy indie hacker with an eye for clean, elegant design.*
+## Architecture Overview
+
+```
+                      USER ENTERS URL
+                            |
+                            v
+                 +-----------------------+
+                 |    /api/brands/analyze |
+                 +-----------------------+
+                            |
+         +------------------+------------------+
+         |                  |                  |
+         v                  v                  v
+   +-----------+     +-----------+     +-----------+
+   |  SCRAPER  |     | CREATE    |     | CREATE    |
+   | (fetch &  |     | BRAND     |     | ANALYSIS  |
+   |  parse)   |     | RECORD    |     | RUNS      |
+   +-----------+     +-----------+     +-----------+
+         |                                    |
+         +------------------------------------+
+                            |
+                            v
+              +---------------------------+
+              |    CONCURRENT ANALYZERS    |
+              +---------------------------+
+              |                           |
+    +---------+---------+       +---------+---------+
+    |                   |       |                   |
+    v                   v       v                   v
++-------+           +-------+-------+           +-------+
+|BASICS |           |CUSTOMER|      |           |PRODUCTS|
++-------+           +-------+      +-------+   +-------+
+    |                   |               |           |
+    +-------------------+---------------+-----------+
+                            |
+                            v
+              +---------------------------+
+              |    TWO-STEP AI PROCESS     |
+              +---------------------------+
+              |                           |
+              |  1. ANALYSIS (GPT-4o-mini)|
+              |     Natural language      |
+              |     "thinking"            |
+              |                           |
+              |  2. PARSING (Function     |
+              |     calling to extract    |
+              |     structured JSON)      |
+              +---------------------------+
+                            |
+                            v
+              +---------------------------+
+              |    SUPABASE DATABASE       |
+              |    (Realtime updates)      |
+              +---------------------------+
+```
+
+---
+
+## Project Structure
+
+```
+thecleverkit/
+├── app/                          # Next.js App Router
+│   ├── layout.tsx               # Root layout
+│   ├── page.tsx                 # Home page (add brand form)
+│   ├── globals.css              # Global styles
+│   ├── api/
+│   │   ├── auth/callback/       # Supabase auth callback
+│   │   └── brands/analyze/      # Main analysis endpoint
+│   └── brands/
+│       └── [brandId]/           # Brand detail page
+│
+├── components/                   # React components
+│   ├── ui/                      # Primitives (Button, Card, etc.)
+│   ├── layout/                  # Layout components
+│   ├── brands/                  # Brand-related components
+│   └── analysis/
+│       ├── cards/               # Result display cards
+│       └── progress-list.tsx    # Analysis progress
+│
+├── lib/                          # Business logic
+│   ├── analyzers/               # AI analyzer modules
+│   │   ├── basics/              # Business basics
+│   │   ├── customer/            # Customer profile
+│   │   ├── products/            # Products & pricing
+│   │   ├── runner.ts            # Orchestration
+│   │   └── types.ts             # Shared types
+│   ├── scrapers/
+│   │   └── web-homepage/        # URL scraper
+│   ├── supabase/                # Database clients & helpers
+│   ├── api/
+│   │   └── openai.ts            # GPT wrapper
+│   └── utils/                   # Utilities
+│
+├── types/                        # TypeScript types
+│   ├── database.ts              # Supabase table types
+│   └── analyzers.ts             # Analyzer output types
+│
+├── supabase/
+│   └── schema.sql               # Database schema
+│
+└── .env.example                  # Environment template
+```
+
+---
+
+## Key Concepts
+
+### Two-Step AI Process
+
+Every analyzer follows this pattern for better accuracy:
+
+**Step 1: Analysis (Natural Language)**
+```
+Scraped Content → GPT Prompt → Natural language observations
+```
+
+**Step 2: Parsing (Structured Extraction)**
+```
+Observations → Function Calling → Typed JSON
+```
+
+This separation produces better results than asking GPT to output JSON directly.
+
+### Analyzer Module Structure
+
+Each analyzer is a self-contained folder:
+
+```
+lib/analyzers/basics/
+├── config.ts    # Metadata (id, name, icon, dependencies)
+├── prompt.ts    # Analysis prompt builder
+├── parser.ts    # Function schema + post-processing
+├── types.ts     # TypeScript types
+└── index.ts     # Exports
+```
+
+### State Management
+
+Analysis states flow through:
+
+```
+queued → analyzing → parsing → complete
+                           ↘ error
+```
+
+---
+
+## Data Model
+
+### Tables
+
+| Table | Purpose |
+|-------|---------|
+| `profiles` | User profiles (extends Supabase Auth) |
+| `brands` | Brands being analyzed |
+| `analysis_runs` | One record per analyzer per brand |
+
+### Key Relationships
+
+```
+User (profiles)
+  └── Brands (many)
+        └── Analysis Runs (many, one per analyzer type)
+```
+
+### Analysis Run Statuses
+
+| Status | Description |
+|--------|-------------|
+| `queued` | Waiting to start |
+| `analyzing` | Step 1: GPT analysis in progress |
+| `parsing` | Step 2: Extracting structured data |
+| `complete` | Successfully finished |
+| `error` | Failed (check error_message) |
+
+---
+
+## Analyzers
+
+### Basics
+Extracts core business identity:
+- Business name
+- Founder name
+- Founded year
+- Industry
+- Business description
+- Business model (B2B Services, SaaS, Agency, etc.)
+
+### Customer Profile
+Understands the target audience:
+- Subcultures/communities they serve
+- Primary problem they solve
+- Secondary problems
+- Customer sophistication (Beginner/Informed/Expert)
+- Buying motivation (Pain relief/Aspiration/Necessity/etc.)
+
+### Products & Pricing
+Analyzes what they sell:
+- Offering type (Products/Services/Both)
+- List of offerings with prices
+- Primary offer
+- Price positioning (Budget/Mid-market/Premium/Luxury)
+
+---
+
+## API Reference
+
+### POST /api/brands/analyze
+
+Start analysis for a new brand.
+
+**Request:**
+```json
+{
+  "url": "https://example.com",
+  "isOwnBrand": false
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "brandId": "uuid",
+  "message": "Analysis started!"
+}
+```
+
+---
+
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public key | Yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service key (server only) | Yes |
+| `OPENAI_API_KEY` | OpenAI API key | Yes |
+| `NEXT_PUBLIC_APP_URL` | App URL for callbacks | No |
+
+---
+
+## Deployment (Vercel)
+
+1. Push to GitHub
+2. Import project in Vercel
+3. Add environment variables in Vercel dashboard
+4. Deploy!
+
+Vercel automatically detects Next.js and configures the build.
+
+---
+
+## Development Tips
+
+### Adding a New Analyzer
+
+1. Create folder: `lib/analyzers/{name}/`
+2. Add files: `config.ts`, `prompt.ts`, `parser.ts`, `types.ts`, `index.ts`
+3. Register in `lib/analyzers/index.ts`
+4. Add to database enum (run SQL):
+   ```sql
+   ALTER TYPE analyzer_type ADD VALUE 'your_analyzer';
+   ```
+5. Create UI card in `components/analysis/cards/`
+
+### File Size Guidelines
+
+| File Type | Target | Max |
+|-----------|--------|-----|
+| Components | 50-150 | 200 |
+| Analyzers | 30-80 | 120 |
+| API routes | 50-100 | 150 |
+
+If a file grows too large, split it!
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 14 (App Router)
+- **Database:** Supabase (Postgres + Auth + Realtime)
+- **AI:** OpenAI GPT-4o-mini
+- **Styling:** Tailwind CSS
+- **Hosting:** Vercel
+
+---
+
+## License
+
+Private - All Rights Reserved
+
+---
+
+Built with care by a scrappy indie hacker.
