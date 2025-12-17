@@ -39,6 +39,11 @@ async function getBrandWithAnalyses(brandId: string): Promise<{
 }> {
   const supabase = await createServerClient();
 
+  // Return empty if Supabase is not configured
+  if (!supabase) {
+    return { brand: null, runs: [] };
+  }
+
   // Fetch brand
   const { data: brandData, error: brandError } = await supabase
     .from('brands')

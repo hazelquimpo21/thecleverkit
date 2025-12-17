@@ -52,6 +52,10 @@ export async function createBrand(input: CreateBrandInput): Promise<{
   try {
     const supabase = await createServerClient();
 
+    if (!supabase) {
+      return { brand: null, error: 'Supabase not configured' };
+    }
+
     const { data, error } = await supabase
       .from('brands')
       .insert({
@@ -97,6 +101,10 @@ export async function getBrand(brandId: string): Promise<{
   try {
     const supabase = await createServerClient();
 
+    if (!supabase) {
+      return { brand: null, error: 'Supabase not configured' };
+    }
+
     const { data, error } = await supabase
       .from('brands')
       .select('*')
@@ -128,6 +136,10 @@ export async function getUserBrands(): Promise<{
 
   try {
     const supabase = await createServerClient();
+
+    if (!supabase) {
+      return { brands: [], error: 'Supabase not configured' };
+    }
 
     const { data, error } = await supabase
       .from('brands')
@@ -169,6 +181,10 @@ export async function updateBrand(
 
   try {
     const supabase = await createServerClient();
+
+    if (!supabase) {
+      return { brand: null, error: 'Supabase not configured' };
+    }
 
     const updateData: Record<string, unknown> = {};
     if (input.name !== undefined) updateData.name = input.name;
@@ -259,6 +275,10 @@ export async function deleteBrand(brandId: string): Promise<{
 
   try {
     const supabase = await createServerClient();
+
+    if (!supabase) {
+      return { success: false, error: 'Supabase not configured' };
+    }
 
     const { error } = await supabase
       .from('brands')

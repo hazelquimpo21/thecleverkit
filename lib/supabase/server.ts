@@ -19,25 +19,22 @@ import type { Database } from '@/types';
  *
  * Must be called within a Server Component or API route.
  *
- * @returns Typed Supabase client with session awareness
+ * @returns Typed Supabase client with session awareness, or null if env vars missing
  *
  * @example
  * // In a Server Component or API route:
  * const supabase = await createServerClient();
- * const { data: { user } } = await supabase.auth.getUser();
+ * if (supabase) {
+ *   const { data: { user } } = await supabase.auth.getUser();
+ * }
  */
 export async function createServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+  // Return null if env vars are missing (allows build to succeed)
   if (!supabaseUrl || !supabaseKey) {
-    throw new Error(
-      '❌ Missing Supabase environment variables!\n' +
-      'Make sure you have set:\n' +
-      '  - NEXT_PUBLIC_SUPABASE_URL\n' +
-      '  - NEXT_PUBLIC_SUPABASE_ANON_KEY\n' +
-      'in your .env.local file.'
-    );
+    return null;
   }
 
   const cookieStore = await cookies();

@@ -29,12 +29,15 @@ The MVP core has been implemented with a working build. Here's what exists:
 | Brand detail page | ✅ Complete | Shows analysis results |
 | Home page | ✅ Complete | Add brand form |
 | Logger utility | ✅ Complete | Emoji-rich, formatted logging |
+| Auth UI (login page) | ✅ Complete | Magic link authentication |
+| Auth hook (useAuth) | ✅ Complete | User state management |
+| Header sign in/out | ✅ Complete | Shows login button or user menu |
+| Route protection middleware | ✅ Complete | Protects /dashboard, /brands, /settings |
 
 ### Not Yet Implemented
 
 | Feature | Priority | Notes |
 |---------|----------|-------|
-| Auth UI (login/signup pages) | High | Need actual login forms |
 | Dashboard/brand list page | High | Currently redirects to home |
 | Realtime subscriptions | Medium | Supabase realtime enabled but not wired to UI |
 | Edit forms for analysis data | Medium | View-only currently |
@@ -54,6 +57,16 @@ The MVP core has been implemented with a working build. Here's what exists:
 | `types/analyzers.ts` | Parsed output types for each analyzer |
 | `lib/supabase/server.ts` | Server-side Supabase client creation |
 | `supabase/schema.sql` | Database schema - run this in Supabase SQL editor |
+
+### Authentication
+
+| File | Purpose |
+|------|---------|
+| `hooks/use-auth.ts` | Auth hook - provides `user`, `isLoading`, `signOut` |
+| `components/auth/login-form.tsx` | Magic link login form component |
+| `app/login/page.tsx` | Login page with auth redirect logic |
+| `middleware.ts` | Route protection (protects /dashboard, /brands, /settings) |
+| `components/layout/header.tsx` | Header with Sign In button / User menu |
 
 ### Core Business Logic
 
@@ -331,7 +344,7 @@ Note: Without proper auth setup, you may need to test API routes directly or add
 
 Priority order for completing MVP:
 
-1. **Auth UI** - Create login/signup pages with Supabase Auth
+1. ~~**Auth UI** - Create login/signup pages with Supabase Auth~~ ✅ Done
 2. **Dashboard** - Brand list view at `/dashboard`
 3. **Realtime UI** - Wire up Supabase realtime to show live progress
 4. **Edit forms** - Allow editing parsed data

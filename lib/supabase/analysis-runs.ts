@@ -98,6 +98,10 @@ export async function getAnalysisRuns(brandId: string): Promise<{
   try {
     const supabase = await createServerClient();
 
+    if (!supabase) {
+      return { runs: [], error: 'Supabase not configured' };
+    }
+
     const { data, error } = await supabase
       .from('analysis_runs')
       .select('*')
@@ -134,6 +138,10 @@ export async function getAnalysisRun(
 
   try {
     const supabase = await createServerClient();
+
+    if (!supabase) {
+      return { run: null, error: 'Supabase not configured' };
+    }
 
     const { data, error } = await supabase
       .from('analysis_runs')
