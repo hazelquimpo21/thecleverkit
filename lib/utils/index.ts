@@ -8,3 +8,4 @@
 export { cn } from './cn';
 export { log, analyzerLog } from './logger';
 export * from './format';
+export * from './auth-intent';

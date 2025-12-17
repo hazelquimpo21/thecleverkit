@@ -26,7 +26,12 @@ clever-kit/
 │   ├── globals.css                   ← Global styles, CSS variables
 │   │
 │   ├── login/
-│   │   └── page.tsx                  ← Login page (magic link auth) ✅
+│   │   ├── page.tsx                  ← Login page (magic link auth) ✅
+│   │   └── login-page-content.tsx    ← Client component for intent-aware UI ✅
+│   │
+│   ├── analyze/
+│   │   ├── page.tsx                  ← Post-login analysis continuation ✅
+│   │   └── analyze-continuation.tsx  ← Client component for continuation flow ✅
 │   │
 │   ├── brands/
 │   │   └── [brandId]/
@@ -145,10 +150,14 @@ clever-kit/
 │   │
 │   └── utils/
 │       ├── cn.ts                     ← clsx/tailwind-merge helper
-│       └── format.ts                 ← Date, URL formatters
+│       ├── format.ts                 ← Date, URL formatters
+│       ├── logger.ts                 ← Emoji-rich logging utility ✅
+│       ├── auth-intent.ts            ← Save/load analysis intent across login ✅
+│       └── index.ts                  ← Utils exports
 │
 ├── hooks/
-│   ├── use-auth.ts                   ← Auth hook (user, isLoading, signOut)
+│   ├── use-auth.ts                   ← Auth hook (user, isLoading, signOut) ✅
+│   ├── use-auth-gate.ts              ← Auth gating hook (redirects to login) ✅
 │   ├── use-brands.ts                 ← TanStack Query: brands (planned)
 │   ├── use-brand.ts                  ← TanStack Query: single brand (planned)
 │   ├── use-analysis-runs.ts          ← TanStack Query: analysis runs (planned)

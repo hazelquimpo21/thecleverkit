@@ -2,20 +2,26 @@
  * LOGIN PAGE
  * ===========
  * Authentication page with magic link sign-in.
- * Redirects authenticated users to the dashboard.
+ * Supports intent-based messaging when user is redirected from a gated action.
  *
  * Features:
  * - Magic link authentication via Supabase
  * - Error handling for failed auth callbacks
+ * - Intent-aware messaging (e.g., "Sign in to analyze [URL]")
  * - Clean, minimal design
+ *
+ * Query Params:
+ * - error: Auth error type (e.g., "auth_callback_failed")
+ * - next: Where to redirect after login
+ * - intent: What action triggered the login (e.g., "analyze")
  */
 
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
-import { LoginForm } from '@/components/auth/login-form';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Sparkles, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { LoginPageContent } from './login-page-content';
 
 // ============================================================================
 // TYPES
@@ -25,11 +31,12 @@ interface LoginPageProps {
   searchParams: Promise<{
     error?: string;
     next?: string;
+    intent?: string;
   }>;
 }
 
 // ============================================================================
-// PAGE COMPONENT
+// PAGE COMPONENT (SERVER)
 // ============================================================================
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
@@ -42,7 +49,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   if (supabase) {
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Redirect authenticated users to dashboard (or their intended destination)
+    // Redirect authenticated users to their intended destination
     if (user) {
       redirect(params.next || '/dashboard');
     }
@@ -50,6 +57,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   // Determine redirect URL after login
   const redirectTo = params.next || '/dashboard';
+
+  // Check what intent brought them here
+  const intent = params.intent || null;
 
   // Check for auth error from callback
   const authError = params.error === 'auth_callback_failed'
@@ -73,13 +83,15 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </p>
         </div>
 
-        {/* Login card */}
+        {/* Login card with intent-aware content */}
         <Card className="shadow-lg">
-          <CardHeader className="text-center">
-            <CardTitle className="text-xl">Welcome back</CardTitle>
-            <CardDescription>
-              Sign in to access your brand analyses
-            </CardDescription>
+          <CardHeader className="text-center pb-2">
+            {/* Client component handles intent-aware messaging */}
+            <LoginPageContent
+              intent={intent}
+              redirectTo={redirectTo}
+              authError={authError}
+            />
           </CardHeader>
           <CardContent>
             {/* Error message */}
@@ -89,9 +101,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 <p>{authError}</p>
               </div>
             )}
-
-            {/* Login form */}
-            <LoginForm redirectTo={redirectTo} />
           </CardContent>
         </Card>
 
