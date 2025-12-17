@@ -76,6 +76,16 @@ export async function POST(request: NextRequest): Promise<NextResponse<AnalyzeRe
     // ========================================
 
     const supabase = await createServerClient();
+
+    // Check if Supabase is configured
+    if (!supabase) {
+      log.error('Supabase not configured');
+      return NextResponse.json(
+        { success: false, error: 'Authentication service is not configured' },
+        { status: 503 }
+      );
+    }
+
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
