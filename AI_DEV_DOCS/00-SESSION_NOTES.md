@@ -1,6 +1,6 @@
 # Session Notes for AI Developers
 
-> Last updated: December 17, 2025
+> Last updated: December 18, 2025
 > Status: MVP Core Implementation Complete (Build Passing)
 
 This document provides context for future AI developers working on this codebase. Read this first!
@@ -34,13 +34,13 @@ The MVP core has been implemented with a working build. Here's what exists:
 | Header sign in/out | ✅ Complete | Shows login button or user menu |
 | Route protection middleware | ✅ Complete | Protects /dashboard, /brands, /settings, /analyze |
 | Auth-gated analysis flow | ✅ Complete | Smart login flow preserves user's URL intent |
+| Realtime analysis updates | ✅ Complete | Auto-refresh with Supabase subscriptions + polling fallback |
 
 ### Not Yet Implemented
 
 | Feature | Priority | Notes |
 |---------|----------|-------|
 | Dashboard/brand list page | High | Currently redirects to home |
-| Realtime subscriptions | Medium | Supabase realtime enabled but not wired to UI |
 | Edit forms for analysis data | Medium | View-only currently |
 | Retry failed analyzers | Medium | API exists conceptually |
 | User settings page | Low | |
@@ -238,6 +238,91 @@ When an unauthenticated user tries to analyze a brand, we preserve their intent 
 
 ---
 
+## Realtime Analysis Updates
+
+The brand profile page automatically updates as analyzers complete, without requiring manual refresh.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ARCHITECTURE: Realtime Analysis Updates                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────┐     ┌────────────────────┐     ┌────────────────────┐
+│   Server Component │────▶│  Client Component  │────▶│   React UI         │
+│   (Initial Load)   │     │  (Realtime Sub)    │     │   (Auto-updating)  │
+└────────────────────┘     └────────────────────┘     └────────────────────┘
+                                    │
+                                    │ Supabase Realtime
+                                    │ (WebSocket)
+                                    ▼
+                           ┌────────────────────┐
+                           │   analysis_runs    │
+                           │   (PostgreSQL)     │
+                           └────────────────────┘
+```
+
+### How It Works
+
+1. **Server Component** (`app/brands/[brandId]/page.tsx`)
+   - Fetches initial brand + analysis runs on page load
+   - Provides fast first paint and SEO benefits
+   - Passes data to client component
+
+2. **Client Component** (`components/brands/brand-analysis-content.tsx`)
+   - Receives initial data from server
+   - Uses `useBrandAnalysis` hook for state management
+   - Subscribes to Supabase realtime via `useRealtimeAnalysis`
+
+3. **Realtime Hook** (`hooks/use-realtime-analysis.ts`)
+   - Creates Supabase channel for `analysis_runs` table
+   - Filters by `brand_id` for this specific brand
+   - Handles reconnection with exponential backoff
+   - Falls back to polling if WebSocket fails
+
+4. **Analysis Hook** (`hooks/use-brand-analysis.ts`)
+   - Manages state for analysis runs
+   - Computes derived values (isAnalyzing, isComplete, etc.)
+   - Detects completion transition for celebration UX
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `hooks/use-realtime-analysis.ts` | Supabase realtime subscription hook |
+| `hooks/use-brand-analysis.ts` | Analysis state management hook |
+| `components/brands/brand-analysis-content.tsx` | Client component wrapper |
+| `components/brands/brand-header.tsx` | Brand header (server component) |
+| `components/brands/completion-celebration.tsx` | Toast when analysis completes |
+| `components/brands/connection-status.tsx` | Shows realtime connection status |
+
+### Design Decisions
+
+1. **Server + Client split**: Server component for initial data (SEO, fast first paint), client component for interactivity
+2. **Fallback polling**: If WebSocket fails after 5 reconnect attempts, falls back to 3-second polling
+3. **Completion celebration**: Shows toast when analysis transitions from running → complete
+4. **Connection indicator**: Shows subtle indicator during analysis to reassure users updates are live
+
+### Example Usage
+
+```typescript
+// In a client component:
+const {
+  runs,
+  isAnalyzing,
+  isComplete,
+  justCompleted,
+  acknowledgeCompletion,
+} = useBrandAnalysis({
+  brandId: brand.id,
+  initialRuns: runsFromServer,
+});
+
+// UI automatically updates as analyzers complete
+// justCompleted is true briefly after all complete (for celebration)
+```
+
+---
+
 ## Two-Step AI Pattern Explained
 
 This is the core architectural pattern. Every analyzer uses it:
@@ -401,8 +486,8 @@ Note: Without proper auth setup, you may need to test API routes directly or add
 Priority order for completing MVP:
 
 1. ~~**Auth UI** - Create login/signup pages with Supabase Auth~~ ✅ Done
-2. **Dashboard** - Brand list view at `/dashboard`
-3. **Realtime UI** - Wire up Supabase realtime to show live progress
+2. ~~**Realtime UI** - Wire up Supabase realtime to show live progress~~ ✅ Done
+3. **Dashboard** - Brand list view at `/dashboard`
 4. **Edit forms** - Allow editing parsed data
 5. **Error recovery** - Retry failed analyzers UI
 

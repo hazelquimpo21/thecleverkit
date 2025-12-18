@@ -6,7 +6,7 @@ Paste a URL, get instant brand insights in 60 seconds.
 
 ---
 
-## Implementation Status (December 17, 2025)
+## Implementation Status (December 18, 2025)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
@@ -21,7 +21,7 @@ Paste a URL, get instant brand insights in 60 seconds.
 | Route Protection | ✅ | Middleware protects /dashboard, /brands, /analyze |
 | Auth-Gated Analysis | ✅ | Smart flow preserves URL across login |
 | Dashboard/Brand List | ❌ | Need list view |
-| Realtime Updates | 🔶 | Backend ready, UI needs hook |
+| Realtime Updates | ✅ | Auto-refresh with Supabase subscriptions + fallback polling |
 | Edit Forms | ❌ | View-only currently |
 
 **Build Status**: ✅ Passing
