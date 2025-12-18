@@ -32,7 +32,8 @@ The MVP core has been implemented with a working build. Here's what exists:
 | Auth UI (login page) | ✅ Complete | Magic link authentication |
 | Auth hook (useAuth) | ✅ Complete | User state management |
 | Header sign in/out | ✅ Complete | Shows login button or user menu |
-| Route protection middleware | ✅ Complete | Protects /dashboard, /brands, /settings |
+| Route protection middleware | ✅ Complete | Protects /dashboard, /brands, /settings, /analyze |
+| Auth-gated analysis flow | ✅ Complete | Smart login flow preserves user's URL intent |
 
 ### Not Yet Implemented
 
@@ -63,9 +64,13 @@ The MVP core has been implemented with a working build. Here's what exists:
 | File | Purpose |
 |------|---------|
 | `hooks/use-auth.ts` | Auth hook - provides `user`, `isLoading`, `signOut` |
+| `hooks/use-auth-gate.ts` | Auth gating hook - redirects to login with intent |
+| `lib/utils/auth-intent.ts` | Saves/retrieves analysis intent across login |
 | `components/auth/login-form.tsx` | Magic link login form component |
 | `app/login/page.tsx` | Login page with auth redirect logic |
-| `middleware.ts` | Route protection (protects /dashboard, /brands, /settings) |
+| `app/login/login-page-content.tsx` | Client component for intent-aware login UI |
+| `app/analyze/page.tsx` | Post-login analysis continuation page |
+| `middleware.ts` | Route protection (protects /dashboard, /brands, /settings, /analyze) |
 | `components/layout/header.tsx` | Header with Sign In button / User menu |
 
 ### Core Business Logic
@@ -179,6 +184,57 @@ return createClient<Database>(url, key, {...});
 // app/layout.tsx
 <body className="font-sans antialiased">
 ```
+
+---
+
+## Auth-Gated Analysis Flow
+
+When an unauthenticated user tries to analyze a brand, we preserve their intent across the login flow:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ USER JOURNEY: Unauthenticated → Analyze Brand                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+1. User enters URL on home page, clicks "Analyze Brand"
+   └─→ useAuthGate hook detects user is not authenticated
+       └─→ saveAnalysisIntent() stores URL to localStorage
+           └─→ Redirect to /login?next=/analyze&intent=analyze
+
+2. Login page detects intent=analyze
+   └─→ LoginPageContent reads intent from localStorage
+       └─→ Shows custom message: "Sign in to continue analyzing [URL]"
+
+3. User signs in via magic link
+   └─→ Auth callback redirects to /analyze (the 'next' param)
+
+4. /analyze page loads (protected route, user now authenticated)
+   └─→ AnalyzeContinuation reads intent from localStorage
+       └─→ Shows URL with "Start Analysis" button
+           └─→ User can edit URL or cancel
+
+5. User clicks "Start Analysis"
+   └─→ Calls /api/brands/analyze
+       └─→ clearAnalysisIntent() clears localStorage
+           └─→ Redirect to /brands/{brandId}
+```
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `lib/utils/auth-intent.ts` | Save/load/clear analysis intent (localStorage) |
+| `hooks/use-auth-gate.ts` | Hook to gate actions behind auth |
+| `components/brands/add-brand-form.tsx` | Uses useAuthGate to check auth on submit |
+| `app/login/login-page-content.tsx` | Shows intent-aware login UI |
+| `app/analyze/analyze-continuation.tsx` | Post-login continuation flow |
+
+### Design Decisions
+
+1. **localStorage over URL params**: URL params can leak sensitive URLs in referrers/logs
+2. **30-minute expiry**: Intent expires after 30 min to prevent stale data
+3. **User can edit**: After login, user sees their URL and can change it
+4. **Graceful degradation**: If localStorage unavailable, flow still works (just loses the URL)
 
 ---
 

@@ -8,6 +8,7 @@
  * - /dashboard
  * - /brands/*
  * - /settings
+ * - /analyze (post-login analysis continuation)
  *
  * Public routes:
  * - / (home)
@@ -30,6 +31,7 @@ const PROTECTED_ROUTES = [
   '/dashboard',
   '/brands',
   '/settings',
+  '/analyze',
 ];
 
 /**

@@ -50,6 +50,37 @@
 
 ---
 
+### US-004: Auth-Gated Brand Analysis ✅ IMPLEMENTED
+
+**As a** visitor trying to analyze a brand without logging in
+**I want to** have my intended URL preserved across the login flow
+**So that** I don't have to re-enter it after signing in
+
+**Acceptance Criteria:**
+- [x] Form accepts URL input from unauthenticated users
+- [x] Clicking "Analyze Brand" saves URL to localStorage
+- [x] User is redirected to login with intent=analyze parameter
+- [x] Login page shows intent-aware message ("Sign in to continue analyzing [URL]")
+- [x] After login, user lands on /analyze continuation page
+- [x] Continuation page shows saved URL with confirm/edit/cancel options
+- [x] Confirming starts the analysis and clears saved intent
+- [x] Intent expires after 30 minutes for security
+- [x] Graceful fallback if localStorage unavailable
+
+**UI Notes:**
+- Subtle hint on form: "You'll sign in after clicking to save your analysis"
+- Login page shows the URL being analyzed
+- Continuation page has prominent "Start Analysis" button
+- User can edit URL or cancel before starting
+
+**Implementation Files:**
+- `lib/utils/auth-intent.ts` - localStorage utilities
+- `hooks/use-auth-gate.ts` - auth gating hook
+- `app/analyze/` - continuation page
+- `app/login/login-page-content.tsx` - intent-aware login UI
+
+---
+
 ## Epic: Brand Management
 
 ### US-010: View Dashboard (Empty State)
@@ -263,7 +294,36 @@
 
 ## User Flow Diagrams
 
-### New User First Brand Flow
+### New User First Brand Flow (Starting from Home Page) ✅ IMPLEMENTED
+```
+Home Page (not logged in)
+    │
+    ▼
+Enter URL in form, click "Analyze Brand"
+    │
+    ▼
+URL saved to localStorage
+    │
+    ▼
+Redirect to /login?intent=analyze
+    │
+    ▼
+Login page shows: "Sign in to continue analyzing [URL]"
+    │
+    ▼
+Sign in via magic link
+    │
+    ▼
+Redirect to /analyze (continuation page)
+    │
+    ▼
+See saved URL, click "Start Analysis"
+    │
+    ▼
+Brand Profile (analysis in progress)
+```
+
+### New User First Brand Flow (Starting from Login)
 ```
 Landing/Login
     │

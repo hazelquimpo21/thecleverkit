@@ -18,7 +18,8 @@ Paste a URL, get instant brand insights in 60 seconds.
 | Brand Profile Page | ✅ | Shows all analysis results |
 | Add Brand Form | ✅ | URL input, triggers full pipeline |
 | Auth UI | ✅ | Login page with magic link, header sign in/out |
-| Route Protection | ✅ | Middleware protects /dashboard, /brands |
+| Route Protection | ✅ | Middleware protects /dashboard, /brands, /analyze |
+| Auth-Gated Analysis | ✅ | Smart flow preserves URL across login |
 | Dashboard/Brand List | ❌ | Need list view |
 | Realtime Updates | 🔶 | Backend ready, UI needs hook |
 | Edit Forms | ❌ | View-only currently |

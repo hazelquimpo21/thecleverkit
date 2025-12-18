@@ -6,3 +6,4 @@
  */
 
 export { useAuth } from './use-auth';
+export { useAuthGate } from './use-auth-gate';
