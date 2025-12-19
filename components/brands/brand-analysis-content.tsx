@@ -10,18 +10,23 @@
  * - Completion celebration animation
  * - Connection status indicator
  * - Realtime header status updates (analyzing pill)
+ * - Tabs for Overview and Docs views
+ *
+ * @update 2025-12-19 - Added tabs for docs feature integration
  */
 
 'use client';
 
-import { useMemo, useRef } from 'react';
-import { useBrandAnalysis } from '@/hooks';
+import { useState, useMemo, useRef } from 'react';
+import { useBrandAnalysis, useBrandDocs } from '@/hooks';
 import { extractDomain } from '@/lib/utils/format';
 import { ProgressList } from '@/components/analysis/progress-list';
 import { BasicsCard } from '@/components/analysis/cards/basics-card';
 import { CustomerCard } from '@/components/analysis/cards/customer-card';
 import { ProductsCard } from '@/components/analysis/cards/products-card';
+import { DocsTabContent } from '@/components/docs';
 import { BrandHeader } from './brand-header';
+import { ProfileTabs, type ProfileTab } from './profile-tabs';
 import { CompletionCelebration } from './completion-celebration';
 import { ConnectionStatus } from './connection-status';
 import type { AnalysisRun, Brand } from '@/types';
@@ -60,6 +65,9 @@ export function BrandAnalysisContent({
   initialRuns,
   initialDisplayName,
 }: BrandAnalysisContentProps) {
+  // Tab state
+  const [activeTab, setActiveTab] = useState<ProfileTab>('overview');
+
   // Track if we had initial runs that were analyzing
   const wasInitiallyAnalyzing = useRef(
     initialRuns.some((r) =>
@@ -80,6 +88,10 @@ export function BrandAnalysisContent({
     brandId: brand.id,
     initialRuns,
   });
+
+  // Hook for docs count (for tab badge)
+  const { data: docs } = useBrandDocs(brand.id);
+  const docsCount = docs?.filter(d => d.status === 'complete').length ?? 0;
 
   // Extract runs for each analyzer type
   const basicsRun = getRunByType('basics');
@@ -128,6 +140,65 @@ export function BrandAnalysisContent({
         <CompletionCelebration onDismiss={acknowledgeCompletion} />
       )}
 
+      {/* Tab Navigation */}
+      <ProfileTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        docsCount={docsCount}
+      />
+
+      {/* Tab Content */}
+      {activeTab === 'overview' ? (
+        <OverviewContent
+          runs={runs}
+          isAnalyzing={isAnalyzing}
+          isRealtimeConnected={isRealtimeConnected}
+          isPolling={isPolling}
+          basicsData={basicsData}
+          customerData={customerData}
+          productsData={productsData}
+          basicsLoading={basicsLoading}
+          customerLoading={customerLoading}
+          productsLoading={productsLoading}
+        />
+      ) : (
+        <DocsTabContent brandId={brand.id} runs={runs} />
+      )}
+    </>
+  );
+}
+
+// ============================================================================
+// OVERVIEW CONTENT (extracted for readability)
+// ============================================================================
+
+interface OverviewContentProps {
+  runs: AnalysisRun[];
+  isAnalyzing: boolean;
+  isRealtimeConnected: boolean;
+  isPolling: boolean;
+  basicsData: ParsedBasics | null;
+  customerData: ParsedCustomer | null;
+  productsData: ParsedProducts | null;
+  basicsLoading: boolean;
+  customerLoading: boolean;
+  productsLoading: boolean;
+}
+
+function OverviewContent({
+  runs,
+  isAnalyzing,
+  isRealtimeConnected,
+  isPolling,
+  basicsData,
+  customerData,
+  productsData,
+  basicsLoading,
+  customerLoading,
+  productsLoading,
+}: OverviewContentProps) {
+  return (
+    <>
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Progress & Status */}
@@ -160,7 +231,7 @@ export function BrandAnalysisContent({
         </div>
       </div>
 
-      {/* Status message at bottom (no longer needed - auto updates) */}
+      {/* Status message at bottom */}
       {isAnalyzing && (
         <div className="mt-8 text-center">
           <p className="text-sm text-stone-500">
