@@ -10,6 +10,8 @@
  * - Extracts metadata (title, description)
  */
 
+import { decodeHtmlEntities } from '@/lib/utils/format';
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -149,46 +151,8 @@ function extractMetaDescription(html: string): string | null {
 // CLEANING UTILITIES
 // ============================================================================
 
-/**
- * Decode common HTML entities.
- */
-function decodeHtmlEntities(text: string): string {
-  const entities: Record<string, string> = {
-    '&nbsp;': ' ',
-    '&amp;': '&',
-    '&lt;': '<',
-    '&gt;': '>',
-    '&quot;': '"',
-    '&#39;': "'",
-    '&apos;': "'",
-    '&copy;': '(c)',
-    '&reg;': '(R)',
-    '&trade;': '(TM)',
-    '&mdash;': '—',
-    '&ndash;': '–',
-    '&hellip;': '...',
-    '&bull;': '•',
-    '&rsquo;': "'",
-    '&lsquo;': "'",
-    '&rdquo;': '"',
-    '&ldquo;': '"',
-  };
-
-  let result = text;
-  for (const [entity, replacement] of Object.entries(entities)) {
-    result = result.replace(new RegExp(entity, 'gi'), replacement);
-  }
-
-  // Handle numeric entities
-  result = result.replace(/&#(\d+);/g, (_, num) =>
-    String.fromCharCode(parseInt(num, 10))
-  );
-  result = result.replace(/&#x([0-9a-f]+);/gi, (_, hex) =>
-    String.fromCharCode(parseInt(hex, 16))
-  );
-
-  return result;
-}
+// Note: decodeHtmlEntities is imported from @/lib/utils/format
+// to avoid duplication and ensure consistent entity handling
 
 /**
  * Clean up whitespace in text.

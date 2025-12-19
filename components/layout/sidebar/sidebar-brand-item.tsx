@@ -11,7 +11,7 @@
 
 import Link from 'next/link';
 import { cn } from '@/lib/utils/cn';
-import { extractDomain } from '@/lib/utils/format';
+import { extractDomain, decodeHtmlEntities } from '@/lib/utils/format';
 import type { BrandWithAnalyses } from '@/types';
 import type { ParsedBasics } from '@/types/analyzers';
 
@@ -65,24 +65,36 @@ function getBrandStatus(brand: BrandWithAnalyses): BrandStatus {
 /**
  * Get display name for a brand.
  * Priority: brand.name > parsed business_name > domain
+ * 
+ * Note: Decodes HTML entities to handle cases where AI extraction
+ * or scraped content contains encoded characters (e.g., &#8211; &amp;)
  */
 function getBrandDisplayName(brand: BrandWithAnalyses): string {
+  let rawName: string | null = null;
+
   // Check if we have a manual name
   if (brand.name) {
-    return brand.name;
+    rawName = brand.name;
   }
 
   // Try to get business_name from basics analyzer
-  const basicsRun = brand.analysis_runs?.find(r => r.analyzer_type === 'basics');
-  if (basicsRun?.status === 'complete' && basicsRun.parsed_data) {
-    const basicsData = basicsRun.parsed_data as ParsedBasics;
-    if (basicsData.business_name) {
-      return basicsData.business_name;
+  if (!rawName) {
+    const basicsRun = brand.analysis_runs?.find(r => r.analyzer_type === 'basics');
+    if (basicsRun?.status === 'complete' && basicsRun.parsed_data) {
+      const basicsData = basicsRun.parsed_data as ParsedBasics;
+      if (basicsData.business_name) {
+        rawName = basicsData.business_name;
+      }
     }
   }
 
-  // Fall back to domain
-  return extractDomain(brand.source_url);
+  // Fall back to domain (no decoding needed for domains)
+  if (!rawName) {
+    return extractDomain(brand.source_url);
+  }
+
+  // Decode HTML entities and clean up the name
+  return decodeHtmlEntities(rawName).trim();
 }
 
 // ============================================================================

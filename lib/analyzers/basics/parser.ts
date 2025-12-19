@@ -9,6 +9,7 @@
 
 import type { ParserDefinition } from '../types';
 import type { ParsedBasics } from './types';
+import { decodeHtmlEntities } from '@/lib/utils/format';
 
 export const parser: ParserDefinition<ParsedBasics> = {
   // System prompt for the parsing step
@@ -66,15 +67,16 @@ For required fields, make your best inference from context.`,
   },
 
   // Post-processing to clean up the output
+  // Decodes HTML entities that may come from scraped content or AI responses
   postProcess: (raw: ParsedBasics): ParsedBasics => {
     return {
       ...raw,
-      // Ensure business name is trimmed and not empty
-      business_name: raw.business_name?.trim() || 'Unknown Business',
-      // Trim other string fields
-      industry: raw.industry?.trim() || 'Unknown',
-      business_description: raw.business_description?.trim() || '',
-      founder_name: raw.founder_name?.trim() || null,
+      // Decode HTML entities and ensure business name is trimmed and not empty
+      business_name: decodeHtmlEntities(raw.business_name?.trim() || '') || 'Unknown Business',
+      // Trim and decode other string fields
+      industry: decodeHtmlEntities(raw.industry?.trim() || '') || 'Unknown',
+      business_description: decodeHtmlEntities(raw.business_description?.trim() || ''),
+      founder_name: raw.founder_name ? decodeHtmlEntities(raw.founder_name.trim()) : null,
       founded_year: raw.founded_year?.trim() || null,
     };
   },
