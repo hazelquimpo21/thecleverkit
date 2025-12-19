@@ -4,6 +4,28 @@
 > **Created**: December 19, 2025
 > **Completed**: December 19, 2025
 
+---
+
+## 🎨 UI REDESIGN: TEMPLATE STORE
+
+The docs feature is being enhanced with a **Template Store** experience as part of the UI redesign. This transforms the utilitarian "doc templates" concept into a delightful gallery experience.
+
+**Key changes in redesign:**
+- **New "Store" tab** on brand profile (alongside Overview and Documents)
+- **Gallery-style template cards** with illustrations
+- **Category organization** (Strategy, Audience, Content, Sales)
+- **Generation history** shown on template cards ("Generated 2x")
+- **Coming Soon states** for planned templates
+
+**See these docs for full redesign details:**
+- `17-TEMPLATE-STORE.md` — Complete store feature specification
+- `15-REDESIGN-VISION.md` — Design philosophy and visual specs
+- `16-REDESIGN-TASKS.md` — Implementation tasks
+
+The content below describes the **current implementation**. The Template Store builds on top of this foundation.
+
+---
+
 ## Overview
 
 The docs feature allows users to generate useful documents from their brand's analyzed data. Documents like the "Golden Circle" (Simon Sinek's Why/How/What framework) help users articulate brand strategy based on the intelligence we've already gathered.
@@ -29,15 +51,23 @@ The docs feature allows users to generate useful documents from their brand's an
 
 ### Where do docs live?
 
-**Decision**: Docs tab on the brand profile page.
+**Decision**: Tabs on the brand profile page.
 
 ```
 /brands/[brandId]
-├── Overview (current view - the three analyzer cards)
-└── Docs (new tab)
+├── Overview (analyzer cards)
+├── Documents (generated docs list)      ← NEW in redesign
+└── Store (template gallery)             ← NEW in redesign
 ```
 
-**Why**: Simple mental model — "everything about this brand is here." We can add a global `/docs` view later when users have enough docs to need cross-brand browsing.
+**Current implementation** uses two tabs (Overview / Docs).
+
+**Redesign** splits into three tabs:
+- **Overview**: Analyzer cards (Business Basics, Customer Profile, Products)
+- **Documents**: List of generated docs with view/export actions
+- **Store**: Template gallery for browsing and generating new docs
+
+**Why**: Simple mental model — "everything about this brand is here." We can add a global `/store` view later when users want to browse all available templates.
 
 ### How do users find available docs?
 
@@ -623,16 +653,55 @@ To add a new doc template:
 5. Add template ID to `types/docs.ts` DocTemplateId union
 6. Export from `lib/docs/index.ts`
 
+### Template Registry Extension (for Store)
+
+The Template Store requires extending the template config with additional fields:
+
+```typescript
+// Extended config for Template Store (see 17-TEMPLATE-STORE.md)
+export type DocTemplateConfig = {
+  // Existing fields
+  id: string;
+  name: string;
+  description: string;
+  icon: LucideIcon;
+  requiredAnalyzers: AnalyzerType[];
+  requiredFields?: {...};
+
+  // New fields for Template Store
+  shortDescription: string;           // 2 lines max for card display
+  category: 'strategy' | 'audience' | 'content' | 'sales';
+  status: 'available' | 'coming_soon';
+  illustrationComponent?: React.ComponentType;  // Custom illustration
+};
+```
+
+**Categories:**
+- `strategy` — Brand strategy and positioning (Golden Circle, Brand Brief)
+- `audience` — Customer and audience insights (Customer Persona)
+- `content` — Content strategy and messaging (Content Pillars)
+- `sales` — Sales enablement materials (Elevator Pitch)
+
 ---
 
 ## Related Documentation
 
+**Redesign (new UI for docs/store):**
+- `15-REDESIGN-VISION.md` - Design philosophy, color palette, component specs
+- `16-REDESIGN-TASKS.md` - Implementation task breakdown
+- `17-TEMPLATE-STORE.md` - Template store feature specification
+
+**Architecture & Data:**
 - `02-ARCHITECTURE.md` - Overall system design
 - `03-DATA_MODEL.md` - Database schema
 - `04-USER_STORIES.md` - User stories for docs
-- `08-UI_COMPONENTS.md` - UI patterns for docs
 - `09-FILE_STRUCTURE.md` - Where doc files go
 - `10-API_PATTERNS.md` - API and hook patterns
-- `11-IMPLEMENTATION_ROADMAP.md` - Phase 12 checklist
+
+**UI & Implementation:**
+- `08-UI_COMPONENTS.md` - UI patterns for docs
+- `11-IMPLEMENTATION_ROADMAP.md` - Phase 12 (docs) and Phase 17 (redesign) checklists
+
+**Integrations:**
 - `13-GOOGLE_DOCS_EXPORT.md` - Google Docs export implementation plan
 - `14-GOOGLE_CLOUD_SETUP.md` - Step-by-step Google Cloud setup guide
