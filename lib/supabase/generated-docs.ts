@@ -64,8 +64,9 @@ export async function createGeneratedDoc(
       return { doc: null, error: error.message };
     }
 
-    log.success('Generated doc created', { docId: data.id });
-    return { doc: data as GeneratedDoc, error: null };
+    const typedDoc = data as GeneratedDoc;
+    log.success('Generated doc created', { docId: typedDoc.id });
+    return { doc: typedDoc, error: null };
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     log.error('Exception creating generated doc', { error: message });

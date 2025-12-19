@@ -127,8 +127,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateR
       );
     }
 
+    // Cast to proper type for TypeScript
+    const typedBrand = brand as Brand;
+
     // Verify ownership (RLS should handle this, but double-check)
-    if ((brand as Brand).user_id !== user.id) {
+    if (typedBrand.user_id !== user.id) {
       log.warn('Brand ownership mismatch', { brandId, userId: user.id });
       return NextResponse.json(
         { success: false, error: 'Brand not found' },
@@ -136,7 +139,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateR
       );
     }
 
-    log.info('Brand verified', { brandId, name: brand.name });
+    log.info('Brand verified', { brandId, name: typedBrand.name });
 
     // ========================================
     // 4. Check data readiness
@@ -177,9 +180,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateR
     // Determine brand name (fallback chain)
     const basicsRun = runs.find(r => r.analyzer_type === 'basics' && r.status === 'complete');
     const basicsData = basicsRun?.parsed_data as { business_name?: string } | null;
-    const brandName = (brand as Brand).name || basicsData?.business_name || 'Unknown Brand';
+    const brandName = typedBrand.name || basicsData?.business_name || 'Unknown Brand';
 
-    const brandData = buildBrandDataFromRuns(brandName, (brand as Brand).source_url, runs);
+    const brandData = buildBrandDataFromRuns(brandName, typedBrand.source_url, runs);
 
     // ========================================
     // 6. Create doc record (generating status)

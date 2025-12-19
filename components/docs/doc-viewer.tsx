@@ -119,7 +119,7 @@ export function DocViewer({ doc, onClose }: DocViewerProps) {
 
       <CardContent className="pt-0">
         {isGoldenCircle && content ? (
-          <GoldenCircleViewer content={content as GoldenCircleContent} />
+          <GoldenCircleViewer content={content as unknown as GoldenCircleContent} />
         ) : (
           <GenericContentViewer content={content} />
         )}
