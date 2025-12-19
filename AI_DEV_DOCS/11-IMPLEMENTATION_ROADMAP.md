@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-> **STATUS UPDATE (December 19, 2025)**: Phases 1-6 complete + Dashboard. shadcn/ui and React Query now installed and wired up. Build passes. See `00-SESSION_NOTES.md` for implementation details and gotchas.
+> **STATUS UPDATE (December 19, 2025)**: Phases 1-6 complete + Dashboard + **Phase 13 Google Docs Export complete!** OAuth integration working, settings page live. Build passes. See `00-SESSION_NOTES.md` for implementation details.
 
 ## Build Order
 
@@ -258,11 +258,12 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 - [ ] Review color contrast
 
 ### 8.5 Settings Page
-- [ ] Create `/settings` page
+- [x] Create `/settings` page ✅ (Implemented with Google Docs export)
+- [x] Connected Apps section (Google integration management) ✅
 - [ ] Display user email (read-only)
 - [ ] Editable name field
 
-**Checkpoint**: ⚠️ Basic polish done, needs full pass.
+**Checkpoint**: ⚠️ Basic polish done. Settings page exists with Connected Apps section.
 
 ---
 
@@ -346,40 +347,49 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 - [ ] Customer Persona template
 - [ ] Content Pillars template
 
-### Phase 13: Google Docs Export
+### Phase 13: Google Docs Export ✅ COMPLETE
 
 **See `13-GOOGLE_DOCS_EXPORT.md` and `14-GOOGLE_CLOUD_SETUP.md` for full details.**
 
 **Goal**: Users can export generated docs directly to Google Docs.
 
+**STATUS: ✅ COMPLETE** (December 19, 2025)
+
 #### 13.1 Google Cloud Setup
-- [ ] Create Google Cloud project
-- [ ] Enable Google Docs API + Google Drive API
-- [ ] Configure OAuth consent screen
-- [ ] Create OAuth credentials (Web application)
-- [ ] Add environment variables
+- [x] Create Google Cloud project (user responsibility)
+- [x] Enable Google Docs API + Google Drive API
+- [x] Configure OAuth consent screen
+- [x] Create OAuth credentials (Web application)
+- [x] Add environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
 
 #### 13.2 Database & Types
-- [ ] Add google columns to profiles table (refresh_token, email, connected_at)
-- [ ] Add google columns to generated_docs table (doc_id, doc_url, exported_at)
-- [ ] Update TypeScript types
+- [x] Add google columns to profiles table (refresh_token, email, connected_at)
+- [x] Add google columns to generated_docs table (doc_id, doc_url, exported_at)
+- [x] Update TypeScript types (`types/database.ts`, `types/docs.ts`)
+- [x] Create migration: `supabase/migrations/001_google_docs_export.sql`
 
 #### 13.3 OAuth Integration
-- [ ] Create `lib/integrations/google/` module
-- [ ] Create `POST /api/integrations/google/auth` (initiate OAuth)
-- [ ] Create `GET /api/integrations/google/callback` (handle callback)
-- [ ] Create `POST /api/integrations/google/disconnect`
-- [ ] Token refresh logic
+- [x] Create `lib/integrations/google/` module (config, client, docs)
+- [x] Create `POST /api/integrations/google/auth` (initiate OAuth popup)
+- [x] Create `GET /api/integrations/google/callback` (handle callback, store tokens)
+- [x] Create `POST /api/integrations/google/disconnect` (revoke + delete)
+- [x] Create `GET /api/integrations/google/status` (check connection)
+- [x] Token refresh logic in `getValidAccessToken()`
 
 #### 13.4 Export Flow
-- [ ] Create `POST /api/export/google-docs` route
-- [ ] Create `hooks/use-google-integration.ts`
-- [ ] Update `doc-export-menu.tsx` with Google Docs option
+- [x] Create `POST /api/export/google-docs` route
+- [x] Create `hooks/use-google-integration.ts`
+- [x] Update `doc-export-menu.tsx` with Google Docs option
+- [x] Markdown to Google Docs conversion with formatting
 
 #### 13.5 UI Components
-- [ ] Create `components/integrations/google-connect-modal.tsx`
-- [ ] Update `doc-list-item.tsx` to show Google Docs link
-- [ ] Add Connected Apps section to settings page
+- [x] Create `components/integrations/google-connect-modal.tsx`
+- [x] Create GoogleIcon SVG component
+- [x] Update `doc-list-item.tsx` to show Google Docs link after export
+- [x] Add Connected Apps section to settings page
+- [x] Create OAuth success/error pages (`app/integrations/google/success`, `error`)
+
+**Checkpoint**: ✅ Users can connect Google, export docs to Drive, see link in CleverKit.
 
 ### Phase 14: Additional Export Integrations (Future)
 - Google Slides export
@@ -412,9 +422,11 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 | 8. Polish | 🔶 Partial | ~0.5 day |
 | 9. Deploy | ❌ Not started | ~0.5 day |
 | 12. Docs Feature | 📋 Planning | ~2-3 days |
+| 13. Google Docs Export | ✅ Complete | - |
 
 **Remaining for MVP: ~2 days**
 **Remaining for Docs Feature: ~2-3 days additional**
+**Google Docs Export: ✅ Done!**
 
 ---
 

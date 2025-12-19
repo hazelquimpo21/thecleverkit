@@ -24,8 +24,9 @@ Paste a URL, get instant brand insights in 60 seconds. Generate docs from your b
 | React Query | ✅ | Provider + hooks wired up |
 | Dashboard/Brand List | ✅ | Brand cards, empty state, delete |
 | Realtime Updates | ✅ | Auto-refresh with Supabase subscriptions + fallback polling |
+| **Settings Page** | ✅ | Connected Apps management |
+| **Google Docs Export** | ✅ | OAuth integration, save to Drive, link in app |
 | **Docs Feature** | 📋 | In planning - Golden Circle, Brand Brief |
-| **Google Docs Export** | 📋 | In planning - OAuth integration, save to Drive |
 | Edit Forms | ❌ | View-only currently |
 
 **Build Status**: ✅ Passing
@@ -136,9 +137,13 @@ thecleverkit/
 │   ├── layout.tsx               # Root layout
 │   ├── page.tsx                 # Home page (add brand form)
 │   ├── globals.css              # Global styles
+│   ├── settings/                # Settings page + Connected Apps
+│   ├── integrations/google/     # OAuth success/error pages
 │   ├── api/
 │   │   ├── auth/callback/       # Supabase auth callback
-│   │   └── brands/analyze/      # Main analysis endpoint
+│   │   ├── brands/analyze/      # Main analysis endpoint
+│   │   ├── integrations/google/ # Google OAuth routes
+│   │   └── export/google-docs/  # Export to Google Docs
 │   └── brands/
 │       └── [brandId]/           # Brand detail page
 │
@@ -157,6 +162,8 @@ thecleverkit/
 │   │   ├── products/            # Products & pricing
 │   │   ├── runner.ts            # Orchestration
 │   │   └── types.ts             # Shared types
+│   ├── integrations/            # Third-party OAuth (Google, etc.)
+│   │   └── google/              # Google OAuth + Docs API
 │   ├── scrapers/
 │   │   └── web-homepage/        # URL scraper
 │   ├── supabase/                # Database clients & helpers
@@ -309,7 +316,9 @@ Start analysis for a new brand.
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public key | Yes |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service key (server only) | Yes |
 | `OPENAI_API_KEY` | OpenAI API key | Yes |
-| `NEXT_PUBLIC_APP_URL` | App URL for callbacks | No |
+| `NEXT_PUBLIC_APP_URL` | App URL for callbacks | Yes |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID | For Google Docs export |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | For Google Docs export |
 
 ---
 
@@ -413,6 +422,13 @@ const args = toolCall.function.arguments; // Now safe
 3. Add to DB enum: `ALTER TYPE analyzer_type ADD VALUE 'name';`
 4. Create UI card in `components/analysis/cards/`
 
+### 5. Supabase Join Type Casting
+When using joins, Supabase loses type info:
+```typescript
+// Cast the result to the proper type
+const typedDoc = doc as unknown as GeneratedDoc & { brands: { user_id: string } };
+```
+
 ---
 
 ## AI Developer Documentation
@@ -423,8 +439,10 @@ Full documentation for AI developers working on this codebase:
 |----------|---------|
 | `AI_DEV_DOCS/00-SESSION_NOTES.md` | **Start here** - Implementation status, gotchas, fixes |
 | `AI_DEV_DOCS/01-PROJECT_OVERVIEW.md` | What the app does, who it's for |
-| `AI_DEV_DOCS/02-ARCHITECTURE.md` | System design, data flow |
+| `AI_DEV_DOCS/02-ARCHITECTURE.md` | System design, data flow, **integrations architecture** |
 | `AI_DEV_DOCS/05-ANALYZERS.md` | Deep dive on analyzer architecture |
 | `AI_DEV_DOCS/09-FILE_STRUCTURE.md` | Where things go, naming conventions |
 | `AI_DEV_DOCS/11-IMPLEMENTATION_ROADMAP.md` | Checklist with completion status |
-| `AI_DEV_DOCS/12-DOCS_FEATURE.md` | **Docs feature implementation plan** |
+| `AI_DEV_DOCS/12-DOCS_FEATURE.md` | Docs feature implementation plan |
+| `AI_DEV_DOCS/13-GOOGLE_DOCS_EXPORT.md` | **Google Docs export (✅ implemented)** |
+| `AI_DEV_DOCS/14-GOOGLE_CLOUD_SETUP.md` | Google Cloud setup guide for OAuth |

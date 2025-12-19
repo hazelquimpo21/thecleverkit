@@ -1,6 +1,6 @@
 # File Structure
 
-> **Updated December 19, 2025**: Added docs feature folder structure. Dashboard implemented.
+> **Updated December 19, 2025**: Added Google Docs export integration. Settings page + integrations module implemented.
 
 ## Overview
 
@@ -42,8 +42,14 @@ clever-kit/
 │   ├── dashboard/
 │   │   └── page.tsx                  ← Brand list view ✅
 │   │
-│   ├── settings/                     ← (planned)
-│   │   └── page.tsx                  ← User settings
+│   ├── settings/                     ← ✅ IMPLEMENTED
+│   │   ├── page.tsx                  ← User settings page ✅
+│   │   └── connected-apps-section.tsx ← Google integration management ✅
+│   │
+│   ├── integrations/                 ← ✅ IMPLEMENTED (OAuth flows)
+│   │   └── google/
+│   │       ├── success/page.tsx      ← OAuth success (closes popup) ✅
+│   │       └── error/page.tsx        ← OAuth error page ✅
 │   │
 │   └── api/
 │       ├── auth/
@@ -52,6 +58,17 @@ clever-kit/
 │       ├── brands/
 │       │   └── analyze/
 │       │       └── route.ts          ← Main analysis endpoint ✅
+│       │
+│       ├── integrations/             ← ✅ IMPLEMENTED (Google OAuth)
+│       │   └── google/
+│       │       ├── auth/route.ts     ← POST: Initiate OAuth flow ✅
+│       │       ├── callback/route.ts ← GET: Handle OAuth callback ✅
+│       │       ├── disconnect/route.ts ← POST: Revoke & delete tokens ✅
+│       │       └── status/route.ts   ← GET: Check connection status ✅
+│       │
+│       ├── export/                   ← ✅ IMPLEMENTED
+│       │   └── google-docs/route.ts  ← POST: Export doc to Google Docs ✅
+│       │
 │       └── docs/                     ← (planned)
 │           └── generate/
 │               └── route.ts          ← Doc generation endpoint
@@ -109,13 +126,17 @@ clever-kit/
 │   │   ├── profile-header.tsx        ← Brand name, URL, actions
 │   │   └── profile-tabs.tsx          ← Overview / Docs tab navigation (planned)
 │   │
-│   └── docs/                         ← Document generation (planned)
+│   ├── integrations/                 ← ✅ IMPLEMENTED
+│   │   ├── google-connect-modal.tsx  ← First-time Google OAuth connect modal ✅
+│   │   └── index.ts                  ← Exports GoogleConnectModal, GoogleIcon ✅
+│   │
+│   └── docs/                         ← Document generation (partial)
 │       ├── doc-template-card.tsx     ← Single template in grid
 │       ├── doc-template-grid.tsx     ← Grid of available templates
 │       ├── doc-list.tsx              ← User's generated docs
-│       ├── doc-list-item.tsx         ← Single doc in list
+│       ├── doc-list-item.tsx         ← Single doc in list (+ Google Docs link ✅)
 │       ├── doc-viewer.tsx            ← Renders doc content
-│       ├── doc-export-menu.tsx       ← Export dropdown (copy, PDF)
+│       ├── doc-export-menu.tsx       ← Export dropdown (+ Google Docs option ✅)
 │       ├── readiness-badge.tsx       ← "Ready" or "Needs data" indicator
 │       └── missing-data-dialog.tsx   ← Shows what's needed for template
 │
@@ -175,6 +196,15 @@ clever-kit/
 │   │       ├── brand-brief/          ← (future)
 │   │       └── customer-persona/     ← (future)
 │   │
+│   ├── integrations/                 ← ✅ IMPLEMENTED (Google OAuth)
+│   │   ├── types.ts                  ← Shared IntegrationStatus type ✅
+│   │   ├── index.ts                  ← Exports ✅
+│   │   └── google/
+│   │       ├── config.ts             ← OAuth config, scopes, URLs ✅
+│   │       ├── client.ts             ← Token management (exchange, refresh) ✅
+│   │       ├── docs.ts               ← Google Docs API (create doc) ✅
+│   │       └── index.ts              ← Exports ✅
+│   │
 │   ├── supabase/
 │   │   ├── client.ts                 ← Browser client
 │   │   ├── server.ts                 ← Server client
@@ -198,6 +228,7 @@ clever-kit/
 │   ├── use-auth.ts                   ← Auth hook (user, isLoading, signOut) ✅
 │   ├── use-auth-gate.ts              ← Auth gating hook (redirects to login) ✅
 │   ├── use-brands.ts                 ← TanStack Query: brands + mutations ✅
+│   ├── use-google-integration.ts     ← Google OAuth status + connect/disconnect ✅
 │   ├── use-docs.ts                   ← TanStack Query: docs + mutations (planned)
 │   ├── use-doc-readiness.ts          ← Check template data requirements (planned)
 │   └── index.ts                      ← Hook exports ✅
@@ -316,6 +347,10 @@ OPENAI_API_KEY=sk-xxx           # Server-side only
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Google OAuth (for Google Docs export) ✅ IMPLEMENTED
+GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=xxx
 ```
 
 ## Adding New Features
@@ -364,3 +399,15 @@ export const config: DocTemplateConfig = {
   },
 };
 ```
+
+### New Integration (e.g., Notion)
+
+Follow the Google OAuth pattern:
+
+1. Create folder: `lib/integrations/{name}/`
+2. Add files: `config.ts`, `client.ts`, `{api}.ts`, `index.ts`
+3. Add API routes: `app/api/integrations/{name}/auth`, `callback`, `disconnect`, `status`
+4. Add export route: `app/api/export/{name}/route.ts`
+5. Create hook: `hooks/use-{name}-integration.ts`
+6. Add UI components: `components/integrations/{name}-connect-modal.tsx`
+7. Add to settings page: Update `connected-apps-section.tsx`

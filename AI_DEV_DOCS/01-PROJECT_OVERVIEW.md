@@ -1,6 +1,6 @@
 # The Clever Kit — Project Overview
 
-> **Implementation Status (December 19, 2025)**: Core MVP complete with Dashboard. Docs feature in planning (see `12-DOCS_FEATURE.md`). Build passes. See `00-SESSION_NOTES.md` for details.
+> **Implementation Status (December 19, 2025)**: Core MVP complete with Dashboard + Google Docs Export. Build passes. See `00-SESSION_NOTES.md` for details.
 
 ## What Is This?
 
@@ -44,9 +44,11 @@ Instead of manually combing through a website taking notes, The Clever Kit does 
 - [x] Realtime UI updates (Supabase subscriptions + polling fallback)
 - [x] Delete brands with confirmation
 - [x] Auth-gated analysis flow (URL preserved across login)
+- [x] **Google Docs Export** — OAuth integration + export to user's Drive
+- [x] **Settings page** — Connected Apps management
 
 ### In Progress 🔶
-- [ ] **Docs Feature** — Generate documents from brand intelligence (see `12-DOCS_FEATURE.md`)
+- [ ] **Docs Feature Templates** — Generate documents from brand intelligence (see `12-DOCS_FEATURE.md`)
   - Golden Circle (Simon Sinek's Why/How/What)
   - Brand Brief
   - Customer Persona
@@ -59,7 +61,7 @@ Instead of manually combing through a website taking notes, The Clever Kit does 
 ### What's Out (Future)
 - Additional scrapers (LinkedIn, social profiles, Google search)
 - Additional analyzers (competitors, tone of voice, visual identity)
-- Export integrations (Google Docs, Google Slides, Canva)
+- Additional export integrations (Google Slides, Notion, Canva)
 - Chat/voice input for brand information
 - Team collaboration features
 - White-label / client portals
@@ -136,7 +138,7 @@ Brand Intelligence          Doc Templates              Exports
 ┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
 │ Basics          │──────▶│ Golden Circle   │──────▶│ Copy Markdown   │
 │ Customer        │──────▶│ Brand Brief     │──────▶│ Download PDF    │
-│ Products        │──────▶│ Customer Persona│──────▶│ Google Docs     │
+│ Products        │──────▶│ Customer Persona│──────▶│ Google Docs ✅  │
 └─────────────────┘       └─────────────────┘       └─────────────────┘
 ```
 
