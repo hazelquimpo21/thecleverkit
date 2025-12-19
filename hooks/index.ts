@@ -38,3 +38,9 @@ export {
   usePrefetchDoc,
   docKeys,
 } from './use-docs';
+
+// Integration hooks (Google, etc.)
+export {
+  useGoogleIntegration,
+  googleIntegrationKeys,
+} from './use-google-integration';

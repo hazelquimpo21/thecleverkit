@@ -24,7 +24,8 @@ Paste a URL, get instant brand insights in 60 seconds. Generate docs from your b
 | React Query | ✅ | Provider + hooks wired up |
 | Dashboard/Brand List | ✅ | Brand cards, empty state, delete |
 | Realtime Updates | ✅ | Auto-refresh with Supabase subscriptions + fallback polling |
-| **Docs Feature** | 📋 | In planning - Golden Circle, Brand Brief, export |
+| **Docs Feature** | 📋 | In planning - Golden Circle, Brand Brief |
+| **Google Docs Export** | 📋 | In planning - OAuth integration, save to Drive |
 | Edit Forms | ❌ | View-only currently |
 
 **Build Status**: ✅ Passing

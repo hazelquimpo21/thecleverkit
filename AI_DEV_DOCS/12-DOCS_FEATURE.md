@@ -471,9 +471,10 @@ type GoldenCircleContent = {
 
 ### Export Integrations
 
-1. **Google Docs** - OAuth flow + Docs API
-2. **Google Slides** - Structured slide generation
-3. **Canva** - May require manual approach (no official API)
+1. **Google Docs** - OAuth flow + Docs API — **See `13-GOOGLE_DOCS_EXPORT.md`** 📋 In Planning
+2. **Google Slides** - Structured slide generation (future)
+3. **Notion** - OAuth flow + Pages API (future)
+4. **Canva** - May require manual approach (no official API)
 
 ### Doc Packs
 
@@ -633,3 +634,5 @@ To add a new doc template:
 - `09-FILE_STRUCTURE.md` - Where doc files go
 - `10-API_PATTERNS.md` - API and hook patterns
 - `11-IMPLEMENTATION_ROADMAP.md` - Phase 12 checklist
+- `13-GOOGLE_DOCS_EXPORT.md` - Google Docs export implementation plan
+- `14-GOOGLE_CLOUD_SETUP.md` - Step-by-step Google Cloud setup guide

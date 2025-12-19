@@ -346,12 +346,52 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 - [ ] Customer Persona template
 - [ ] Content Pillars template
 
-### Phase 13: Enhanced Input
+### Phase 13: Google Docs Export
+
+**See `13-GOOGLE_DOCS_EXPORT.md` and `14-GOOGLE_CLOUD_SETUP.md` for full details.**
+
+**Goal**: Users can export generated docs directly to Google Docs.
+
+#### 13.1 Google Cloud Setup
+- [ ] Create Google Cloud project
+- [ ] Enable Google Docs API + Google Drive API
+- [ ] Configure OAuth consent screen
+- [ ] Create OAuth credentials (Web application)
+- [ ] Add environment variables
+
+#### 13.2 Database & Types
+- [ ] Add google columns to profiles table (refresh_token, email, connected_at)
+- [ ] Add google columns to generated_docs table (doc_id, doc_url, exported_at)
+- [ ] Update TypeScript types
+
+#### 13.3 OAuth Integration
+- [ ] Create `lib/integrations/google/` module
+- [ ] Create `POST /api/integrations/google/auth` (initiate OAuth)
+- [ ] Create `GET /api/integrations/google/callback` (handle callback)
+- [ ] Create `POST /api/integrations/google/disconnect`
+- [ ] Token refresh logic
+
+#### 13.4 Export Flow
+- [ ] Create `POST /api/export/google-docs` route
+- [ ] Create `hooks/use-google-integration.ts`
+- [ ] Update `doc-export-menu.tsx` with Google Docs option
+
+#### 13.5 UI Components
+- [ ] Create `components/integrations/google-connect-modal.tsx`
+- [ ] Update `doc-list-item.tsx` to show Google Docs link
+- [ ] Add Connected Apps section to settings page
+
+### Phase 14: Additional Export Integrations (Future)
+- Google Slides export
+- Notion export
+- Dropbox export
+
+### Phase 15: Enhanced Input
 - Chat interface for adding brand info
 - Voice input support
 - File upload (brand assets)
 
-### Phase 14: Collaboration
+### Phase 16: Collaboration
 - Team workspaces
 - Invite team members
 - Role-based permissions
