@@ -11,8 +11,14 @@
  * - Connection status indicator
  * - Integrated PageHeader with tabs (Overview, Store, Documents)
  *
+ * Tabs:
+ * - Overview: Brand intelligence cards
+ * - Store: Template gallery with intelligent buttons + inline doc viewer
+ * - Documents: Archive view of all generated docs
+ *
  * @update 2025-12-19 - Updated for sidebar layout redesign with PageHeader
  * @update 2025-12-19 - Added Store tab for Template Store feature
+ * @update 2025-12-19 - Store now has intelligent buttons and inline doc viewer
  */
 
 'use client';
@@ -172,7 +178,7 @@ export function BrandAnalysisContent({
         />
       )}
       {activeTab === 'store' && (
-        <StoreTabContent brandId={brand.id} runs={runs} />
+        <StoreTabContent brandId={brand.id} brand={brand} runs={runs} />
       )}
       {activeTab === 'docs' && (
         <DocsTabContent brandId={brand.id} runs={runs} />

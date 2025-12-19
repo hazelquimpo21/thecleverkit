@@ -2,15 +2,23 @@
  * DOC EXPORT MENU
  * =================
  * Dropdown menu for exporting generated docs.
- * Supports copy to clipboard, PDF download, and Google Docs export.
+ * Shows intelligent options based on current export state.
+ *
+ * Features:
+ * - Copy markdown to clipboard
+ * - Download as PDF (via print dialog)
+ * - Google Docs integration:
+ *   - "Save to Google Docs" when not exported
+ *   - "Open in Google Docs" when already exported
+ *   - "Export again" option for re-exporting
  *
  * @created 2025-12-19 - Initial docs feature implementation
- * @updated 2025-12-19 - Added Google Docs export option
+ * @updated 2025-12-19 - Added state-aware export options
  */
 
 'use client';
 
-import { Copy, Download, ChevronDown, Check, Loader2 } from 'lucide-react';
+import { Copy, Download, ChevronDown, Check, Loader2, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,6 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { toast } from '@/components/ui/sonner';
 import { log } from '@/lib/utils/logger';
@@ -42,6 +51,12 @@ interface DocExportMenuProps {
   /** Document ID for Google Docs export */
   docId?: string;
 
+  /** Whether doc is already exported to Google Docs */
+  isExported?: boolean;
+
+  /** URL to existing Google Doc (if exported) */
+  googleDocUrl?: string | null;
+
   /** Callback when Google export completes */
   onGoogleExported?: (url: string) => void;
 }
@@ -52,12 +67,25 @@ interface DocExportMenuProps {
 
 /**
  * Dropdown menu with export options for a doc.
+ * Shows intelligent options based on export state.
  *
  * @example
+ * // Not exported yet
  * <DocExportMenu
  *   markdown={doc.content_markdown}
  *   title={doc.title}
  *   docId={doc.id}
+ *   isExported={false}
+ * />
+ *
+ * @example
+ * // Already exported
+ * <DocExportMenu
+ *   markdown={doc.content_markdown}
+ *   title={doc.title}
+ *   docId={doc.id}
+ *   isExported={true}
+ *   googleDocUrl="https://docs.google.com/document/d/..."
  * />
  */
 export function DocExportMenu({
@@ -65,6 +93,8 @@ export function DocExportMenu({
   title,
   trigger,
   docId,
+  isExported = false,
+  googleDocUrl,
   onGoogleExported,
 }: DocExportMenuProps) {
   const [copied, setCopied] = useState(false);
@@ -147,7 +177,15 @@ export function DocExportMenu({
     toast.success('Print dialog opened');
   };
 
-  // Export to Google Docs
+  // Open existing Google Doc
+  const handleOpenGoogleDoc = () => {
+    if (googleDocUrl) {
+      window.open(googleDocUrl, '_blank');
+      log.info('Opened Google Doc', { title, url: googleDocUrl });
+    }
+  };
+
+  // Export to Google Docs (new export)
   const handleGoogleDocsExport = () => {
     if (!docId) {
       toast.error('Document ID is required for Google Docs export');
@@ -161,8 +199,10 @@ export function DocExportMenu({
     }
 
     // Proceed with export
+    log.info('Exporting to Google Docs', { title, docId });
     exportToGoogleDocs(docId, {
       onSuccess: (data) => {
+        log.success('Exported to Google Docs', { title, url: data.googleDocUrl });
         onGoogleExported?.(data.googleDocUrl);
       },
     });
@@ -191,7 +231,8 @@ export function DocExportMenu({
             </Button>
           )}
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="w-56">
+          {/* Standard export options */}
           <DropdownMenuItem onClick={handleCopyMarkdown}>
             {copied ? (
               <Check className="w-4 h-4 mr-2 text-success" />
@@ -205,21 +246,48 @@ export function DocExportMenu({
             Download PDF
           </DropdownMenuItem>
 
-          {/* Google Docs export - only show if docId is provided */}
+          {/* Google Docs section - only show if docId is provided */}
           {docId && (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleGoogleDocsExport}
-                disabled={isExporting}
-              >
-                {isExporting ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <GoogleIcon className="w-4 h-4 mr-2" />
-                )}
-                {isExporting ? 'Saving...' : 'Save to Google Docs'}
-              </DropdownMenuItem>
+
+              {/* Already exported → Show "Open" as primary */}
+              {isExported && googleDocUrl ? (
+                <>
+                  <DropdownMenuLabel className="text-xs text-foreground-muted font-normal">
+                    Google Docs
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem onClick={handleOpenGoogleDoc}>
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Open in Google Docs
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleGoogleDocsExport}
+                    disabled={isExporting}
+                    className="text-foreground-muted"
+                  >
+                    {isExporting ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <GoogleIcon className="w-4 h-4 mr-2" />
+                    )}
+                    {isExporting ? 'Exporting...' : 'Export again'}
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                /* Not exported yet → Show "Save to Google Docs" */
+                <DropdownMenuItem
+                  onClick={handleGoogleDocsExport}
+                  disabled={isExporting}
+                >
+                  {isExporting ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <GoogleIcon className="w-4 h-4 mr-2" />
+                  )}
+                  {isExporting ? 'Saving...' : 'Save to Google Docs'}
+                </DropdownMenuItem>
+              )}
             </>
           )}
         </DropdownMenuContent>

@@ -625,6 +625,102 @@ To add a new doc template:
 
 ---
 
+## Intelligent Buttons Feature (Dec 19, 2025)
+
+### Overview
+
+Template cards and doc viewer now show **intelligent buttons** that adapt based on the document's state:
+- Whether a doc has been generated
+- Whether brand data has changed since generation (stale)
+- Whether the doc has been exported to Google Docs
+
+### Doc State Detection
+
+New utility file: `lib/docs/state.ts`
+
+```typescript
+// Doc generation states
+type DocGenerationState =
+  | 'never_generated'   // No doc exists for this template
+  | 'generated_fresh'   // Doc exists, brand data hasn't changed
+  | 'generated_stale';  // Doc exists, but brand data changed since generation
+
+// Doc export states
+type DocExportState =
+  | 'not_exported'      // Never exported to Google Docs
+  | 'exported_current'  // Exported and doc hasn't changed since
+  | 'exported_stale';   // Exported but doc was regenerated since export
+```
+
+### Button State Matrix
+
+| Generation State | Export State | Template Card Actions | Doc Viewer Actions |
+|-----------------|--------------|----------------------|-------------------|
+| never_generated | - | [Generate] | - |
+| generated_fresh | not_exported | [View] [New] | [Export ▾] [Regenerate] |
+| generated_fresh | exported_current | [View] [Open in Docs] | [Open in Docs ▾] [Regenerate] |
+| generated_stale | not_exported | [View] [Regenerate ⚠] | Warning banner + [Regenerate] |
+| generated_stale | exported | [View] [Regenerate ⚠] | Warning: "Docs also outdated" |
+
+### Freshness Detection
+
+Docs are compared against `brand.updated_at`:
+
+```typescript
+const isStale = new Date(doc.created_at) < new Date(brand.updated_at);
+```
+
+When stale:
+- Template card shows "Updated" warning badge
+- Doc viewer shows warning banner: "Brand data has changed since this document was generated"
+- Regenerate button is promoted
+
+### Smart Export Menu
+
+The export dropdown adapts based on export state:
+
+**Not exported:**
+```
+Export ▾
+├── Copy as Markdown
+├── Download PDF
+└── Save to Google Docs
+```
+
+**Already exported:**
+```
+Export ▾
+├── Copy as Markdown
+├── Download PDF
+├── ─────────────────────
+│   Google Docs
+├── Open in Google Docs
+└── Export again (muted)
+```
+
+### Files Modified/Created
+
+**New:**
+- `lib/docs/state.ts` - Doc state detection utilities
+
+**Updated:**
+- `lib/docs/index.ts` - Export state utilities
+- `components/store/template-gallery-card.tsx` - Intelligent action buttons
+- `components/store/store-tab-content.tsx` - Pass brand, add inline doc viewer
+- `components/docs/doc-viewer.tsx` - Freshness banner, regenerate button
+- `components/docs/doc-export-menu.tsx` - State-aware export options
+- `components/brands/brand-analysis-content.tsx` - Pass brand to StoreTabContent
+
+### UX Improvements
+
+1. **No accidental duplicate exports** - Button says "Open in Docs" not "Export" after exporting
+2. **Clear what's done** - Status indicators show generation date and export state
+3. **Actionable freshness** - Users know when to regenerate and re-export
+4. **Inline doc viewing** - View docs directly in Store tab without switching tabs
+5. **Quick access bar** - "Your Documents" section shows all generated docs at top of Store
+
+---
+
 ## Related Documentation
 
 - `02-ARCHITECTURE.md` - Overall system design

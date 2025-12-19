@@ -33,6 +33,20 @@ export {
   buildBrandDataFromRuns,
 } from './readiness';
 
+// Doc state utilities (for intelligent buttons)
+export {
+  getDocState,
+  getLatestDocForTemplate,
+  countDocsForTemplate,
+  isDocStale,
+  isExportStale,
+  getAllDocStates,
+  type DocState,
+  type DocGenerationState,
+  type DocExportState,
+  type DocPrimaryAction,
+} from './state';
+
 // Types
 export * from './types';
 
