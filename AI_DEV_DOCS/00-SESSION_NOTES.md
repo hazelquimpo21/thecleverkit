@@ -1,7 +1,7 @@
 # Session Notes for AI Developers
 
 > Last updated: December 19, 2025
-> Status: MVP Core Implementation Complete (Build Passing)
+> Status: Dashboard & Core MVP Complete (Build Passing)
 
 This document provides context for future AI developers working on this codebase. Read this first!
 
@@ -37,14 +37,17 @@ The MVP core has been implemented with a working build. Here's what exists:
 | Route protection middleware | ✅ Complete | Protects /dashboard, /brands, /settings, /analyze |
 | Auth-gated analysis flow | ✅ Complete | Smart login flow preserves user's URL intent |
 | Realtime analysis updates | ✅ Complete | Auto-refresh with Supabase subscriptions + polling fallback |
+| **Dashboard page** | ✅ Complete | Brand list with empty state, delete, navigation |
+| **Brand cards** | ✅ Complete | Shows status, actions, links to detail |
+| **Header navigation** | ✅ Complete | My Brands, Add Brand links for auth users |
 
 ### Not Yet Implemented
 
 | Feature | Priority | Notes |
 |---------|----------|-------|
-| Dashboard/brand list page | High | Currently redirects to home |
 | Edit forms for analysis data | Medium | View-only currently |
 | Retry failed analyzers | Medium | API exists conceptually |
+| Re-analyze brand | Medium | UI button disabled, needs API |
 | User settings page | Low | |
 
 ---
@@ -91,6 +94,16 @@ The MVP core has been implemented with a working build. Here's what exists:
 | `lib/providers/index.tsx` | **NEW** - Composes all providers (Query, Tooltip, Toaster) |
 | `lib/providers/query-provider.tsx` | **NEW** - React Query client configuration |
 | `hooks/use-brands.ts` | **NEW** - React Query hooks for brand data |
+
+### Dashboard Components (NEW)
+
+| File | Purpose |
+|------|---------|
+| `app/dashboard/page.tsx` | Dashboard page (shows brand list) |
+| `app/dashboard/dashboard-content.tsx` | Client component with React Query data fetching |
+| `components/brands/brand-card.tsx` | Single brand card in list view |
+| `components/brands/brand-empty-state.tsx` | Empty state for new users |
+| `components/brands/delete-brand-dialog.tsx` | Confirmation dialog for brand deletion |
 
 ### Each Analyzer Module
 
@@ -549,6 +562,77 @@ const {
 
 // UI automatically updates as analyzers complete
 // justCompleted is true briefly after all complete (for celebration)
+```
+
+---
+
+## Dashboard Implementation (NEW - December 19, 2025)
+
+The dashboard is the main authenticated landing page showing all user's brands.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ DASHBOARD STRUCTURE                                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+/dashboard
+    │
+    ├─→ DashboardContent (client component)
+    │       │
+    │       ├─→ useBrands() - React Query hook
+    │       │       └─→ Fetches brands with analysis_runs
+    │       │
+    │       ├─→ Empty State (BrandEmptyState)
+    │       │       └─→ Shown when user has no brands
+    │       │
+    │       ├─→ Brand List
+    │       │       ├─→ "Your Brand" section (is_own_brand)
+    │       │       └─→ "Brands You Manage" section
+    │       │               └─→ BrandCard for each brand
+    │       │
+    │       └─→ DeleteBrandDialog
+    │               └─→ Confirmation before delete
+    │
+    └─→ Header Navigation
+            ├─→ "My Brands" link (active on /dashboard)
+            └─→ "Add Brand" link (navigates to home)
+```
+
+### Key Features
+
+1. **Categorized brand lists**: Separates "Your Brand" (is_own_brand) from managed brands
+2. **Empty state**: Welcoming UI for new users with CTA to add first brand
+3. **Brand cards**: Show name, domain, status badge, and quick actions
+4. **Delete with confirmation**: Dialog prevents accidental deletion
+5. **Prefetching**: Hovers on cards prefetch brand data for fast navigation
+6. **Back navigation**: Brand detail page has link back to dashboard
+
+### Component Summary
+
+| Component | Purpose |
+|-----------|---------|
+| `DashboardContent` | Client component with React Query, state management |
+| `BrandCard` | Displays single brand with status, dropdown menu |
+| `BrandEmptyState` | Welcome screen for users with no brands |
+| `DeleteBrandDialog` | Confirmation modal for brand deletion |
+| `NavLink` | Header nav links with active state styling |
+
+### Status Computation
+
+Brand cards show an overall status computed from analysis runs:
+
+```typescript
+// Priority: error > analyzing/parsing > queued > complete
+function computeOverallStatus(brand): AnalysisStatus {
+  const runs = brand.analysis_runs;
+  if (runs.some(r => r.status === 'error')) return 'error';
+  if (runs.some(r => r.status === 'analyzing' || r.status === 'parsing')) return 'analyzing';
+  if (runs.some(r => r.status === 'queued')) return 'queued';
+  if (runs.every(r => r.status === 'complete')) return 'complete';
+  return 'pending';
+}
 ```
 
 ---

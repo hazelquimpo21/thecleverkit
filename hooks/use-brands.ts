@@ -16,7 +16,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { log } from '@/lib/utils/logger';
-import type { Brand, BrandWithAnalyses } from '@/types';
+import type { BrandWithAnalyses } from '@/types';
 
 // ============================================================================
 // QUERY KEYS
@@ -40,8 +40,9 @@ export const brandKeys = {
 
 /**
  * Fetch all brands for the current user.
+ * Includes analysis_runs for status display on dashboard cards.
  */
-async function fetchBrands(): Promise<Brand[]> {
+async function fetchBrands(): Promise<BrandWithAnalyses[]> {
   const supabase = createBrowserClient();
 
   if (!supabase) {
@@ -51,7 +52,7 @@ async function fetchBrands(): Promise<Brand[]> {
 
   const { data, error } = await supabase
     .from('brands')
-    .select('*')
+    .select('*, analysis_runs(*)')
     .order('updated_at', { ascending: false });
 
   if (error) {
@@ -59,7 +60,7 @@ async function fetchBrands(): Promise<Brand[]> {
     throw new Error(error.message);
   }
 
-  return (data ?? []) as Brand[];
+  return (data ?? []) as BrandWithAnalyses[];
 }
 
 /**

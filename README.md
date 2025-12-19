@@ -6,7 +6,7 @@ Paste a URL, get instant brand insights in 60 seconds.
 
 ---
 
-## Implementation Status (December 18, 2025)
+## Implementation Status (December 19, 2025)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
@@ -22,7 +22,7 @@ Paste a URL, get instant brand insights in 60 seconds.
 | Auth-Gated Analysis | ✅ | Smart flow preserves URL across login |
 | shadcn/ui Components | ✅ | Full suite with OKLCH colors |
 | React Query | ✅ | Provider + hooks wired up |
-| Dashboard/Brand List | ❌ | Need list view |
+| Dashboard/Brand List | ✅ | Brand cards, empty state, delete |
 | Realtime Updates | ✅ | Auto-refresh with Supabase subscriptions + fallback polling |
 | Edit Forms | ❌ | View-only currently |
 
