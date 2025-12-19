@@ -6,6 +6,8 @@
  *
  * When intent='analyze', reads the saved URL from localStorage and shows
  * a message like "Sign in to continue analyzing [url]"
+ *
+ * @update 2025-12-19 - Updated styling for design system
  */
 
 'use client';
@@ -91,7 +93,7 @@ function AnalyzeIntentContent({
     <div className="space-y-6">
       {/* Intent indicator */}
       <div className="flex items-center justify-center">
-        <div className="flex items-center gap-2 px-4 py-2 bg-orange-50 text-orange-700 rounded-full text-sm">
+        <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm">
           <Globe className="h-4 w-4" />
           <span className="font-medium">Analysis pending</span>
         </div>
@@ -102,7 +104,7 @@ function AnalyzeIntentContent({
         <CardTitle className="text-xl">Sign in to continue</CardTitle>
         <CardDescription className="text-sm">
           Your analysis of{' '}
-          <span className="font-medium text-stone-700">{displayUrl}</span>{' '}
+          <span className="font-medium text-foreground">{displayUrl}</span>{' '}
           is ready to start
         </CardDescription>
       </div>
@@ -111,7 +113,7 @@ function AnalyzeIntentContent({
       <LoginForm redirectTo={redirectTo} />
 
       {/* Reassurance */}
-      <p className="text-xs text-center text-stone-400">
+      <p className="text-xs text-center text-foreground-subtle">
         We saved your URL. After signing in, you&apos;ll continue right where you left off.
       </p>
     </div>
@@ -126,8 +128,8 @@ function DefaultLoginContent({ redirectTo }: { redirectTo: string }) {
     <div className="space-y-6">
       {/* Sparkle decoration */}
       <div className="flex items-center justify-center">
-        <div className="p-3 bg-orange-50 rounded-full">
-          <Sparkles className="h-6 w-6 text-orange-500" />
+        <div className="p-3 bg-primary/10 rounded-full">
+          <Sparkles className="h-6 w-6 text-primary" />
         </div>
       </div>
 

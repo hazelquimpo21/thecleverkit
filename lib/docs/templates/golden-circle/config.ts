@@ -23,7 +23,10 @@ export const config: DocTemplateConfig = {
   id: 'golden-circle',
   name: 'Golden Circle',
   description: 'Define your Why, How, and What using Simon Sinek\'s framework',
+  shortDescription: 'Articulate your brand\'s purpose and approach',
   icon: Target,
+  category: 'strategy',
+  status: 'available',
 
   // Requires both basics and customer analyzers to be complete
   requiredAnalyzers: ['basics', 'customer'],

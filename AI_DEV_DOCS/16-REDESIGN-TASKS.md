@@ -1,6 +1,6 @@
 # UI Redesign — Implementation Tasks
 
-> **Status**: Partially Implemented (Phases 1-6 Complete)
+> **Status**: FULLY IMPLEMENTED ✓
 > **Created**: December 19, 2025
 > **Last Updated**: December 19, 2025
 > **Prerequisite**: Read `15-REDESIGN-VISION.md` first for design context
@@ -15,9 +15,10 @@
 | 2 | Navigation Restructure | **COMPLETE** |
 | 3 | Card & Component Styling | **COMPLETE** |
 | 4 | Page Updates | **COMPLETE** |
-| 5 | Template Store | Pending |
+| 5 | Template Store | **COMPLETE** |
 | 6 | Polish & Micro-interactions | **COMPLETE** |
 | 7 | Empty & Error States | **COMPLETE** |
+| 8 | Home & Login Page Styling | **COMPLETE** |
 
 ---
 
@@ -132,15 +133,30 @@
 
 ---
 
-## Phase 5: Template Store - PENDING
+## Phase 5: Template Store - COMPLETE
 
 > See `17-TEMPLATE-STORE.md` for detailed specification.
 
-### Still To Do
-- [ ] Create StoreTabContent component
-- [ ] Create TemplateGalleryCard component
-- [ ] Add Store tab to brand profile
-- [ ] Implement template browsing UI
+### What Was Implemented
+
+**New Files**:
+- `components/store/store-tab-content.tsx` - Main store container with categories
+- `components/store/template-gallery-card.tsx` - Template card with illustration
+- `components/store/template-illustration.tsx` - CSS-based geometric illustrations
+- `components/store/index.ts` - Exports
+
+**Modified Files**:
+- `lib/docs/types.ts` - Added template categories and status types
+- `lib/docs/registry.ts` - Added coming-soon templates and category helpers
+- `types/docs.ts` - Extended DocTemplateId for planned templates
+- `components/brands/brand-analysis-content.tsx` - Added Store tab
+
+### Store Features
+- Templates organized by category (Strategy, Audience, etc.)
+- CSS-based geometric illustrations for each template
+- Readiness status badges (Ready, Needs Data, Coming Soon)
+- Generation count indicator for previously used templates
+- One-click generate or "See what's needed" action
 
 ---
 
@@ -254,12 +270,34 @@
 
 ---
 
+## Phase 8: Home & Login Page Styling - COMPLETE
+
+### What Was Implemented
+
+**Modified Files**:
+- `app/page.tsx` - Updated with semantic colors and icons for feature cards
+- `app/login/page.tsx` - Updated with design system colors
+- `app/login/login-page-content.tsx` - Updated intent badges with primary colors
+
+### Home Page Updates
+- Added semantic-colored icons to feature cards (basics, customer, products)
+- Hover animations on feature icons
+- Updated text colors to use design system variables
+
+### Login Page Updates
+- Logo uses primary color
+- Cards use warm shadows
+- Error states use error color variable
+- Intent badges use primary color
+
+---
+
 ## Next Steps
 
 1. **Test the implementation** - Run the app and verify all pages render correctly
-2. **Implement Template Store** (Phase 5) - Store tab UI when ready
-3. **Home page updates** - Consider updating landing page styling
-4. **Login page updates** - Match new design system
+2. **Add more templates** - Implement brand-brief and customer-persona templates
+3. **Add template previews** - Show example output before generating
+4. **Dark mode verification** - Ensure all new components work in dark mode
 
 ---
 

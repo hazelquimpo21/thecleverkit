@@ -9,15 +9,16 @@
  * - Auto-updating analyzer cards
  * - Completion celebration animation
  * - Connection status indicator
- * - Integrated PageHeader with tabs
+ * - Integrated PageHeader with tabs (Overview, Store, Documents)
  *
  * @update 2025-12-19 - Updated for sidebar layout redesign with PageHeader
+ * @update 2025-12-19 - Added Store tab for Template Store feature
  */
 
 'use client';
 
 import { useState, useMemo, useRef } from 'react';
-import { RefreshCw, ExternalLink } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { PageHeader } from '@/components/layout';
 import { Badge } from '@/components/ui/badge';
 import { useBrandAnalysis, useBrandDocs } from '@/hooks';
@@ -27,6 +28,7 @@ import { BasicsCard } from '@/components/analysis/cards/basics-card';
 import { CustomerCard } from '@/components/analysis/cards/customer-card';
 import { ProductsCard } from '@/components/analysis/cards/products-card';
 import { DocsTabContent } from '@/components/docs';
+import { StoreTabContent } from '@/components/store';
 import { CompletionCelebration } from './completion-celebration';
 import { ConnectionStatus } from './connection-status';
 import type { AnalysisRun, Brand } from '@/types';
@@ -45,7 +47,7 @@ interface BrandAnalysisContentProps {
   initialDisplayName: string;
 }
 
-type ProfileTab = 'overview' | 'docs';
+type ProfileTab = 'overview' | 'store' | 'docs';
 
 // ============================================================================
 // COMPONENT
@@ -125,6 +127,7 @@ export function BrandAnalysisContent({
   // Tab configuration
   const tabs = [
     { value: 'overview', label: 'Overview' },
+    { value: 'store', label: 'Store' },
     { value: 'docs', label: 'Documents', badge: docsCount > 0 ? docsCount : undefined },
   ];
 
@@ -154,7 +157,7 @@ export function BrandAnalysisContent({
       )}
 
       {/* Tab Content */}
-      {activeTab === 'overview' ? (
+      {activeTab === 'overview' && (
         <OverviewContent
           runs={runs}
           isAnalyzing={isAnalyzing}
@@ -167,7 +170,11 @@ export function BrandAnalysisContent({
           customerLoading={customerLoading}
           productsLoading={productsLoading}
         />
-      ) : (
+      )}
+      {activeTab === 'store' && (
+        <StoreTabContent brandId={brand.id} runs={runs} />
+      )}
+      {activeTab === 'docs' && (
         <DocsTabContent brandId={brand.id} runs={runs} />
       )}
     </>

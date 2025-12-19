@@ -28,8 +28,12 @@ export type DocStatus = 'generating' | 'complete' | 'error';
  * Add new templates here as they're created.
  *
  * @update When adding a new template, add its ID here
+ * @update 2025-12-19 - Added planned templates for store display
  */
-export type DocTemplateId = 'golden-circle';
+export type DocTemplateId =
+  | 'golden-circle'
+  | 'brand-brief'
+  | 'customer-persona';
 
 // ============================================================================
 // GENERATED DOC (DATABASE ROW)

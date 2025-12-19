@@ -8,12 +8,14 @@
  * - Magic link authentication via Supabase
  * - Error handling for failed auth callbacks
  * - Intent-aware messaging (e.g., "Sign in to analyze [URL]")
- * - Clean, minimal design
+ * - Clean design with 1960s science textbook aesthetic
  *
  * Query Params:
  * - error: Auth error type (e.g., "auth_callback_failed")
  * - next: Where to redirect after login
  * - intent: What action triggered the login (e.g., "analyze")
+ *
+ * @update 2025-12-19 - Updated styling for design system
  */
 
 import { redirect } from 'next/navigation';
@@ -67,24 +69,24 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     : null;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12 bg-background">
       <div className="w-full max-w-md space-y-8">
         {/* Logo and welcome */}
         <div className="text-center">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-2xl font-bold text-stone-900"
+            className="inline-flex items-center gap-2 text-2xl font-bold text-foreground"
           >
-            <Sparkles className="h-8 w-8 text-orange-500" />
+            <Sparkles className="h-8 w-8 text-primary" />
             <span>The Clever Kit</span>
           </Link>
-          <p className="mt-3 text-stone-600">
+          <p className="mt-3 text-foreground-muted">
             AI-powered brand intelligence for agencies and freelancers.
           </p>
         </div>
 
         {/* Login card with intent-aware content */}
-        <Card className="shadow-lg">
+        <Card className="shadow-warm-lg">
           <CardHeader className="text-center pb-2">
             {/* Client component handles intent-aware messaging */}
             <LoginPageContent
@@ -96,8 +98,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <CardContent>
             {/* Error message */}
             {authError && (
-              <div className="mb-6 flex items-start gap-3 rounded-lg bg-red-50 p-4 text-sm text-red-700">
-                <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500" />
+              <div className="mb-6 flex items-start gap-3 rounded-lg bg-[var(--error)]/10 p-4 text-sm text-[var(--error)]">
+                <AlertCircle className="h-5 w-5 flex-shrink-0" />
                 <p>{authError}</p>
               </div>
             )}
@@ -105,9 +107,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </Card>
 
         {/* Footer text */}
-        <p className="text-center text-sm text-stone-500">
+        <p className="text-center text-sm text-foreground-muted">
           Don&apos;t have an account?{' '}
-          <span className="text-stone-700">
+          <span className="text-foreground">
             Enter your email above to create one automatically.
           </span>
         </p>

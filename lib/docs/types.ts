@@ -41,6 +41,56 @@ export interface BrandData {
 }
 
 // ============================================================================
+// TEMPLATE CATEGORIES
+// ============================================================================
+
+/**
+ * Template category for organizing the store.
+ */
+export type TemplateCategory = 'strategy' | 'audience' | 'content' | 'sales';
+
+/**
+ * Category metadata for display in the store.
+ */
+export interface TemplateCategoryConfig {
+  id: TemplateCategory;
+  label: string;
+  description: string;
+  order: number;
+}
+
+/**
+ * All template categories with display info.
+ * Ordered by the `order` field for consistent rendering.
+ */
+export const TEMPLATE_CATEGORIES: Record<TemplateCategory, TemplateCategoryConfig> = {
+  strategy: {
+    id: 'strategy',
+    label: 'Strategy',
+    description: 'Brand strategy and positioning',
+    order: 1,
+  },
+  audience: {
+    id: 'audience',
+    label: 'Audience',
+    description: 'Customer and audience insights',
+    order: 2,
+  },
+  content: {
+    id: 'content',
+    label: 'Content',
+    description: 'Content strategy and messaging',
+    order: 3,
+  },
+  sales: {
+    id: 'sales',
+    label: 'Sales',
+    description: 'Sales enablement materials',
+    order: 4,
+  },
+};
+
+// ============================================================================
 // TEMPLATE CONFIG
 // ============================================================================
 
@@ -57,6 +107,8 @@ export type RequiredFields = {
 /**
  * Configuration metadata for a doc template.
  * Defines what the template is and what data it needs.
+ *
+ * @update 2025-12-19 - Added category and status for Template Store
  */
 export interface DocTemplateConfig {
   /** Unique identifier (must match DocTemplateId type) */
@@ -68,8 +120,17 @@ export interface DocTemplateConfig {
   /** Short description explaining what the doc provides */
   description: string;
 
+  /** Short description for store cards (2 lines max) */
+  shortDescription?: string;
+
   /** Icon component from lucide-react */
   icon: LucideIcon;
+
+  /** Category for organizing in the store */
+  category: TemplateCategory;
+
+  /** Whether the template is available or coming soon */
+  status: 'available' | 'coming_soon';
 
   /** Which analyzers must be complete to generate this doc */
   requiredAnalyzers: AnalyzerType[];
