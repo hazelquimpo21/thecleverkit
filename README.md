@@ -2,7 +2,7 @@
 
 > AI-powered brand intelligence for agencies and freelancers.
 
-Paste a URL, get instant brand insights in 60 seconds.
+Paste a URL, get instant brand insights in 60 seconds. Generate docs from your brand data.
 
 ---
 
@@ -24,6 +24,7 @@ Paste a URL, get instant brand insights in 60 seconds.
 | React Query | ✅ | Provider + hooks wired up |
 | Dashboard/Brand List | ✅ | Brand cards, empty state, delete |
 | Realtime Updates | ✅ | Auto-refresh with Supabase subscriptions + fallback polling |
+| **Docs Feature** | 📋 | In planning - Golden Circle, Brand Brief, export |
 | Edit Forms | ❌ | View-only currently |
 
 **Build Status**: ✅ Passing
@@ -425,3 +426,4 @@ Full documentation for AI developers working on this codebase:
 | `AI_DEV_DOCS/05-ANALYZERS.md` | Deep dive on analyzer architecture |
 | `AI_DEV_DOCS/09-FILE_STRUCTURE.md` | Where things go, naming conventions |
 | `AI_DEV_DOCS/11-IMPLEMENTATION_ROADMAP.md` | Checklist with completion status |
+| `AI_DEV_DOCS/12-DOCS_FEATURE.md` | **Docs feature implementation plan** |

@@ -1,6 +1,6 @@
 # UI Components & Design System
 
-> **Updated December 18, 2025**: shadcn/ui v2 integrated with OKLCH color system. All components now use semantic color tokens.
+> **Updated December 19, 2025**: Added docs feature UI patterns. shadcn/ui integrated with OKLCH color system.
 
 ## Design Principles
 
@@ -199,7 +199,17 @@ The Badge component has semantic variants for different use cases:
 
   brand-profile/          ← Brand profile page components
     profile-header.tsx    ← Brand name, URL, actions
-    coming-soon.tsx       ← Future docs teaser
+    profile-tabs.tsx      ← Overview / Docs tab navigation
+
+  docs/                   ← Document generation components (planned)
+    doc-template-card.tsx ← Single template in grid (shows readiness)
+    doc-template-grid.tsx ← Grid of available templates
+    doc-list.tsx          ← User's generated docs
+    doc-list-item.tsx     ← Single doc in list
+    doc-viewer.tsx        ← Renders doc content (markdown)
+    doc-export-menu.tsx   ← Export dropdown (copy, PDF)
+    readiness-badge.tsx   ← "Ready" or "Needs X" indicator
+    missing-data-dialog.tsx ← Shows what's needed for template
 ```
 
 ### UI Components Deep Dive
@@ -528,3 +538,265 @@ For MVP:
 - [ ] Error messages linked to inputs via `aria-describedby`
 - [ ] Loading states announced to screen readers
 - [ ] Skip link to main content
+
+---
+
+## Docs Feature UI Patterns
+
+### Doc Template Card
+
+Shows a single doc template with its readiness status.
+
+```tsx
+// components/docs/doc-template-card.tsx
+
+type DocTemplateCardProps = {
+  template: DocTemplate;
+  readiness: {
+    ready: boolean;
+    missing: string[];
+  };
+  onGenerate: () => void;
+  onShowMissing: () => void;
+};
+
+export function DocTemplateCard({
+  template,
+  readiness,
+  onGenerate,
+  onShowMissing
+}: DocTemplateCardProps) {
+  return (
+    <Card className="flex flex-col h-full">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="rounded-lg bg-muted p-2">
+            <template.icon className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <ReadinessBadge ready={readiness.ready} />
+        </div>
+        <CardTitle className="text-base mt-3">{template.name}</CardTitle>
+        <p className="text-sm text-muted-foreground">
+          {template.description}
+        </p>
+      </CardHeader>
+      <CardFooter className="mt-auto pt-0">
+        {readiness.ready ? (
+          <Button
+            onClick={onGenerate}
+            className="w-full"
+            size="sm"
+          >
+            Generate
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            onClick={onShowMissing}
+            className="w-full"
+            size="sm"
+          >
+            See what's needed
+          </Button>
+        )}
+      </CardFooter>
+    </Card>
+  );
+}
+```
+
+### Readiness Badge
+
+Visual indicator for template data sufficiency.
+
+```tsx
+// components/docs/readiness-badge.tsx
+
+export function ReadinessBadge({ ready }: { ready: boolean }) {
+  if (ready) {
+    return (
+      <Badge variant="success" className="gap-1">
+        <Check className="h-3 w-3" />
+        Ready
+      </Badge>
+    );
+  }
+
+  return (
+    <Badge variant="warning" className="gap-1">
+      <AlertCircle className="h-3 w-3" />
+      Needs data
+    </Badge>
+  );
+}
+```
+
+### Doc List Item
+
+Single generated doc in the user's doc list.
+
+```tsx
+// components/docs/doc-list-item.tsx
+
+type DocListItemProps = {
+  doc: GeneratedDoc;
+  templateName: string;
+  onView: () => void;
+  onExport: (format: 'markdown' | 'pdf') => void;
+  onDelete: () => void;
+};
+
+export function DocListItem({
+  doc,
+  templateName,
+  onView,
+  onExport,
+  onDelete
+}: DocListItemProps) {
+  return (
+    <div className="flex items-center justify-between p-4 border rounded-lg">
+      <div className="flex items-center gap-3">
+        <FileText className="h-5 w-5 text-muted-foreground" />
+        <div>
+          <p className="font-medium">{doc.title}</p>
+          <p className="text-sm text-muted-foreground">
+            {templateName} · Generated {formatRelativeTime(doc.created_at)}
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="sm" onClick={onView}>
+          View
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              Export
+              <ChevronDown className="h-4 w-4 ml-1" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => onExport('markdown')}>
+              <Copy className="h-4 w-4 mr-2" />
+              Copy as Markdown
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onExport('pdf')}>
+              <Download className="h-4 w-4 mr-2" />
+              Download PDF
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onDelete}
+          className="text-destructive hover:text-destructive"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+```
+
+### Brand Profile Tabs
+
+Tab navigation between Overview and Docs.
+
+```tsx
+// components/brand-profile/profile-tabs.tsx
+
+type ProfileTabsProps = {
+  activeTab: 'overview' | 'docs';
+  onTabChange: (tab: 'overview' | 'docs') => void;
+  docCount?: number;
+};
+
+export function ProfileTabs({
+  activeTab,
+  onTabChange,
+  docCount = 0
+}: ProfileTabsProps) {
+  return (
+    <div className="border-b">
+      <nav className="flex gap-6">
+        <TabButton
+          active={activeTab === 'overview'}
+          onClick={() => onTabChange('overview')}
+        >
+          Overview
+        </TabButton>
+        <TabButton
+          active={activeTab === 'docs'}
+          onClick={() => onTabChange('docs')}
+        >
+          Docs
+          {docCount > 0 && (
+            <Badge variant="secondary" className="ml-2">
+              {docCount}
+            </Badge>
+          )}
+        </TabButton>
+      </nav>
+    </div>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  children
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'pb-3 text-sm font-medium border-b-2 -mb-px transition-colors',
+        active
+          ? 'border-primary text-foreground'
+          : 'border-transparent text-muted-foreground hover:text-foreground'
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+```
+
+### Docs Tab Layout
+
+The full layout for the Docs tab content.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  GENERATE A DOC                                                  │
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+│  │ 🎯              │  │ 📋              │  │ 👥              │  │
+│  │ Golden Circle   │  │ Brand Brief     │  │ Customer        │  │
+│  │                 │  │                 │  │ Persona         │  │
+│  │ Define your     │  │ Complete brand  │  │ Detailed ideal  │  │
+│  │ Why, How, What  │  │ overview        │  │ customer        │  │
+│  │                 │  │                 │  │                 │  │
+│  │ ✓ Ready         │  │ ✓ Ready         │  │ ✓ Ready         │  │
+│  │ [Generate]      │  │ [Generate]      │  │ [Generate]      │  │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
+│                                                                  │
+│  ─────────────────────────────────────────────────────────────  │
+│                                                                  │
+│  YOUR DOCS (2)                                                   │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ 📄 Golden Circle  •  Dec 19, 2025  •  [View] [Export ▾]  │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ 📄 Brand Brief  •  Dec 18, 2025  •  [View] [Export ▾]    │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```

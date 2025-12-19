@@ -1,6 +1,6 @@
 # Architecture
 
-> **Updated December 18, 2025**: Added React Query provider setup and shadcn/ui integration. Core architecture implemented and working. See `00-SESSION_NOTES.md` for implementation notes.
+> **Updated December 19, 2025**: Added docs generation architecture. Core MVP complete. See `00-SESSION_NOTES.md` for implementation notes.
 
 ## System Overview
 
@@ -65,6 +65,35 @@ This separation means:
 - Debugging is easier (you can see what the AI "thought" before parsing)
 - Better accuracy than asking for JSON directly
 
+### Generating a Doc
+
+Docs follow the same two-step AI pattern as analyzers:
+
+```
+1. User selects brand + doc template (e.g., "Golden Circle")
+   ↓
+2. Check data sufficiency (does brand have required analyzers complete?)
+   ↓
+3. Create generated_doc record (status: generating)
+   ↓
+4. Build doc prompt from brand's parsed analyzer data
+   ↓
+5. Two-Step AI Process:
+   │
+   ├─→ Step 1: Analysis — GPT writes natural language doc content
+   └─→ Step 2: Parse — Function calling extracts structured sections
+   ↓
+6. Store content + source_data snapshot
+   ↓
+7. Doc ready to view/export
+```
+
+**Key differences from analyzers:**
+- Input is parsed analyzer data (not scraped content)
+- Output is markdown content (not structured data for UI)
+- Stores a snapshot of source data used for generation
+- No realtime updates needed (fast single operation)
+
 ## Key Architectural Decisions
 
 ### 1. Analyzers Are Self-Contained Modules
@@ -103,6 +132,38 @@ Analyzers can declare dependencies on other analyzers:
 ```
 
 The runner builds a DAG and executes in waves.
+
+### 3b. Doc Templates Are Also Modular
+
+Following the analyzer pattern, doc templates are self-contained modules:
+
+```
+lib/docs/templates/golden-circle/
+├── config.ts      # Metadata, required analyzers, icon
+├── prompt.ts      # Analysis prompt builder
+├── parser.ts      # Function schema for structured output
+├── types.ts       # TypeScript types for parsed doc
+└── index.ts       # Exports DocTemplateDefinition
+```
+
+Each template declares its data requirements:
+
+```typescript
+// lib/docs/templates/golden-circle/config.ts
+export const config: DocTemplateConfig = {
+  id: 'golden-circle',
+  name: 'Golden Circle',
+  description: "Simon Sinek's Why/How/What framework",
+  icon: CircleDot,
+  requiredAnalyzers: ['basics', 'customer'],
+  requiredFields: {
+    basics: ['business_description', 'business_model'],
+    customer: ['primary_problem', 'buying_motivation'],
+  },
+};
+```
+
+Adding a new doc type = adding a new folder + registering it.
 
 ### 4. Realtime Status Updates
 
@@ -247,5 +308,7 @@ We use shadcn/ui components with custom OKLCH color tokens:
 - **More analyzers**: Execution plan handles any DAG
 - **Longer analyses**: Could move to background jobs (Vercel cron or Supabase Edge Functions)
 - **More scrapers**: Each adds to `scraped_sources` array on brand
+- **More doc templates**: Registry pattern handles any number
+- **Export integrations**: Add exporters (Google Docs, PDF) as separate modules
 - **Team features**: Add `team_id` to brands, update RLS policies
 - **Higher volume**: Supabase scales, may need GPT rate limit handling

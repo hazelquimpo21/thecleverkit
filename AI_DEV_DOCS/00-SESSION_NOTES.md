@@ -1,9 +1,24 @@
 # Session Notes for AI Developers
 
 > Last updated: December 19, 2025
-> Status: Dashboard & Core MVP Complete (Build Passing)
+> Status: Dashboard & Core MVP Complete. Docs Feature in Planning. (Build Passing)
 
 This document provides context for future AI developers working on this codebase. Read this first!
+
+---
+
+## Current Focus: Docs Feature
+
+**Next major feature**: Document generation from brand intelligence. See `12-DOCS_FEATURE.md` for the full implementation plan.
+
+**Summary**: Users will be able to generate docs (like a "Golden Circle" doc) from their brand's analyzed data. The UI will show available templates with readiness status, and users can export docs as markdown or PDF.
+
+**Key decisions made:**
+- Docs tab on brand profile page (not a separate section)
+- Same two-step AI pattern as analyzers
+- Modular template system (easy to add new doc types)
+- Golden Circle as first template
+- Copy markdown + PDF export for v1 (Google Docs later)
 
 ---
 
@@ -45,6 +60,7 @@ The MVP core has been implemented with a working build. Here's what exists:
 
 | Feature | Priority | Notes |
 |---------|----------|-------|
+| **Docs Feature** | **High** | In planning - see `12-DOCS_FEATURE.md` |
 | Edit forms for analysis data | Medium | View-only currently |
 | Retry failed analyzers | Medium | API exists conceptually |
 | Re-analyze brand | Medium | UI button disabled, needs API |
@@ -871,14 +887,15 @@ The CSS variables for `.dark` are already defined in `globals.css`. You just nee
 
 ## Next Steps for Future Development
 
-Priority order for completing MVP:
+Priority order:
 
 1. ~~**Auth UI** - Create login/signup pages with Supabase Auth~~ ✅ Done
 2. ~~**Realtime UI** - Wire up Supabase realtime to show live progress~~ ✅ Done
 3. ~~**shadcn/ui + React Query** - Install and wire up~~ ✅ Done
-4. **Dashboard** - Brand list view at `/dashboard`
-5. **Edit forms** - Allow editing parsed data
-6. **Error recovery** - Retry failed analyzers UI
+4. ~~**Dashboard** - Brand list view at `/dashboard`~~ ✅ Done
+5. **Docs Feature** - Generate docs from brand data (see `12-DOCS_FEATURE.md`) ← **CURRENT**
+6. **Edit forms** - Allow editing parsed data
+7. **Error recovery** - Retry failed analyzers UI
 
 ---
 
@@ -893,3 +910,4 @@ Check the other docs in `AI_DEV_DOCS/`:
 - `09-FILE_STRUCTURE.md` - Where things go
 - `10-API_PATTERNS.md` - React Query and API patterns
 - `11-IMPLEMENTATION_ROADMAP.md` - Full feature checklist
+- `12-DOCS_FEATURE.md` - **Docs feature implementation plan**

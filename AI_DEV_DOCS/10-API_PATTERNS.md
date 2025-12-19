@@ -1,6 +1,6 @@
 # API Patterns
 
-> **Updated December 18, 2025**: Added TanStack React Query v5 implementation with query key factory pattern.
+> **Updated December 19, 2025**: Added docs generation API patterns.
 
 ## OpenAI Integration
 
@@ -759,5 +759,245 @@ async function handleSubmit(url: string) {
   } catch (error) {
     toast.error(error instanceof Error ? error.message : 'Something went wrong');
   }
+}
+```
+
+---
+
+## Doc Generation API (Planned)
+
+### POST /api/docs/generate
+
+Generate a new doc from a brand's analyzed data.
+
+**Request:**
+```typescript
+{
+  brandId: string;
+  templateId: string;  // 'golden-circle', 'brand-brief', etc.
+}
+```
+
+**Response:**
+```typescript
+{
+  success: true;
+  doc: {
+    id: string;
+    title: string;
+    content: Record<string, unknown>;  // Structured content
+    contentMarkdown: string;           // Rendered markdown
+  };
+}
+```
+
+**Error responses:**
+- `400` - Missing required fields
+- `400` - Insufficient brand data for this template
+- `401` - Unauthorized
+- `404` - Brand not found
+- `500` - Generation failed
+
+### Query Hooks for Docs
+
+```typescript
+// hooks/use-docs.ts
+
+/**
+ * Query key factory for doc-related queries.
+ */
+export const docKeys = {
+  all: ['docs'] as const,
+  lists: () => [...docKeys.all, 'list'] as const,
+  listByBrand: (brandId: string) => [...docKeys.lists(), brandId] as const,
+  details: () => [...docKeys.all, 'detail'] as const,
+  detail: (id: string) => [...docKeys.details(), id] as const,
+};
+
+/**
+ * Fetch all docs for a brand.
+ */
+export function useBrandDocs(brandId: string) {
+  const supabase = createClient();
+
+  return useQuery({
+    queryKey: docKeys.listByBrand(brandId),
+    queryFn: async (): Promise<GeneratedDoc[]> => {
+      const { data, error } = await supabase
+        .from('generated_docs')
+        .select('*')
+        .eq('brand_id', brandId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as GeneratedDoc[];
+    },
+    enabled: !!brandId,
+  });
+}
+
+/**
+ * Generate a new doc from a template.
+ */
+export function useGenerateDoc() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: { brandId: string; templateId: string }) => {
+      const response = await fetch('/api/docs/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate doc');
+      }
+
+      return response.json();
+    },
+    onSuccess: (_, { brandId }) => {
+      // Invalidate docs list for this brand
+      queryClient.invalidateQueries({ queryKey: docKeys.listByBrand(brandId) });
+      toast.success('Doc generated!');
+    },
+  });
+}
+
+/**
+ * Delete a generated doc.
+ */
+export function useDeleteDoc() {
+  const queryClient = useQueryClient();
+  const supabase = createClient();
+
+  return useMutation({
+    mutationFn: async ({ docId, brandId }: { docId: string; brandId: string }) => {
+      const { error } = await supabase
+        .from('generated_docs')
+        .delete()
+        .eq('id', docId);
+
+      if (error) throw error;
+      return { brandId };
+    },
+    onSuccess: (_, { brandId }) => {
+      queryClient.invalidateQueries({ queryKey: docKeys.listByBrand(brandId) });
+      toast.success('Doc deleted');
+    },
+  });
+}
+```
+
+### Data Sufficiency Check Hook
+
+```typescript
+// hooks/use-doc-readiness.ts
+
+import { useMemo } from 'react';
+import { docTemplates } from '@/lib/docs/registry';
+import type { BrandWithAnalyses } from '@/types/database';
+
+type ReadinessResult = {
+  ready: boolean;
+  missing: string[];
+  missingAnalyzers: string[];
+};
+
+/**
+ * Check if a brand has sufficient data for a doc template.
+ */
+export function useDocReadiness(
+  brand: BrandWithAnalyses | undefined,
+  templateId: string
+): ReadinessResult {
+  return useMemo(() => {
+    if (!brand) {
+      return { ready: false, missing: ['Brand data'], missingAnalyzers: [] };
+    }
+
+    const template = docTemplates.find(t => t.id === templateId);
+    if (!template) {
+      return { ready: false, missing: ['Unknown template'], missingAnalyzers: [] };
+    }
+
+    const missing: string[] = [];
+    const missingAnalyzers: string[] = [];
+
+    // Check each required analyzer
+    for (const analyzerType of template.requiredAnalyzers) {
+      const run = brand.analysis_runs.find(r => r.analyzer_type === analyzerType);
+
+      if (!run || run.status !== 'complete' || !run.parsed_data) {
+        missingAnalyzers.push(analyzerType);
+        continue;
+      }
+
+      // Check required fields within this analyzer
+      const requiredFields = template.requiredFields?.[analyzerType] || [];
+      for (const field of requiredFields) {
+        const value = run.parsed_data[field];
+        if (value === null || value === undefined || value === '') {
+          missing.push(`${analyzerType}.${field}`);
+        }
+      }
+    }
+
+    return {
+      ready: missing.length === 0 && missingAnalyzers.length === 0,
+      missing,
+      missingAnalyzers,
+    };
+  }, [brand, templateId]);
+}
+```
+
+### Doc Generation Server Logic
+
+```typescript
+// lib/docs/generator.ts
+
+import { docTemplates } from './registry';
+import { callGPT, callGPTWithFunction } from '@/lib/api/openai';
+
+type GenerateDocInput = {
+  brandId: string;
+  templateId: string;
+  brandData: {
+    basics?: ParsedBasics;
+    customer?: ParsedCustomer;
+    products?: ParsedProducts;
+  };
+};
+
+export async function generateDoc(input: GenerateDocInput) {
+  const template = docTemplates.find(t => t.id === input.templateId);
+  if (!template) throw new Error(`Unknown template: ${input.templateId}`);
+
+  // Step 1: Analysis - GPT generates natural language content
+  const analysisPrompt = template.buildPrompt(input.brandData);
+  const rawAnalysis = await callGPT(analysisPrompt, {
+    maxTokens: 2000,
+    temperature: 0.7,
+  });
+
+  // Step 2: Parse - Function calling extracts structured content
+  const parsedContent = await callGPTWithFunction(
+    template.parseSystemPrompt,
+    rawAnalysis,
+    template.parseFunctionName,
+    template.parseFunctionDescription,
+    template.parseSchema
+  );
+
+  // Generate markdown from structured content
+  const markdown = template.renderMarkdown(parsedContent);
+
+  return {
+    content: parsedContent,
+    contentMarkdown: markdown,
+    title: template.generateTitle(input.brandData),
+  };
 }
 ```

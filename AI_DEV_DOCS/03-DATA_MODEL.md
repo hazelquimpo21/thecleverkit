@@ -1,8 +1,10 @@
 # Data Model
 
+> **Updated December 19, 2025**: Added generated_docs table for docs feature.
+
 ## Overview
 
-Three core tables, designed for simplicity now and flexibility later.
+Four core tables, designed for simplicity now and flexibility later.
 
 ```
 users (managed by Supabase Auth)
@@ -11,9 +13,14 @@ users (managed by Supabase Auth)
         │
         ├── scraped_sources (JSONB array - future multi-source)
         │
-        └── analysis_runs (1:many)
+        ├── analysis_runs (1:many)
+        │     │
+        │     └── parsed_data (JSONB - analyzer-specific)
+        │
+        └── generated_docs (1:many)
               │
-              └── parsed_data (JSONB - analyzer-specific)
+              ├── content (TEXT - markdown)
+              └── source_data (JSONB - snapshot of brand data used)
 ```
 
 ## Tables
@@ -335,24 +342,103 @@ ALTER TABLE brands ADD COLUMN scraped_sources JSONB DEFAULT '[]';
 ### Generated Documents
 
 ```sql
-CREATE TYPE doc_type AS ENUM (
-  'brand_brief',
-  'customer_persona',
-  'content_pillars',
-  'messaging_guide'
-);
+-- Note: Using TEXT for template_id instead of ENUM for flexibility
+-- (easier to add new templates without migrations)
 
 CREATE TABLE generated_docs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   brand_id UUID NOT NULL REFERENCES brands(id) ON DELETE CASCADE,
-  doc_type doc_type NOT NULL,
-  title TEXT NOT NULL,
-  content TEXT NOT NULL,           -- Markdown content
-  source_analyzers TEXT[],         -- Which analyzers fed into this
+
+  -- Template identification
+  template_id TEXT NOT NULL,          -- e.g., 'golden-circle', 'brand-brief'
+  title TEXT NOT NULL,                 -- Display title for the doc
+
+  -- Content
+  content JSONB NOT NULL,              -- Structured content from parser
+  content_markdown TEXT,               -- Rendered markdown (for export)
+
+  -- Snapshot of data used for generation
+  source_data JSONB NOT NULL,          -- Copy of brand/analyzer data at generation time
+
+  -- Status tracking
+  status TEXT DEFAULT 'complete',      -- 'generating', 'complete', 'error'
+  error_message TEXT,
+
+  -- Timestamps
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Index for fetching all docs for a brand
+CREATE INDEX idx_generated_docs_brand_id ON generated_docs(brand_id);
+
+-- Index for finding docs by template
+CREATE INDEX idx_generated_docs_template ON generated_docs(template_id);
+
+-- RLS policy (access through brand ownership)
+ALTER TABLE generated_docs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own generated docs"
+  ON generated_docs FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM brands
+      WHERE brands.id = generated_docs.brand_id
+      AND brands.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can insert own generated docs"
+  ON generated_docs FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM brands
+      WHERE brands.id = generated_docs.brand_id
+      AND brands.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can delete own generated docs"
+  ON generated_docs FOR DELETE
+  USING (
+    EXISTS (
+      SELECT 1 FROM brands
+      WHERE brands.id = generated_docs.brand_id
+      AND brands.user_id = auth.uid()
+    )
+  );
 ```
+
+**TypeScript type:**
+
+```typescript
+// types/docs.ts
+
+export type GeneratedDoc = {
+  id: string;
+  brand_id: string;
+  template_id: string;
+  title: string;
+  content: Record<string, unknown>;  // Structured content
+  content_markdown: string | null;
+  source_data: Record<string, unknown>;
+  status: 'generating' | 'complete' | 'error';
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+// Joined type for brand with docs
+export type BrandWithDocs = Brand & {
+  generated_docs: GeneratedDoc[];
+};
+```
+
+**Design decisions:**
+- `template_id` is TEXT (not enum) for easy addition of new templates
+- `content` is JSONB for structured data, `content_markdown` for export
+- `source_data` captures the brand data snapshot at generation time
+- Can regenerate docs and compare what changed
 
 ### Team Collaboration
 

@@ -1,6 +1,6 @@
 # File Structure
 
-> **Updated December 18, 2025**: Added shadcn/ui config, React Query providers, and brand hooks.
+> **Updated December 19, 2025**: Added docs feature folder structure. Dashboard implemented.
 
 ## Overview
 
@@ -39,8 +39,8 @@ clever-kit/
 │   │   └── [brandId]/
 │   │       └── page.tsx              ← Brand profile page ✅
 │   │
-│   ├── dashboard/                    ← (planned)
-│   │   └── page.tsx                  ← Brand list view
+│   ├── dashboard/
+│   │   └── page.tsx                  ← Brand list view ✅
 │   │
 │   ├── settings/                     ← (planned)
 │   │   └── page.tsx                  ← User settings
@@ -49,9 +49,12 @@ clever-kit/
 │       ├── auth/
 │       │   └── callback/
 │       │       └── route.ts          ← Supabase auth callback ✅
-│       └── brands/
-│           └── analyze/
-│               └── route.ts          ← Main analysis endpoint ✅
+│       ├── brands/
+│       │   └── analyze/
+│       │       └── route.ts          ← Main analysis endpoint ✅
+│       └── docs/                     ← (planned)
+│           └── generate/
+│               └── route.ts          ← Doc generation endpoint
 │
 ├── components/
 │   ├── ui/                           ← shadcn/ui primitives (Radix-based)
@@ -102,9 +105,19 @@ clever-kit/
 │   │   ├── customer-form.tsx
 │   │   └── products-form.tsx
 │   │
-│   └── brand-profile/
-│       ├── profile-header.tsx        ← Brand name, URL, actions
-│       └── coming-soon.tsx           ← Future docs teaser
+│   ├── brand-profile/
+│   │   ├── profile-header.tsx        ← Brand name, URL, actions
+│   │   └── profile-tabs.tsx          ← Overview / Docs tab navigation (planned)
+│   │
+│   └── docs/                         ← Document generation (planned)
+│       ├── doc-template-card.tsx     ← Single template in grid
+│       ├── doc-template-grid.tsx     ← Grid of available templates
+│       ├── doc-list.tsx              ← User's generated docs
+│       ├── doc-list-item.tsx         ← Single doc in list
+│       ├── doc-viewer.tsx            ← Renders doc content
+│       ├── doc-export-menu.tsx       ← Export dropdown (copy, PDF)
+│       ├── readiness-badge.tsx       ← "Ready" or "Needs data" indicator
+│       └── missing-data-dialog.tsx   ← Shows what's needed for template
 │
 ├── lib/
 │   ├── providers/                    ← React context providers ✅ NEW
@@ -145,12 +158,30 @@ clever-kit/
 │   │       ├── index.ts              ← Main scrape function
 │   │       └── parser.ts             ← HTML cleaning
 │   │
+│   ├── docs/                         ← Document generation (planned)
+│   │   ├── types.ts                  ← DocTemplate, GeneratedDoc types
+│   │   ├── registry.ts               ← All available doc templates
+│   │   ├── generator.ts              ← Orchestrates doc generation
+│   │   ├── readiness.ts              ← Data sufficiency checks
+│   │   │
+│   │   └── templates/                ← One folder per doc type
+│   │       ├── golden-circle/
+│   │       │   ├── config.ts         ← Metadata, required analyzers
+│   │       │   ├── prompt.ts         ← Analysis prompt builder
+│   │       │   ├── parser.ts         ← Function schema
+│   │       │   ├── types.ts          ← TypeScript types
+│   │       │   └── index.ts          ← Exports
+│   │       │
+│   │       ├── brand-brief/          ← (future)
+│   │       └── customer-persona/     ← (future)
+│   │
 │   ├── supabase/
 │   │   ├── client.ts                 ← Browser client
 │   │   ├── server.ts                 ← Server client
 │   │   ├── middleware.ts             ← Auth middleware helper
 │   │   ├── brands.ts                 ← Brand CRUD
 │   │   ├── analysis-runs.ts          ← Analysis run CRUD
+│   │   ├── generated-docs.ts         ← Generated docs CRUD (planned)
 │   │   └── profiles.ts               ← Profile CRUD
 │   │
 │   ├── api/
@@ -166,12 +197,15 @@ clever-kit/
 ├── hooks/
 │   ├── use-auth.ts                   ← Auth hook (user, isLoading, signOut) ✅
 │   ├── use-auth-gate.ts              ← Auth gating hook (redirects to login) ✅
-│   ├── use-brands.ts                 ← TanStack Query: brands + mutations ✅ NEW
+│   ├── use-brands.ts                 ← TanStack Query: brands + mutations ✅
+│   ├── use-docs.ts                   ← TanStack Query: docs + mutations (planned)
+│   ├── use-doc-readiness.ts          ← Check template data requirements (planned)
 │   └── index.ts                      ← Hook exports ✅
 │
 ├── types/
 │   ├── database.ts                   ← Supabase table types
 │   ├── analyzers.ts                  ← Analyzer output types
+│   ├── docs.ts                       ← Doc template + generated doc types (planned)
 │   └── index.ts                      ← Re-exports
 │
 ├── public/
@@ -308,3 +342,25 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ### New Hook
 1. Create `hooks/use-{name}.ts`
 2. Export from `hooks/index.ts` if creating barrel file
+
+### New Doc Template
+1. Create folder: `lib/docs/templates/{name}/`
+2. Add 5 files: `config.ts`, `prompt.ts`, `parser.ts`, `types.ts`, `index.ts`
+3. Register in `lib/docs/registry.ts`
+4. Config specifies: name, description, icon, requiredAnalyzers, requiredFields
+
+**Example config:**
+```typescript
+// lib/docs/templates/golden-circle/config.ts
+export const config: DocTemplateConfig = {
+  id: 'golden-circle',
+  name: 'Golden Circle',
+  description: "Simon Sinek's Why/How/What framework",
+  icon: CircleDot,
+  requiredAnalyzers: ['basics', 'customer'],
+  requiredFields: {
+    basics: ['business_description', 'business_model'],
+    customer: ['primary_problem', 'buying_motivation'],
+  },
+};
+```

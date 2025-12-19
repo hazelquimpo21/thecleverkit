@@ -268,12 +268,110 @@
 
 ---
 
-## Future Epics (Not MVP)
+## Epic: Document Generation (In Planning)
 
-### Document Generation
-- US-050: Generate Brand Brief from analyzed data
-- US-051: Generate Customer Persona document
-- US-052: Generate Content Pillars
+> See `12-DOCS_FEATURE.md` for full implementation plan.
+
+### US-050: View Available Doc Templates
+
+**As a** user viewing a brand profile
+**I want to** see what documents I can generate from this brand's data
+**So that** I can choose the right deliverable for my needs
+
+**Acceptance Criteria:**
+- [ ] "Docs" tab on brand profile page
+- [ ] Shows grid of available doc templates (Golden Circle, Brand Brief, etc.)
+- [ ] Each template shows: name, description, icon
+- [ ] Shows readiness status ("Ready" or "Needs more data")
+- [ ] Templates with missing data show what's needed
+
+**UI Notes:**
+- Cards for each template type
+- Green "Ready" badge or orange "Needs X" badge
+- Click on "Needs X" shows missing fields
+
+---
+
+### US-051: Generate a Golden Circle Doc
+
+**As a** user
+**I want to** generate a Simon Sinek Golden Circle doc from my brand's data
+**So that** I can articulate the brand's Why/How/What
+
+**Acceptance Criteria:**
+- [ ] Click "Generate" on Golden Circle template
+- [ ] Shows brief generating state (few seconds)
+- [ ] Doc appears with three sections: Why, How, What
+- [ ] Each section has 1-2 paragraphs of content
+- [ ] Source data from: basics + customer analyzers
+
+**UI Notes:**
+- Loading state during generation
+- Doc rendered as clean markdown
+- Sections clearly labeled
+
+---
+
+### US-052: View Generated Docs
+
+**As a** user
+**I want to** see all docs I've generated for a brand
+**So that** I can access and manage them
+
+**Acceptance Criteria:**
+- [ ] "Your Docs" section below template grid
+- [ ] Shows list of generated docs with: title, template type, date
+- [ ] Click to view doc content
+- [ ] Actions: View, Export, Delete, Regenerate
+
+---
+
+### US-053: Export a Doc
+
+**As a** user
+**I want to** export a generated doc to use elsewhere
+**So that** I can share it or include it in other work
+
+**Acceptance Criteria:**
+- [ ] Export dropdown with options: Copy Markdown, Download PDF
+- [ ] Copy Markdown: copies to clipboard with toast confirmation
+- [ ] Download PDF: downloads clean formatted PDF
+
+**Future exports:**
+- Google Docs (OAuth required)
+- Google Slides
+- Canva (if API available)
+
+---
+
+### US-054: Regenerate a Doc
+
+**As a** user
+**I want to** regenerate a doc if the brand data has changed
+**So that** my docs stay current
+
+**Acceptance Criteria:**
+- [ ] "Regenerate" button on doc view
+- [ ] Confirmation: "Generate a fresh version?"
+- [ ] Creates new doc (doesn't overwrite - keeps history)
+- [ ] Optional: show indicator if brand data changed since doc was created
+
+---
+
+### US-055: Delete a Doc
+
+**As a** user
+**I want to** delete docs I no longer need
+**So that** my doc list stays clean
+
+**Acceptance Criteria:**
+- [ ] Delete button with confirmation
+- [ ] Removes doc from database
+- [ ] Toast confirmation
+
+---
+
+## Future Epics (Post-Docs)
 
 ### Additional Scrapers
 - US-060: Add LinkedIn company URL as source
@@ -284,6 +382,11 @@
 - US-070: Competitors analyzer
 - US-071: Tone of Voice analyzer
 - US-072: Visual Identity analyzer
+
+### Export Integrations
+- US-075: Export to Google Docs
+- US-076: Export to Google Slides
+- US-077: Export to Canva
 
 ### Collaboration
 - US-080: Invite team members
@@ -381,4 +484,47 @@ Make changes → Save
     │
     ▼
 Brand Profile (updated)
+```
+
+### Generate Doc Flow
+```
+Brand Profile
+    │
+    ▼
+Click "Docs" tab
+    │
+    ▼
+See available templates with readiness status
+    │
+    ▼
+Click "Generate" on a ready template (e.g., Golden Circle)
+    │
+    ▼
+Brief loading state (2-5 seconds)
+    │
+    ▼
+Doc appears in "Your Docs" list
+    │
+    ▼
+Click to view → see formatted doc
+    │
+    ▼
+Export: Copy Markdown or Download PDF
+```
+
+### Insufficient Data Flow
+```
+Brand Profile → Docs tab
+    │
+    ▼
+Template shows "Needs more data"
+    │
+    ▼
+Click to see what's missing
+    │
+    ▼
+Modal shows: "This template needs [X] from Customer analyzer"
+    │
+    ▼
+Options: "Edit Brand Data" or "Close"
 ```

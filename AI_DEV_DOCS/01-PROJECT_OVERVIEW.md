@@ -1,12 +1,12 @@
 # The Clever Kit — Project Overview
 
-> **Implementation Status (December 17, 2025)**: Core MVP implemented. Build passes. See `00-SESSION_NOTES.md` for details.
+> **Implementation Status (December 19, 2025)**: Core MVP complete with Dashboard. Docs feature in planning (see `12-DOCS_FEATURE.md`). Build passes. See `00-SESSION_NOTES.md` for details.
 
 ## What Is This?
 
 The Clever Kit is a web app that helps marketing agencies and freelancers quickly understand any brand by analyzing their website. Users paste a URL, and the app scrapes the site, runs it through multiple AI "analyzers," and produces structured brand intelligence.
 
-Think of it as an instant brand research assistant.
+Think of it as an instant brand research assistant — and soon, a document generator that turns brand intelligence into deliverables.
 
 ## Who Is It For?
 
@@ -39,18 +39,27 @@ Instead of manually combing through a website taking notes, The Clever Kit does 
 - [x] Brand profile view with all analyzed data
 - [x] Supabase database schema with RLS
 - [x] Two-step AI pattern (analysis → parsing)
+- [x] User auth UI (magic link login)
+- [x] Dashboard with brand list
+- [x] Realtime UI updates (Supabase subscriptions + polling fallback)
+- [x] Delete brands with confirmation
+- [x] Auth-gated analysis flow (URL preserved across login)
+
+### In Progress 🔶
+- [ ] **Docs Feature** — Generate documents from brand intelligence (see `12-DOCS_FEATURE.md`)
+  - Golden Circle (Simon Sinek's Why/How/What)
+  - Brand Brief
+  - Customer Persona
 
 ### Still Needed ⚠️
-- [ ] User auth UI (login/signup pages)
-- [ ] Dashboard with brand list
 - [ ] Manual editing of AI-extracted fields
 - [ ] Re-analyze capability
-- [ ] Realtime UI updates (backend ready)
+- [ ] Retry failed analyzers
 
 ### What's Out (Future)
 - Additional scrapers (LinkedIn, social profiles, Google search)
 - Additional analyzers (competitors, tone of voice, visual identity)
-- Document generation (brand briefs, personas, content pillars)
+- Export integrations (Google Docs, Google Slides, Canva)
 - Chat/voice input for brand information
 - Team collaboration features
 - White-label / client portals
@@ -114,4 +123,27 @@ The Clever Kit becomes the "brand OS" for agencies:
 3. **Generate** — Create documents, strategies, content from that intelligence
 4. **Iterate** — Refine through chat, update as brands evolve
 
-MVP focuses entirely on step 1 and 2 for a single source (website URL).
+**Current Focus:**
+- MVP (complete): Steps 1 and 2 for website URLs
+- Next: Step 3 with modular doc templates (Golden Circle, Brand Brief, etc.)
+
+### Docs Feature Vision
+
+The docs feature transforms analyzed brand data into useful deliverables:
+
+```
+Brand Intelligence          Doc Templates              Exports
+┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
+│ Basics          │──────▶│ Golden Circle   │──────▶│ Copy Markdown   │
+│ Customer        │──────▶│ Brand Brief     │──────▶│ Download PDF    │
+│ Products        │──────▶│ Customer Persona│──────▶│ Google Docs     │
+└─────────────────┘       └─────────────────┘       └─────────────────┘
+```
+
+**Key principles:**
+- Modular templates (easy to add new doc types)
+- Same two-step AI pattern (analyze → parse)
+- Data sufficiency checks before generation
+- Snapshots (docs don't auto-update when brand changes)
+
+See `12-DOCS_FEATURE.md` for full implementation plan.
