@@ -14,11 +14,12 @@
 'use client';
 
 import { useState } from 'react';
-import { FileText, FolderOpen } from 'lucide-react';
+import { FileText, FolderOpen, Loader2 } from 'lucide-react';
 import { DocList } from './doc-list';
 import { DocViewer } from './doc-viewer';
 import { useBrandDocs } from '@/hooks';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import type { Brand, GeneratedDoc } from '@/types';
 
 // ============================================================================
@@ -69,6 +70,36 @@ function DocsEmptyState() {
 }
 
 // ============================================================================
+// GENERATING DOCS BANNER
+// ============================================================================
+
+interface GeneratingDocsBannerProps {
+  docs: GeneratedDoc[];
+}
+
+/**
+ * Shows a banner when docs are being generated.
+ * Helps users understand that docs are in progress.
+ */
+function GeneratingDocsBanner({ docs }: GeneratingDocsBannerProps) {
+  if (docs.length === 0) return null;
+
+  return (
+    <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+      <Loader2 className="w-4 h-4 text-primary animate-spin" />
+      <span className="text-sm text-foreground">
+        {docs.length === 1
+          ? 'Generating document...'
+          : `Generating ${docs.length} documents...`}
+      </span>
+      <Badge variant="secondary" className="ml-auto text-xs">
+        In Progress
+      </Badge>
+    </div>
+  );
+}
+
+// ============================================================================
 // COMPONENT
 // ============================================================================
 
@@ -87,8 +118,10 @@ export function DocsTabContent({ brandId, brand }: DocsTabContentProps) {
     return <DocsLoadingSkeleton />;
   }
 
-  // Filter to only completed docs
+  // Separate docs by status
   const completedDocs = docs?.filter(d => d.status === 'complete') ?? [];
+  const generatingDocs = docs?.filter(d => d.status === 'generating') ?? [];
+  const hasAnyDocs = completedDocs.length > 0 || generatingDocs.length > 0;
 
   // Show doc viewer if a doc is selected
   if (selectedDoc) {
@@ -101,8 +134,8 @@ export function DocsTabContent({ brandId, brand }: DocsTabContentProps) {
     );
   }
 
-  // Empty state when no docs
-  if (completedDocs.length === 0) {
+  // Empty state when no docs at all (not generating either)
+  if (!hasAnyDocs) {
     return <DocsEmptyState />;
   }
 
@@ -114,17 +147,28 @@ export function DocsTabContent({ brandId, brand }: DocsTabContentProps) {
         <h2 className="text-xl font-semibold text-foreground">
           Your Documents
         </h2>
-        <span className="text-sm text-foreground-muted">
-          ({completedDocs.length})
-        </span>
+        {completedDocs.length > 0 && (
+          <span className="text-sm text-foreground-muted">
+            ({completedDocs.length})
+          </span>
+        )}
       </div>
 
-      {/* Doc list */}
-      <DocList
-        docs={completedDocs}
-        brand={brand}
-        onViewDoc={setSelectedDoc}
-      />
+      {/* Generating docs banner */}
+      <GeneratingDocsBanner docs={generatingDocs} />
+
+      {/* Doc list (only completed docs) */}
+      {completedDocs.length > 0 ? (
+        <DocList
+          docs={completedDocs}
+          brand={brand}
+          onViewDoc={setSelectedDoc}
+        />
+      ) : (
+        <p className="text-sm text-foreground-muted">
+          Your documents will appear here once generated.
+        </p>
+      )}
     </div>
   );
 }

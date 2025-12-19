@@ -105,6 +105,7 @@ async function fetchDoc(docId: string): Promise<GeneratedDoc> {
 
 /**
  * Hook to fetch all docs for a brand.
+ * Auto-refetches every 2 seconds when docs are generating.
  *
  * @param brandId - The brand UUID
  *
@@ -116,6 +117,12 @@ export function useBrandDocs(brandId: string) {
     queryKey: docKeys.listByBrand(brandId),
     queryFn: () => fetchBrandDocs(brandId),
     enabled: !!brandId,
+    // Poll every 2 seconds to catch generating docs transitioning to complete
+    // Stops polling when component unmounts or query is invalidated
+    refetchInterval: (query) => {
+      const hasGeneratingDocs = query.state.data?.some(d => d.status === 'generating') ?? false;
+      return hasGeneratingDocs ? 2000 : false;
+    },
   });
 }
 
