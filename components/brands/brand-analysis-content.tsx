@@ -181,7 +181,7 @@ export function BrandAnalysisContent({
         <StoreTabContent brandId={brand.id} brand={brand} runs={runs} />
       )}
       {activeTab === 'docs' && (
-        <DocsTabContent brandId={brand.id} runs={runs} />
+        <DocsTabContent brandId={brand.id} brand={brand} />
       )}
     </>
   );
