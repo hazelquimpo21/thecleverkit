@@ -4,12 +4,15 @@
  * Displays brand name, URL, and status in a consistent header layout.
  * Used on the brand profile page.
  * Includes back link to dashboard for easy navigation.
+ *
+ * Note: This component should be used inside a client component that
+ * provides realtime isAnalyzing state for proper status updates.
  */
 
 import Link from 'next/link';
 import { ExternalLink, RefreshCw, ArrowLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { extractDomain, formatRelativeTime } from '@/lib/utils/format';
+import { extractDomain, formatRelativeTime, decodeHtmlEntities } from '@/lib/utils/format';
 
 // ============================================================================
 // TYPES
@@ -61,7 +64,7 @@ export function BrandHeader({
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            {displayName}
+            {decodeHtmlEntities(displayName)}
           </h1>
           <div className="flex items-center gap-3">
             <a

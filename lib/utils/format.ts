@@ -125,6 +125,61 @@ export function isValidUrl(url: string): boolean {
 // ============================================================================
 
 /**
+ * Decode common HTML entities for clean display.
+ * Useful for cleaning up scraped content, titles, or brand names.
+ *
+ * @param text - Text that may contain HTML entities
+ * @returns Text with entities decoded
+ *
+ * @example
+ * decodeHtmlEntities('The Clever &#8211; AI') // -> 'The Clever – AI'
+ * decodeHtmlEntities('Ben &amp; Jerry&#39;s') // -> "Ben & Jerry's"
+ */
+export function decodeHtmlEntities(text: string | null): string {
+  if (!text) return '';
+
+  const entities: Record<string, string> = {
+    '&nbsp;': ' ',
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#39;': "'",
+    '&apos;': "'",
+    '&copy;': '\u00A9',       // ©
+    '&reg;': '\u00AE',        // ®
+    '&trade;': '\u2122',      // ™
+    '&mdash;': '\u2014',      // —
+    '&ndash;': '\u2013',      // –
+    '&hellip;': '\u2026',     // …
+    '&bull;': '\u2022',       // •
+    '&rsquo;': '\u2019',      // ' (right single quote)
+    '&lsquo;': '\u2018',      // ' (left single quote)
+    '&rdquo;': '\u201D',      // " (right double quote)
+    '&ldquo;': '\u201C',      // " (left double quote)
+  };
+
+  let result = text;
+
+  // Replace named entities
+  for (const [entity, replacement] of Object.entries(entities)) {
+    result = result.replace(new RegExp(entity, 'gi'), replacement);
+  }
+
+  // Handle numeric entities (decimal like &#8211;)
+  result = result.replace(/&#(\d+);/g, (_, num) =>
+    String.fromCharCode(parseInt(num, 10))
+  );
+
+  // Handle numeric entities (hex like &#x2013;)
+  result = result.replace(/&#x([0-9a-f]+);/gi, (_, hex) =>
+    String.fromCharCode(parseInt(hex, 16))
+  );
+
+  return result;
+}
+
+/**
  * Truncate text to a maximum length with ellipsis.
  *
  * @param text - Text to truncate
