@@ -1,6 +1,19 @@
 # Implementation Roadmap
 
-> **STATUS UPDATE (December 19, 2025)**: Phases 1-6 complete + Dashboard. shadcn/ui and React Query now installed and wired up. Build passes. See `00-SESSION_NOTES.md` for implementation details and gotchas.
+> **STATUS UPDATE (December 19, 2025)**: Phases 1-6 complete + Dashboard. Major UI redesign planned (see Phase 17). Build passes. See `00-SESSION_NOTES.md` for implementation details and gotchas.
+
+---
+
+## 🎨 MAJOR REDESIGN PLANNED
+
+A significant UI redesign is planned with a 1960s science textbook aesthetic. See:
+- `15-REDESIGN-VISION.md` — Complete design philosophy and specs
+- `16-REDESIGN-TASKS.md` — Implementation task breakdown
+- `17-TEMPLATE-STORE.md` — Template store feature spec
+
+**Phase 17** below contains the redesign implementation plan.
+
+---
 
 ## Build Order
 
@@ -396,6 +409,61 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 - Invite team members
 - Role-based permissions
 
+### Phase 17: UI Redesign 🎨
+
+**See `15-REDESIGN-VISION.md`, `16-REDESIGN-TASKS.md`, and `17-TEMPLATE-STORE.md` for full details.**
+
+**Goal**: Transform the UI into a delightful, human-centered experience with 1960s science textbook aesthetic.
+
+**STATUS: 📋 PLANNING COMPLETE**
+
+#### 17.1 Design System Foundation
+- [ ] Update global CSS variables with new color palette
+- [ ] Add warm-tinted shadow utilities
+- [ ] Update Tailwind config with semantic colors
+- [ ] Update border radius scale
+
+#### 17.2 Navigation Restructure
+- [ ] Create Sidebar component (260px left navigation)
+- [ ] Create SidebarNavItem component
+- [ ] Create SidebarBrandItem component
+- [ ] Update root layout to use sidebar
+- [ ] Remove/refactor top Header
+- [ ] Create PageHeader component for page titles
+
+#### 17.3 Card & Component Styling
+- [ ] Update Card component (shadow-based, no border)
+- [ ] Create color-coded AnalyzerCard variants (sage/rose/mustard)
+- [ ] Update Button component variants
+- [ ] Update Badge component with semantic variants
+- [ ] Update Input component styling
+
+#### 17.4 Page Updates
+- [ ] Update Dashboard page layout
+- [ ] Create warm empty state design
+- [ ] Update Brand Profile page with new tabs (Overview/Documents/Store)
+- [ ] Update Analysis Progress visualization
+- [ ] Update Home page styling
+- [ ] Update Login page styling
+
+#### 17.5 Template Store Feature
+- [ ] Create StoreTabContent component
+- [ ] Create TemplateGalleryCard component
+- [ ] Create TemplateIllustration components (CSS/SVG)
+- [ ] Create template category sections
+- [ ] Implement generation history display
+- [ ] Create "Coming Soon" template state
+
+#### 17.6 Polish & Micro-interactions
+- [ ] Add hover transitions to all interactive elements
+- [ ] Update skeleton loading states
+- [ ] Update toast styling for warm palette
+- [ ] Ensure all focus states use primary ring
+- [ ] Create reusable EmptyState component
+- [ ] Create reusable ErrorState component
+
+**Checkpoint**: ❌ Not started. Planning complete.
+
 ---
 
 ## Estimated Timeline (Remaining Work)
@@ -411,10 +479,11 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 | 7. Edit & Retry | ❌ Not started | ~1 day |
 | 8. Polish | 🔶 Partial | ~0.5 day |
 | 9. Deploy | ❌ Not started | ~0.5 day |
-| 12. Docs Feature | 📋 Planning | ~2-3 days |
+| 12. Docs Feature | ✅ Complete | - |
+| 17. UI Redesign | 📋 Planning | ~3-5 days |
 
 **Remaining for MVP: ~2 days**
-**Remaining for Docs Feature: ~2-3 days additional**
+**Remaining for UI Redesign: ~3-5 days**
 
 ---
 

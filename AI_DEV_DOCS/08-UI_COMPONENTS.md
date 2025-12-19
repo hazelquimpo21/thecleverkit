@@ -1,6 +1,26 @@
 # UI Components & Design System
 
-> **Updated December 19, 2025**: Added docs feature UI patterns. shadcn/ui integrated with OKLCH color system.
+> **Updated December 19, 2025**: Major redesign planned. See `15-REDESIGN-VISION.md` for new design direction.
+
+---
+
+## ⚠️ REDESIGN IN PROGRESS
+
+This document contains the **current** design system. A significant redesign is planned with:
+
+- **New aesthetic**: 1960s science textbook feel with muted pastels
+- **New color palette**: Burnt sienna primary, sage/rose/mustard/teal semantic colors
+- **New layout**: Left sidebar navigation instead of top header
+- **New feature**: Template Store tab on brand profiles
+
+**Redesign documentation:**
+- `15-REDESIGN-VISION.md` — Complete design philosophy and specs
+- `16-REDESIGN-TASKS.md` — Implementation task breakdown
+- `17-TEMPLATE-STORE.md` — Template store feature spec
+
+When implementing, **follow the redesign docs** for new work. This document will be fully updated after redesign implementation.
+
+---
 
 ## Design Principles
 
