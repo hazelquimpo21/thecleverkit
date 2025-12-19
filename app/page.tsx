@@ -17,11 +17,11 @@ export default function HomePage() {
     <PageContainer className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
       {/* Hero Section */}
       <div className="text-center mb-8 max-w-2xl">
-        <h1 className="text-4xl font-bold text-stone-900 mb-4">
+        <h1 className="text-4xl font-bold text-foreground mb-4">
           Brand Intelligence in{' '}
-          <span className="text-orange-500">60 Seconds</span>
+          <span className="text-primary">60 Seconds</span>
         </h1>
-        <p className="text-lg text-stone-600">
+        <p className="text-lg text-muted-foreground">
           Paste a website URL and get instant insights about any brand.
           Perfect for agencies, freelancers, and strategists.
         </p>
@@ -62,8 +62,8 @@ function FeatureCard({
 }) {
   return (
     <div className="text-center p-4">
-      <h3 className="text-sm font-semibold text-stone-900 mb-1">{title}</h3>
-      <p className="text-xs text-stone-500">{description}</p>
+      <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
+      <p className="text-xs text-muted-foreground">{description}</p>
     </div>
   );
 }

@@ -114,13 +114,13 @@ export function AddBrandForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Header */}
           <div className="text-center mb-6">
-            <div className="mx-auto w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mb-3">
-              <Globe className="w-6 h-6 text-orange-600" />
+            <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+              <Globe className="w-6 h-6 text-primary" />
             </div>
-            <h2 className="text-xl font-semibold text-stone-900">
+            <h2 className="text-xl font-semibold text-foreground">
               Analyze a Brand
             </h2>
-            <p className="text-sm text-stone-500 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               Enter a website URL to get instant brand intelligence
             </p>
           </div>
@@ -156,7 +156,7 @@ export function AddBrandForm() {
 
           {/* Help text - shows when authenticated */}
           {isAuthenticated && (
-            <p className="text-xs text-center text-stone-400">
+            <p className="text-xs text-center text-muted-foreground/70">
               We&apos;ll scrape the homepage and analyze the brand using AI
             </p>
           )}
@@ -176,8 +176,8 @@ export function AddBrandForm() {
  */
 function AuthHint() {
   return (
-    <div className="flex items-center justify-center gap-2 text-xs text-stone-500 bg-stone-50 rounded-lg px-3 py-2">
-      <Lock className="w-3.5 h-3.5 text-stone-400" />
+    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground bg-muted rounded-lg px-3 py-2">
+      <Lock className="w-3.5 h-3.5 text-muted-foreground/70" />
       <span>
         You&apos;ll sign in after clicking to save your analysis
       </span>

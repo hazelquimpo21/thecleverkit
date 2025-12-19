@@ -2,11 +2,12 @@
  * ROOT LAYOUT
  * ============
  * The root layout for the entire app.
- * Sets up metadata and global providers.
+ * Sets up metadata, global providers, and app shell.
  */
 
 import type { Metadata } from 'next';
 import { Header } from '@/components/layout/header';
+import { Providers } from '@/lib/providers';
 import './globals.css';
 
 // ============================================================================
@@ -32,10 +33,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased min-h-screen bg-[var(--background)]">
-        <Header />
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className="antialiased min-h-screen bg-background text-foreground">
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   );

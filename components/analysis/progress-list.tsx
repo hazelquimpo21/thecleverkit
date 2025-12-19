@@ -50,17 +50,17 @@ export function ProgressList({ runs }: ProgressListProps) {
           return (
             <div
               key={config.id}
-              className="flex items-center justify-between py-2 border-b border-stone-100 last:border-0"
+              className="flex items-center justify-between py-2 border-b border-border last:border-0"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center">
-                  <Icon className="w-4 h-4 text-stone-600" />
+                <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                  <Icon className="w-4 h-4 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-stone-900">
+                  <p className="text-sm font-medium text-foreground">
                     {config.name}
                   </p>
-                  <p className="text-xs text-stone-500">
+                  <p className="text-xs text-muted-foreground">
                     {config.description}
                   </p>
                 </div>

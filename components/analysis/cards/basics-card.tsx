@@ -34,13 +34,13 @@ function Field({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-        <Icon className="w-4 h-4 text-stone-500" />
+      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+        <Icon className="w-4 h-4 text-muted-foreground" />
       </div>
       <div>
-        <p className="text-xs text-stone-500 uppercase tracking-wide">{label}</p>
-        <p className="text-sm text-stone-900 mt-0.5">
-          {value || <span className="text-stone-400 italic">Not found</span>}
+        <p className="text-xs text-muted-foreground uppercase tracking-wide">{label}</p>
+        <p className="text-sm text-foreground mt-0.5">
+          {value || <span className="text-muted-foreground italic">Not found</span>}
         </p>
       </div>
     </div>
@@ -64,7 +64,7 @@ export function BasicsCard({ data, isLoading }: BasicsCardProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-orange-500" />
+            <Building2 className="w-5 h-5 text-primary" />
             Basics
           </CardTitle>
         </CardHeader>
@@ -88,12 +88,12 @@ export function BasicsCard({ data, isLoading }: BasicsCardProps) {
       <Card className="opacity-50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-stone-400" />
+            <Building2 className="w-5 h-5 text-muted-foreground" />
             Basics
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-stone-500">Analysis not yet complete</p>
+          <p className="text-sm text-muted-foreground">Analysis not yet complete</p>
         </CardContent>
       </Card>
     );
@@ -103,7 +103,7 @@ export function BasicsCard({ data, isLoading }: BasicsCardProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-orange-500" />
+          <Building2 className="w-5 h-5 text-primary" />
           Basics
         </CardTitle>
       </CardHeader>
@@ -130,11 +130,11 @@ export function BasicsCard({ data, isLoading }: BasicsCardProps) {
         />
 
         {/* Business Description */}
-        <div className="pt-2 border-t border-stone-100">
-          <p className="text-xs text-stone-500 uppercase tracking-wide mb-1">
+        <div className="pt-2 border-t border-border">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
             What They Do
           </p>
-          <p className="text-sm text-stone-700">
+          <p className="text-sm text-foreground/80">
             {data.business_description}
           </p>
         </div>

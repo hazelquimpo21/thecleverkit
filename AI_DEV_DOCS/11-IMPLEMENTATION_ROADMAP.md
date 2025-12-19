@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-> **STATUS UPDATE (December 18, 2025)**: Phases 1-6 complete including realtime updates. Build passes. See `00-SESSION_NOTES.md` for implementation details and gotchas.
+> **STATUS UPDATE (December 19, 2025)**: Phases 1-6 complete. shadcn/ui and React Query now installed and wired up. Build passes. See `00-SESSION_NOTES.md` for implementation details and gotchas.
 
 ## Build Order
 
@@ -19,8 +19,8 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 - [x] Install dependencies: `@supabase/ssr`, `tailwindcss`
 - [x] Set up Tailwind with custom colors (warm neutrals, orange primary)
 - [x] Add UI components: Button, Card, Input, Badge, Skeleton
-- [ ] Install shadcn/ui full suite (currently using custom components)
-- [ ] Install `@tanstack/react-query` (not yet wired up)
+- [x] Install shadcn/ui full suite (components use semantic CSS variables)
+- [x] Install `@tanstack/react-query` (provider + hooks wired up)
 
 ### 1.2 Supabase Setup
 - [x] Database schema created (see `supabase/schema.sql`)
@@ -63,7 +63,7 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 **STATUS: ✅ CORE COMPLETE** (Dashboard/list view not built)
 
 ### 2.1 Dashboard Page
-- [ ] Create `useBrands` hook (TanStack Query)
+- [x] Create `useBrands` hook (TanStack Query)
 - [ ] Build BrandEmptyState component
 - [ ] Build BrandCard component
 - [ ] Build BrandList component
@@ -78,7 +78,7 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 - [x] Create `/brands/[brandId]` page
 - [x] Build ProfileHeader component
 - [x] Show brand URL and analysis status
-- [ ] Create `useBrand` hook (TanStack Query)
+- [x] Create `useBrand` hook (TanStack Query)
 
 **Checkpoint**: ⚠️ Can add brands and view profiles. Need dashboard list.
 
@@ -241,7 +241,7 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 ### 8.2 Error Handling
 - [x] Error states in UI components
 - [ ] Global error boundary
-- [ ] Toast notifications for mutations
+- [x] Toast notifications for mutations (Sonner installed + React Query integration)
 - [ ] User-friendly error messages everywhere
 
 ### 8.3 Empty States

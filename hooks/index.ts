@@ -12,3 +12,14 @@ export { useAuthGate } from './use-auth-gate';
 // Analysis hooks
 export { useRealtimeAnalysis } from './use-realtime-analysis';
 export { useBrandAnalysis } from './use-brand-analysis';
+
+// React Query hooks (brand data fetching)
+export {
+  useBrands,
+  useBrand,
+  useCreateBrand,
+  useDeleteBrand,
+  useReanalyzeBrand,
+  usePrefetchBrand,
+  brandKeys,
+} from './use-brands';

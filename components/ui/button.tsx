@@ -2,7 +2,7 @@
  * BUTTON COMPONENT
  * =================
  * Versatile button with multiple variants and sizes.
- * Based on shadcn/ui patterns.
+ * Uses shadcn/ui patterns with semantic color classes.
  */
 
 import * as React from 'react';
@@ -18,32 +18,33 @@ const buttonVariants = cva(
   // Base styles
   `inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg
    text-sm font-medium transition-all duration-200
-   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500
-   disabled:pointer-events-none disabled:opacity-50`,
+   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+   disabled:pointer-events-none disabled:opacity-50
+   [&_svg]:pointer-events-none [&_svg]:shrink-0`,
   {
     variants: {
       variant: {
         // Primary action button
-        default: `bg-orange-500 text-white shadow-sm
-                  hover:bg-orange-600 active:bg-orange-700`,
-
-        // Secondary/subtle button
-        secondary: `bg-stone-100 text-stone-900 shadow-sm
-                    hover:bg-stone-200 active:bg-stone-300`,
-
-        // Outline button
-        outline: `border border-stone-300 bg-white text-stone-700
-                  hover:bg-stone-50 hover:border-stone-400`,
-
-        // Ghost/text button
-        ghost: `text-stone-700 hover:bg-stone-100 hover:text-stone-900`,
+        default: `bg-primary text-primary-foreground shadow-sm
+                  hover:bg-primary/90 active:bg-primary/80`,
 
         // Destructive action
-        destructive: `bg-red-500 text-white shadow-sm
-                      hover:bg-red-600 active:bg-red-700`,
+        destructive: `bg-destructive text-destructive-foreground shadow-sm
+                      hover:bg-destructive/90 active:bg-destructive/80`,
+
+        // Outline button
+        outline: `border border-input bg-background text-foreground shadow-sm
+                  hover:bg-accent hover:text-accent-foreground`,
+
+        // Secondary/subtle button
+        secondary: `bg-secondary text-secondary-foreground shadow-sm
+                    hover:bg-secondary/80`,
+
+        // Ghost/text button
+        ghost: `text-foreground hover:bg-accent hover:text-accent-foreground`,
 
         // Link style
-        link: `text-orange-600 underline-offset-4 hover:underline`,
+        link: `text-primary underline-offset-4 hover:underline`,
       },
       size: {
         default: 'h-10 px-4 py-2',
@@ -70,6 +71,8 @@ export interface ButtonProps
   isLoading?: boolean;
   /** Text to show when loading */
   loadingText?: string;
+  /** Render as child component (for composition with Link, etc.) */
+  asChild?: boolean;
 }
 
 /**
