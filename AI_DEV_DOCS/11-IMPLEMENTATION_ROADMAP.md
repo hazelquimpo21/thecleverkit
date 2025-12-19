@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-> **STATUS UPDATE (December 17, 2025)**: Phases 1-6 core functionality implemented. Build passes. See `00-SESSION_NOTES.md` for implementation details and gotchas.
+> **STATUS UPDATE (December 18, 2025)**: Phases 1-6 complete including realtime updates. Build passes. See `00-SESSION_NOTES.md` for implementation details and gotchas.
 
 ## Build Order
 
@@ -152,19 +152,26 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 
 **Goal**: User sees live progress during analysis.
 
-**STATUS: 🔶 PARTIAL** (Backend ready, UI not wired to realtime)
+**STATUS: ✅ COMPLETE**
 
 ### 5.1 Supabase Realtime
 - [x] Enable Realtime on `analysis_runs` table (in schema)
-- [ ] Create `useRealtimeAnalysis` hook
+- [x] Create `useRealtimeAnalysis` hook (with fallback polling)
+- [x] Create `useBrandAnalysis` hook (state management)
 
 ### 5.2 Progress UI
 - [x] Create ProgressList component
 - [x] Status icons and labels
-- [ ] Live subscription to status changes
-- [ ] Auto-redirect when complete
+- [x] Live subscription to status changes
+- [x] Completion celebration toast
+- [x] Connection status indicator
 
-**Checkpoint**: ⚠️ Progress displays but doesn't update live. User must refresh.
+### 5.3 Client/Server Split
+- [x] BrandHeader component (server)
+- [x] BrandAnalysisContent component (client with realtime)
+- [x] Server fetches initial data, client subscribes to updates
+
+**Checkpoint**: ✅ Analysis progress updates automatically. User sees live status changes.
 
 ---
 
@@ -318,13 +325,13 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 | 2. Brand Management | ✅ Core done | Dashboard: ~0.5 day |
 | 3. Scraping | ✅ Complete | - |
 | 4. Analyzers | ✅ Complete | - |
-| 5. Real-Time Progress | 🔶 Partial | Realtime hook: ~0.5 day |
+| 5. Real-Time Progress | ✅ Complete | - |
 | 6. Brand Profile Display | ✅ Complete | - |
 | 7. Edit & Retry | ❌ Not started | ~1 day |
 | 8. Polish | 🔶 Partial | ~1 day |
 | 9. Deploy | ❌ Not started | ~0.5 day |
 
-**Remaining: ~3.5 days for full MVP completion**
+**Remaining: ~3 days for full MVP completion**
 
 ---
 
@@ -336,7 +343,7 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 - [x] Scraping completes within 15 seconds
 - [x] All three analyzers run concurrently
 - [x] Analysis completes within 90 seconds
-- [ ] User sees real-time progress (currently requires refresh)
+- [x] User sees real-time progress (auto-refreshing UI)
 - [x] Brand profile displays all analyzed data
 - [ ] User can edit any analyzed field
 - [ ] User can retry failed analyzers
