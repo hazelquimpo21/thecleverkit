@@ -9,16 +9,19 @@
  * - Auto-updating analyzer cards
  * - Completion celebration animation
  * - Connection status indicator
+ * - Realtime header status updates (analyzing pill)
  */
 
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { useBrandAnalysis } from '@/hooks';
+import { extractDomain } from '@/lib/utils/format';
 import { ProgressList } from '@/components/analysis/progress-list';
 import { BasicsCard } from '@/components/analysis/cards/basics-card';
 import { CustomerCard } from '@/components/analysis/cards/customer-card';
 import { ProductsCard } from '@/components/analysis/cards/products-card';
+import { BrandHeader } from './brand-header';
 import { CompletionCelebration } from './completion-celebration';
 import { ConnectionStatus } from './connection-status';
 import type { AnalysisRun, Brand } from '@/types';
@@ -33,6 +36,8 @@ interface BrandAnalysisContentProps {
   brand: Brand;
   /** Initial analysis runs from server */
   initialRuns: AnalysisRun[];
+  /** Initial display name computed from server (fallback until basicsData loads) */
+  initialDisplayName: string;
 }
 
 // ============================================================================
@@ -41,13 +46,19 @@ interface BrandAnalysisContentProps {
 
 /**
  * Client component for displaying brand analysis with realtime updates.
+ * Includes the brand header so it can display realtime analyzing status.
  *
  * @example
- * <BrandAnalysisContent brand={brand} initialRuns={runs} />
+ * <BrandAnalysisContent
+ *   brand={brand}
+ *   initialRuns={runs}
+ *   initialDisplayName="Acme Corp"
+ * />
  */
 export function BrandAnalysisContent({
   brand,
   initialRuns,
+  initialDisplayName,
 }: BrandAnalysisContentProps) {
   // Track if we had initial runs that were analyzing
   const wasInitiallyAnalyzing = useRef(
@@ -60,7 +71,6 @@ export function BrandAnalysisContent({
   const {
     runs,
     isAnalyzing,
-    isComplete,
     justCompleted,
     acknowledgeCompletion,
     isRealtimeConnected,
@@ -87,6 +97,17 @@ export function BrandAnalysisContent({
     ? (productsRun.parsed_data as ParsedProducts | null)
     : null;
 
+  // Compute display name - updates when basicsData becomes available
+  // Priority: brand.name > basicsData.business_name > initial display name > domain
+  const displayName = useMemo(() => {
+    return (
+      brand.name ||
+      basicsData?.business_name ||
+      initialDisplayName ||
+      extractDomain(brand.source_url)
+    );
+  }, [brand.name, brand.source_url, basicsData?.business_name, initialDisplayName]);
+
   // Check if each analyzer is loading
   const basicsLoading = basicsRun?.status === 'analyzing' || basicsRun?.status === 'parsing';
   const customerLoading = customerRun?.status === 'analyzing' || customerRun?.status === 'parsing';
@@ -94,6 +115,14 @@ export function BrandAnalysisContent({
 
   return (
     <>
+      {/* Brand Header with realtime analyzing status */}
+      <BrandHeader
+        displayName={displayName}
+        sourceUrl={brand.source_url}
+        createdAt={brand.created_at}
+        isAnalyzing={isAnalyzing}
+      />
+
       {/* Completion celebration toast */}
       {justCompleted && wasInitiallyAnalyzing.current && (
         <CompletionCelebration onDismiss={acknowledgeCompletion} />

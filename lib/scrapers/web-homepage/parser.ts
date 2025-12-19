@@ -91,46 +91,58 @@ export function extractTextContent(html: string): ExtractedContent {
 
 /**
  * Extract the page title from HTML.
+ * Decodes HTML entities for clean display.
  */
 function extractTitle(html: string): string | null {
+  let title: string | null = null;
+
   // Try <title> tag
   const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
   if (titleMatch && titleMatch[1]) {
-    return titleMatch[1].trim();
+    title = titleMatch[1].trim();
   }
 
-  // Try og:title meta tag
-  const ogTitleMatch = html.match(
-    /<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i
-  );
-  if (ogTitleMatch && ogTitleMatch[1]) {
-    return ogTitleMatch[1].trim();
+  // Try og:title meta tag if no title found
+  if (!title) {
+    const ogTitleMatch = html.match(
+      /<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i
+    );
+    if (ogTitleMatch && ogTitleMatch[1]) {
+      title = ogTitleMatch[1].trim();
+    }
   }
 
-  return null;
+  // Decode HTML entities before returning
+  return title ? decodeHtmlEntities(title) : null;
 }
 
 /**
  * Extract the meta description from HTML.
+ * Decodes HTML entities for clean display.
  */
 function extractMetaDescription(html: string): string | null {
+  let description: string | null = null;
+
   // Try standard meta description
   const descMatch = html.match(
     /<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i
   );
   if (descMatch && descMatch[1]) {
-    return descMatch[1].trim();
+    description = descMatch[1].trim();
   }
 
-  // Try og:description
-  const ogDescMatch = html.match(
-    /<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i
-  );
-  if (ogDescMatch && ogDescMatch[1]) {
-    return ogDescMatch[1].trim();
+  // Try og:description if no standard description
+  if (!description) {
+    const ogDescMatch = html.match(
+      /<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i
+    );
+    if (ogDescMatch && ogDescMatch[1]) {
+      description = ogDescMatch[1].trim();
+    }
   }
 
-  return null;
+  // Decode HTML entities before returning
+  return description ? decodeHtmlEntities(description) : null;
 }
 
 // ============================================================================

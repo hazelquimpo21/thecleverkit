@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { usePrefetchBrand } from '@/hooks/use-brands';
-import { extractDomain, formatRelativeTime } from '@/lib/utils/format';
+import { extractDomain, formatRelativeTime, decodeHtmlEntities } from '@/lib/utils/format';
 import type { BrandWithAnalyses, AnalysisStatus } from '@/types';
 import type { ParsedBasics } from '@/types/analyzers';
 
@@ -78,15 +78,16 @@ function computeOverallStatus(brand: BrandWithAnalyses): AnalysisStatus | 'pendi
 /**
  * Extract display name from brand data.
  * Falls back through: brand.name -> parsed basics -> domain
+ * Decodes any HTML entities for clean display.
  */
 function getDisplayName(brand: BrandWithAnalyses): string {
   // First try the brand's stored name
-  if (brand.name) return brand.name;
+  if (brand.name) return decodeHtmlEntities(brand.name);
 
   // Then try parsed basics data
   const basicsRun = brand.analysis_runs?.find(r => r.analyzer_type === 'basics');
   const basicsData = basicsRun?.parsed_data as ParsedBasics | null;
-  if (basicsData?.business_name) return basicsData.business_name;
+  if (basicsData?.business_name) return decodeHtmlEntities(basicsData.business_name);
 
   // Fall back to domain from URL
   return extractDomain(brand.source_url);
