@@ -3,6 +3,8 @@
  * ===============
  * TypeScript types that match our Supabase schema.
  * These are the core data structures used throughout the app.
+ *
+ * @update 2025-12-19 - Added generated_docs table for docs feature
  */
 
 // ============================================================================
@@ -130,6 +132,9 @@ export type AnalysisRunUpdate = Partial<Omit<AnalysisRun, 'id' | 'brand_id' | 'a
 // DATABASE TYPE (for Supabase client typing)
 // ============================================================================
 
+// Import doc types for generated_docs table
+import type { GeneratedDoc, GeneratedDocInsert, GeneratedDocUpdate, DocStatus } from './docs';
+
 export type Database = {
   public: {
     Tables: {
@@ -167,6 +172,20 @@ export type Database = {
           }
         ];
       };
+      generated_docs: {
+        Row: GeneratedDoc;
+        Insert: GeneratedDocInsert;
+        Update: GeneratedDocUpdate;
+        Relationships: [
+          {
+            foreignKeyName: 'generated_docs_brand_id_fkey';
+            columns: ['brand_id'];
+            isOneToOne: false;
+            referencedRelation: 'brands';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -174,6 +193,7 @@ export type Database = {
       analyzer_type: AnalyzerType;
       analysis_status: AnalysisStatus;
       scrape_status: ScrapeStatus;
+      doc_status: DocStatus;
     };
     CompositeTypes: Record<string, never>;
   };

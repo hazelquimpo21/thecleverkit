@@ -1,7 +1,8 @@
 # Docs Feature — Implementation Plan
 
-> **Status**: Planning complete. Ready for implementation.
+> **Status**: ✅ Implementation complete (Golden Circle template)
 > **Created**: December 19, 2025
+> **Completed**: December 19, 2025
 
 ## Overview
 
@@ -404,57 +405,57 @@ type GoldenCircleContent = {
 
 ## Implementation Checklist
 
-### Phase 1: Foundation
+### Phase 1: Foundation ✅
 
-- [ ] Create `generated_docs` table in Supabase
-- [ ] Create `lib/docs/types.ts`
-- [ ] Create `lib/docs/registry.ts`
-- [ ] Create `lib/docs/generator.ts`
-- [ ] Create `lib/docs/readiness.ts`
-- [ ] Create `types/docs.ts`
+- [x] Create `generated_docs` table in Supabase (SQL provided, types ready)
+- [x] Create `lib/docs/types.ts`
+- [x] Create `lib/docs/registry.ts`
+- [x] Create `lib/docs/generator.ts`
+- [x] Create `lib/docs/readiness.ts`
+- [x] Create `types/docs.ts`
 
-### Phase 2: Golden Circle Template
+### Phase 2: Golden Circle Template ✅
 
-- [ ] Create `lib/docs/templates/golden-circle/config.ts`
-- [ ] Create `lib/docs/templates/golden-circle/prompt.ts`
-- [ ] Create `lib/docs/templates/golden-circle/parser.ts`
-- [ ] Create `lib/docs/templates/golden-circle/types.ts`
-- [ ] Create `lib/docs/templates/golden-circle/renderer.ts`
-- [ ] Create `lib/docs/templates/golden-circle/index.ts`
-- [ ] Test generation end-to-end
+- [x] Create `lib/docs/templates/golden-circle/config.ts`
+- [x] Create `lib/docs/templates/golden-circle/prompt.ts`
+- [x] Create `lib/docs/templates/golden-circle/parser.ts`
+- [x] Create `lib/docs/templates/golden-circle/types.ts`
+- [x] Create `lib/docs/templates/golden-circle/renderer.ts`
+- [x] Create `lib/docs/templates/golden-circle/index.ts`
+- [ ] Test generation end-to-end (pending deployment)
 
-### Phase 3: API & Hooks
+### Phase 3: API & Hooks ✅
 
-- [ ] Create `POST /api/docs/generate` route
-- [ ] Create `lib/supabase/generated-docs.ts`
-- [ ] Create `hooks/use-docs.ts` (React Query)
-- [ ] Create `hooks/use-doc-readiness.ts`
+- [x] Create `POST /api/docs/generate` route
+- [x] Create `lib/supabase/generated-docs.ts`
+- [x] Create `hooks/use-docs.ts` (React Query - includes all doc hooks)
+- [x] Readiness hooks integrated into `use-docs.ts`
 
-### Phase 4: UI Components
+### Phase 4: UI Components ✅
 
-- [ ] Create `components/brand-profile/profile-tabs.tsx`
-- [ ] Create `components/docs/doc-template-card.tsx`
-- [ ] Create `components/docs/doc-template-grid.tsx`
-- [ ] Create `components/docs/readiness-badge.tsx`
-- [ ] Create `components/docs/missing-data-dialog.tsx`
-- [ ] Create `components/docs/doc-list.tsx`
-- [ ] Create `components/docs/doc-list-item.tsx`
-- [ ] Create `components/docs/doc-viewer.tsx`
-- [ ] Create `components/docs/doc-export-menu.tsx`
+- [x] Create `components/brands/profile-tabs.tsx`
+- [x] Create `components/docs/doc-template-card.tsx`
+- [x] Create `components/docs/doc-template-grid.tsx`
+- [x] Create `components/docs/readiness-badge.tsx`
+- [x] Create `components/docs/missing-data-dialog.tsx`
+- [x] Create `components/docs/doc-list.tsx`
+- [x] Create `components/docs/doc-list-item.tsx`
+- [x] Create `components/docs/doc-viewer.tsx`
+- [x] Create `components/docs/doc-export-menu.tsx`
 
-### Phase 5: Brand Profile Integration
+### Phase 5: Brand Profile Integration ✅
 
-- [ ] Add tabs to brand profile page
-- [ ] Create docs tab content component
-- [ ] Wire up generation flow
-- [ ] Wire up doc viewing
-- [ ] Test full user flow
+- [x] Add tabs to brand profile page
+- [x] Create docs tab content component (`components/docs/docs-tab-content.tsx`)
+- [x] Wire up generation flow
+- [x] Wire up doc viewing
+- [ ] Test full user flow (pending deployment)
 
-### Phase 6: Export
+### Phase 6: Export ✅
 
-- [ ] Implement copy to clipboard (markdown)
-- [ ] Implement PDF download
-- [ ] Test exports
+- [x] Implement copy to clipboard (markdown)
+- [x] Implement PDF download (via html2pdf.js)
+- [ ] Test exports (pending deployment)
 
 ---
 
@@ -505,6 +506,121 @@ Keep history of doc versions for comparison.
 | Export options v1? | Copy markdown + PDF | Dec 19 |
 | Two-step AI pattern? | Yes, same as analyzers | Dec 19 |
 | Template ID type? | TEXT (not enum) for flexibility | Dec 19 |
+
+---
+
+## Implementation Notes (Dec 19, 2025)
+
+### Files Created
+
+**Types:**
+- `types/docs.ts` - GeneratedDoc type, DocStatus, DocTemplateId
+- `types/index.ts` - Updated to export docs types
+- `types/database.ts` - Added generated_docs table type
+
+**Library:**
+- `lib/docs/types.ts` - DocTemplateConfig, DocTemplateDefinition, BrandData
+- `lib/docs/registry.ts` - Template registration and lookup
+- `lib/docs/readiness.ts` - Data sufficiency checking
+- `lib/docs/generator.ts` - Two-step AI generation orchestration
+- `lib/docs/index.ts` - Central exports
+
+**Golden Circle Template:**
+- `lib/docs/templates/golden-circle/config.ts` - Template metadata
+- `lib/docs/templates/golden-circle/types.ts` - GoldenCircleContent type
+- `lib/docs/templates/golden-circle/prompt.ts` - Brand strategist prompt
+- `lib/docs/templates/golden-circle/parser.ts` - Function schema for parsing
+- `lib/docs/templates/golden-circle/renderer.ts` - Markdown generation
+- `lib/docs/templates/golden-circle/index.ts` - Template definition export
+
+**Database:**
+- `lib/supabase/generated-docs.ts` - CRUD operations
+
+**API:**
+- `app/api/docs/generate/route.ts` - POST endpoint for generation
+
+**Hooks:**
+- `hooks/use-docs.ts` - React Query hooks (useBrandDocs, useDoc, useGenerateDoc, etc.)
+- `hooks/index.ts` - Updated to export docs hooks
+
+**Components:**
+- `components/docs/index.ts` - Central exports
+- `components/docs/readiness-badge.tsx` - Ready/needs data indicator
+- `components/docs/missing-data-dialog.tsx` - Shows missing requirements
+- `components/docs/doc-template-card.tsx` - Template card with generate button
+- `components/docs/doc-template-grid.tsx` - Grid of template cards
+- `components/docs/doc-list.tsx` - List of generated docs
+- `components/docs/doc-list-item.tsx` - Single doc with actions
+- `components/docs/doc-viewer.tsx` - Dialog to view doc content
+- `components/docs/doc-export-menu.tsx` - Export dropdown menu
+- `components/docs/docs-tab-content.tsx` - Main docs tab content
+- `components/brands/profile-tabs.tsx` - Overview/Docs tab navigation
+
+**Modified:**
+- `components/brands/brand-analysis-content.tsx` - Added tab integration
+
+### Database Setup Required
+
+Run this SQL in Supabase to create the `generated_docs` table:
+
+```sql
+-- Create generated_docs table
+CREATE TABLE generated_docs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  brand_id UUID NOT NULL REFERENCES brands(id) ON DELETE CASCADE,
+  template_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  content JSONB NOT NULL DEFAULT '{}',
+  content_markdown TEXT,
+  source_data JSONB NOT NULL DEFAULT '{}',
+  status TEXT DEFAULT 'complete',
+  error_message TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_generated_docs_brand_id ON generated_docs(brand_id);
+CREATE INDEX idx_generated_docs_template ON generated_docs(template_id);
+
+-- RLS policies
+ALTER TABLE generated_docs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own docs"
+  ON generated_docs FOR SELECT
+  USING (
+    brand_id IN (SELECT id FROM brands WHERE user_id = auth.uid())
+  );
+
+CREATE POLICY "Users can insert docs for their brands"
+  ON generated_docs FOR INSERT
+  WITH CHECK (
+    brand_id IN (SELECT id FROM brands WHERE user_id = auth.uid())
+  );
+
+CREATE POLICY "Users can update their own docs"
+  ON generated_docs FOR UPDATE
+  USING (
+    brand_id IN (SELECT id FROM brands WHERE user_id = auth.uid())
+  );
+
+CREATE POLICY "Users can delete their own docs"
+  ON generated_docs FOR DELETE
+  USING (
+    brand_id IN (SELECT id FROM brands WHERE user_id = auth.uid())
+  );
+```
+
+### Adding New Templates
+
+To add a new doc template:
+
+1. Create folder: `lib/docs/templates/[template-name]/`
+2. Create files: `config.ts`, `types.ts`, `prompt.ts`, `parser.ts`, `renderer.ts`, `index.ts`
+3. Export template from `lib/docs/templates/[template-name]/index.ts`
+4. Register in `lib/docs/registry.ts`
+5. Add template ID to `types/docs.ts` DocTemplateId union
+6. Export from `lib/docs/index.ts`
 
 ---
 

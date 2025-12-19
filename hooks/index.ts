@@ -3,6 +3,8 @@
  * ============
  * Central export point for all custom React hooks.
  * Import from '@/hooks' instead of individual files.
+ *
+ * @update 2025-12-19 - Added docs hooks for generated documents feature
  */
 
 // Auth hooks
@@ -23,3 +25,16 @@ export {
   usePrefetchBrand,
   brandKeys,
 } from './use-brands';
+
+// React Query hooks (docs data fetching)
+export {
+  useBrandDocs,
+  useDoc,
+  useDocTemplatesReadiness,
+  useTemplateReadiness,
+  useTemplatesWithReadiness,
+  useGenerateDoc,
+  useDeleteDoc,
+  usePrefetchDoc,
+  docKeys,
+} from './use-docs';
