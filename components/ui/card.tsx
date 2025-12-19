@@ -2,7 +2,12 @@
  * CARD COMPONENT
  * ===============
  * Card container with header, content, and footer sections.
- * Uses shadcn/ui patterns with semantic color classes.
+ * Uses warm shadows instead of borders for a 1960s textbook feel.
+ *
+ * @update 2025-12-19 - Updated styling for redesign
+ *   - Removed border, uses warm shadow instead
+ *   - Updated border-radius to use design system
+ *   - Added hover lift effect for interactive cards
  */
 
 import * as React from 'react';
@@ -12,19 +17,32 @@ import { cn } from '@/lib/utils/cn';
 // CARD ROOT
 // ============================================================================
 
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      'rounded-xl border border-border bg-card text-card-foreground shadow-sm',
-      className
-    )}
-    {...props}
-  />
-));
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** Enable hover lift effect for clickable cards */
+  interactive?: boolean;
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, interactive, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        // Base styling
+        'rounded-[var(--radius-lg)] bg-card text-card-foreground',
+        // Shadow instead of border
+        'shadow-warm-sm',
+        // Interactive hover state
+        interactive && [
+          'transition-all duration-150',
+          'hover:shadow-warm-md hover:-translate-y-0.5',
+          'cursor-pointer',
+        ],
+        className
+      )}
+      {...props}
+    />
+  )
+);
 Card.displayName = 'Card';
 
 // ============================================================================
@@ -37,7 +55,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('flex flex-col space-y-1.5 p-6', className)}
+    className={cn('flex flex-col space-y-1.5 p-5', className)}
     {...props}
   />
 ));
@@ -54,7 +72,7 @@ const CardTitle = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'text-lg font-semibold leading-none tracking-tight',
+      'text-lg font-semibold leading-tight tracking-tight text-foreground',
       className
     )}
     {...props}
@@ -86,7 +104,7 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />
+  <div ref={ref} className={cn('p-5 pt-0', className)} {...props} />
 ));
 CardContent.displayName = 'CardContent';
 
@@ -100,7 +118,7 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('flex items-center p-6 pt-0', className)}
+    className={cn('flex items-center p-5 pt-0', className)}
     {...props}
   />
 ));

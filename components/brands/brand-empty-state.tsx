@@ -8,6 +8,8 @@
  * - Feels warm and inviting, not broken or empty
  * - Single clear CTA
  * - Brief value prop reminder
+ *
+ * @update 2025-12-19 - Updated styling for redesign, uses semantic analyzer colors
  */
 
 'use client';
@@ -24,9 +26,6 @@ import { Card, CardContent } from '@/components/ui/card';
 /**
  * Empty state for dashboard when user has no brands.
  * Shows welcome message and CTA to add first brand.
- *
- * @example
- * <BrandEmptyState />
  */
 export function BrandEmptyState() {
   return (
@@ -37,7 +36,7 @@ export function BrandEmptyState() {
       </div>
 
       {/* Heading */}
-      <h2 className="text-2xl font-bold text-foreground mb-2 text-center">
+      <h2 className="text-2xl font-semibold text-foreground mb-2 text-center">
         Welcome to The Clever Kit
       </h2>
 
@@ -62,17 +61,17 @@ export function BrandEmptyState() {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FeatureCard
-            icon={<Globe className="h-5 w-5 text-primary" />}
+            icon={<Globe className="h-5 w-5 text-[var(--color-basics)]" />}
             title="Business Basics"
             description="Name, industry, business model"
           />
           <FeatureCard
-            icon={<Target className="h-5 w-5 text-primary" />}
+            icon={<Target className="h-5 w-5 text-[var(--color-customer)]" />}
             title="Customer Profile"
             description="Audience, pain points, motivations"
           />
           <FeatureCard
-            icon={<Zap className="h-5 w-5 text-primary" />}
+            icon={<Zap className="h-5 w-5 text-[var(--color-products)]" />}
             title="Products & Pricing"
             description="Offerings, positioning, prices"
           />
@@ -94,7 +93,7 @@ interface FeatureCardProps {
 
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
-    <Card className="bg-muted/30 border-muted">
+    <Card className="bg-surface-muted/50">
       <CardContent className="p-4 text-center">
         <div className="flex justify-center mb-2">
           {icon}

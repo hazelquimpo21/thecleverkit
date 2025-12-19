@@ -143,7 +143,7 @@ export function CustomerCard({ data, isLoading }: CustomerCardProps) {
                 Buying Driver
               </p>
             </div>
-            <Badge variant="orange">{data.buying_motivation}</Badge>
+            <Badge variant="customer">{data.buying_motivation}</Badge>
           </div>
         </div>
       </CardContent>
