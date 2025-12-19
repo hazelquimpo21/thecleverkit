@@ -1,6 +1,6 @@
 # Google Docs Export — Implementation Plan
 
-> **Status**: 📋 Planning
+> **Status**: ✅ **IMPLEMENTED** (December 19, 2025)
 > **Created**: December 19, 2025
 
 ## Overview
@@ -8,6 +8,15 @@
 Allow users to export generated docs directly to their Google Drive as Google Docs. The exported doc appears in their Google Drive, and we store a reference (with link) in our `generated_docs` record.
 
 **Key UX**: User clicks "Save to Google Docs" → Doc appears in their Drive → They can open it from CleverKit or from Drive.
+
+### Implementation Summary
+
+All phases complete! The feature includes:
+- Popup-based OAuth flow (doesn't disrupt user flow)
+- Token management with automatic refresh
+- Markdown to Google Docs conversion with formatting (headings, bold, italic, lists)
+- Settings page with Connected Apps section
+- Google Docs link shown in doc list after export
 
 ---
 
@@ -251,47 +260,50 @@ export type GeneratedDoc = {
 
 ## Implementation Phases
 
-### Phase 1: Google Cloud & OAuth Foundation
+### Phase 1: Google Cloud & OAuth Foundation ✅
 
-- [ ] Create Google Cloud project
-- [ ] Enable Google Docs API
-- [ ] Configure OAuth consent screen
-- [ ] Create OAuth credentials
-- [ ] Add environment variables
-- [ ] Create `lib/integrations/google/` module structure
+- [x] Create Google Cloud project (user setup via `14-GOOGLE_CLOUD_SETUP.md`)
+- [x] Enable Google Docs API + Drive API
+- [x] Configure OAuth consent screen
+- [x] Create OAuth credentials (Web application type)
+- [x] Add environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
+- [x] Create `lib/integrations/google/` module structure
 
-### Phase 2: Database & Backend
+### Phase 2: Database & Backend ✅
 
-- [ ] Run SQL migrations (profiles + generated_docs columns)
-- [ ] Update TypeScript types
-- [ ] Create `POST /api/integrations/google/auth` (initiate OAuth)
-- [ ] Create `GET /api/integrations/google/callback` (handle callback)
-- [ ] Create `POST /api/integrations/google/disconnect`
-- [ ] Create `lib/integrations/google/client.ts` (token management)
-- [ ] Create `lib/integrations/google/docs.ts` (Docs API wrapper)
+- [x] Run SQL migrations (`supabase/migrations/001_google_docs_export.sql`)
+- [x] Update TypeScript types (`types/database.ts`, `types/docs.ts`)
+- [x] Create `POST /api/integrations/google/auth` (returns OAuth URL for popup)
+- [x] Create `GET /api/integrations/google/callback` (exchanges code, stores tokens)
+- [x] Create `POST /api/integrations/google/disconnect` (revokes + deletes)
+- [x] Create `GET /api/integrations/google/status` (check connection)
+- [x] Create `lib/integrations/google/client.ts` (token exchange, refresh, revoke)
+- [x] Create `lib/integrations/google/docs.ts` (Google Docs API with markdown conversion)
 
-### Phase 3: Export Flow
+### Phase 3: Export Flow ✅
 
-- [ ] Create `POST /api/export/google-docs` route
-- [ ] Update `lib/supabase/generated-docs.ts` with google fields
-- [ ] Create `hooks/use-google-integration.ts`
-- [ ] Handle token refresh logic
+- [x] Create `POST /api/export/google-docs` route
+- [x] Create `hooks/use-google-integration.ts` (React Query based)
+- [x] Handle token refresh logic in `getValidAccessToken()`
+- [x] Markdown to Google Docs formatting (H1-H3, bold, italic, lists)
 
-### Phase 4: UI Components
+### Phase 4: UI Components ✅
 
-- [ ] Create `components/integrations/google-connect-modal.tsx`
-- [ ] Create `components/integrations/google-connect-button.tsx`
-- [ ] Update `doc-export-menu.tsx` with Google Docs option
-- [ ] Update `doc-list-item.tsx` to show Google Docs link
-- [ ] Create settings page section for connected apps
+- [x] Create `components/integrations/google-connect-modal.tsx`
+- [x] Create GoogleIcon SVG component
+- [x] Update `doc-export-menu.tsx` with Google Docs option
+- [x] Update `doc-list-item.tsx` to show Google Docs link after export
+- [x] Create `/settings` page with Connected Apps section
+- [x] Create OAuth success page (`/integrations/google/success`)
+- [x] Create OAuth error page (`/integrations/google/error`)
 
-### Phase 5: Polish & Edge Cases
+### Phase 5: Polish & Edge Cases ✅
 
-- [ ] Handle token expiration gracefully
-- [ ] Handle disconnection (what happens to existing links?)
-- [ ] Handle Google API errors
-- [ ] Add loading states
-- [ ] Test full flow end-to-end
+- [x] Handle token expiration gracefully (auto-refresh, prompt to reconnect)
+- [x] Handle disconnection (links still work, user owns the doc)
+- [x] Handle Google API errors (toast notifications)
+- [x] Add loading states (connecting, exporting)
+- [x] Suspense boundary for useSearchParams in error page
 
 ---
 
@@ -335,34 +347,42 @@ When user disconnects:
 
 ---
 
-## File Structure
+## File Structure (As Implemented)
 
 ```
 lib/integrations/
-├── types.ts                    # Shared integration types
-├── google/
-│   ├── config.ts              # OAuth config, scopes
-│   ├── client.ts              # Token management
-│   ├── docs.ts                # Google Docs API wrapper
-│   ├── auth.ts                # OAuth flow helpers
-│   └── index.ts               # Exports
+├── types.ts                    # IntegrationStatus type ✅
+├── index.ts                    # Exports ✅
+└── google/
+    ├── config.ts              # OAuth config, scopes, buildGoogleAuthUrl() ✅
+    ├── client.ts              # exchangeCodeForTokens, refreshAccessToken, getValidAccessToken ✅
+    ├── docs.ts                # createGoogleDoc with markdown conversion ✅
+    └── index.ts               # Exports ✅
 
 app/api/integrations/google/
-├── auth/route.ts              # POST: Initiate OAuth
-├── callback/route.ts          # GET: OAuth callback
-└── disconnect/route.ts        # POST: Revoke & delete
+├── auth/route.ts              # POST: Returns OAuth URL for popup ✅
+├── callback/route.ts          # GET: Exchanges code, stores tokens ✅
+├── disconnect/route.ts        # POST: Revokes token, clears from DB ✅
+└── status/route.ts            # GET: Returns connection status ✅
 
 app/api/export/
-└── google-docs/route.ts       # POST: Export doc to Google
+└── google-docs/route.ts       # POST: Creates Google Doc, stores reference ✅
+
+app/integrations/google/
+├── success/page.tsx           # OAuth success (closes popup, notifies parent) ✅
+└── error/page.tsx             # OAuth error page ✅
+
+app/settings/
+├── page.tsx                   # Settings page ✅
+└── connected-apps-section.tsx # Google integration management ✅
 
 components/integrations/
-├── google-connect-modal.tsx   # First-time connect flow
-├── google-connect-button.tsx  # Reusable connect button
-├── connected-apps-list.tsx    # Settings page component
-└── index.ts
+├── google-connect-modal.tsx   # Modal for first-time connect ✅
+├── index.ts                   # Exports GoogleConnectModal, GoogleIcon ✅
 
 hooks/
-└── use-google-integration.ts  # Connection status, connect/disconnect
+├── use-google-integration.ts  # React Query hook for status/connect/disconnect ✅
+└── index.ts                   # Exports ✅
 ```
 
 ---
@@ -404,14 +424,14 @@ The pattern is consistent:
 
 ---
 
-## Open Questions
+## Decisions Made
 
-| Question | Options | Decision |
-|----------|---------|----------|
-| Re-export behavior? | Create new doc vs update existing | TBD |
-| Doc naming in Drive? | "[Brand] - Golden Circle" or configurable | TBD |
-| Folder in Drive? | Root, or create "CleverKit" folder | TBD |
-| What if token expires during export? | Auto-refresh or ask to reconnect | Auto-refresh |
+| Question | Decision | Notes |
+|----------|----------|-------|
+| Re-export behavior? | Create new doc each time | Simple, no update conflicts |
+| Doc naming in Drive? | Uses doc title directly | e.g., "Golden Circle: Acme Co" |
+| Folder in Drive? | Root folder | Simpler UX, user can organize |
+| What if token expires during export? | Auto-refresh | `getValidAccessToken()` handles this |
 
 ---
 

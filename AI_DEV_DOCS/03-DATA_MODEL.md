@@ -1,6 +1,6 @@
 # Data Model
 
-> **Updated December 19, 2025**: Added generated_docs table for docs feature.
+> **Updated December 19, 2025**: Added Google OAuth fields to profiles and Google Docs export fields to generated_docs. See `13-GOOGLE_DOCS_EXPORT.md` for implementation details.
 
 ## Overview
 
@@ -36,6 +36,12 @@ CREATE TABLE profiles (
   email TEXT,
   full_name TEXT,
   avatar_url TEXT,
+
+  -- Google OAuth (for Google Docs export) ✅ IMPLEMENTED
+  google_refresh_token TEXT,           -- OAuth refresh token (encrypted at rest)
+  google_email TEXT,                   -- Connected Google account email
+  google_connected_at TIMESTAMPTZ,     -- When user connected Google
+
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -236,6 +242,12 @@ export type Profile = {
   email: string | null;
   full_name: string | null;
   avatar_url: string | null;
+
+  // Google OAuth (for Google Docs export) ✅ IMPLEMENTED
+  google_refresh_token: string | null;
+  google_email: string | null;
+  google_connected_at: string | null;
+
   created_at: string;
   updated_at: string;
 };
@@ -360,6 +372,11 @@ CREATE TABLE generated_docs (
   -- Snapshot of data used for generation
   source_data JSONB NOT NULL,          -- Copy of brand/analyzer data at generation time
 
+  -- Google Docs export ✅ IMPLEMENTED
+  google_doc_id TEXT,                  -- Google Docs document ID
+  google_doc_url TEXT,                 -- Direct link to Google Doc
+  google_exported_at TIMESTAMPTZ,      -- When exported to Google Docs
+
   -- Status tracking
   status TEXT DEFAULT 'complete',      -- 'generating', 'complete', 'error'
   error_message TEXT,
@@ -422,6 +439,12 @@ export type GeneratedDoc = {
   content: Record<string, unknown>;  // Structured content
   content_markdown: string | null;
   source_data: Record<string, unknown>;
+
+  // Google Docs export ✅ IMPLEMENTED
+  google_doc_id: string | null;
+  google_doc_url: string | null;
+  google_exported_at: string | null;
+
   status: 'generating' | 'complete' | 'error';
   error_message: string | null;
   created_at: string;

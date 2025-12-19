@@ -64,16 +64,18 @@ The MVP core has been implemented with a working build. Here's what exists:
 | **Dashboard page** | ✅ Complete | Brand list with empty state, delete, navigation |
 | **Brand cards** | ✅ Complete | Shows status, actions, links to detail |
 | **Header navigation** | ✅ Complete | My Brands, Add Brand links for auth users |
+| **Google Docs Export** | ✅ Complete | OAuth + Docs API integration |
+| **Settings page** | ✅ Complete | Connected Apps management |
 
 ### Not Yet Implemented
 
 | Feature | Priority | Notes |
 |---------|----------|-------|
-| **Docs Feature** | **High** | In planning - see `12-DOCS_FEATURE.md` |
+| **Docs Feature (Templates)** | **High** | Golden Circle template in progress - see `12-DOCS_FEATURE.md` |
 | Edit forms for analysis data | Medium | View-only currently |
 | Retry failed analyzers | Medium | API exists conceptually |
 | Re-analyze brand | Medium | UI button disabled, needs API |
-| User settings page | Low | |
+| Additional export integrations | Low | Notion, Slides (Google Docs done) |
 
 ---
 
@@ -129,6 +131,23 @@ The MVP core has been implemented with a working build. Here's what exists:
 | `components/brands/brand-card.tsx` | Single brand card in list view |
 | `components/brands/brand-empty-state.tsx` | Empty state for new users |
 | `components/brands/delete-brand-dialog.tsx` | Confirmation dialog for brand deletion |
+
+### Google Docs Integration (NEW - December 19, 2025)
+
+| File | Purpose |
+|------|---------|
+| `lib/integrations/types.ts` | Shared integration types |
+| `lib/integrations/google/config.ts` | OAuth scopes, URLs, buildAuthUrl() |
+| `lib/integrations/google/client.ts` | Token exchange, refresh, revocation |
+| `lib/integrations/google/docs.ts` | Google Docs API + markdown conversion |
+| `app/api/integrations/google/auth/route.ts` | POST: Initiate OAuth |
+| `app/api/integrations/google/callback/route.ts` | GET: OAuth callback |
+| `app/api/integrations/google/disconnect/route.ts` | POST: Revoke tokens |
+| `app/api/integrations/google/status/route.ts` | GET: Connection status |
+| `app/api/export/google-docs/route.ts` | POST: Export doc to Google Docs |
+| `hooks/use-google-integration.ts` | Hook for connect/disconnect/export |
+| `components/integrations/google-connect-modal.tsx` | OAuth connect modal |
+| `app/settings/page.tsx` | Settings with Connected Apps |
 
 ### Each Analyzer Module
 
@@ -902,9 +921,11 @@ Priority order:
 2. ~~**Realtime UI** - Wire up Supabase realtime to show live progress~~ ✅ Done
 3. ~~**shadcn/ui + React Query** - Install and wire up~~ ✅ Done
 4. ~~**Dashboard** - Brand list view at `/dashboard`~~ ✅ Done
-5. **Docs Feature** - Generate docs from brand data (see `12-DOCS_FEATURE.md`) ← **CURRENT**
-6. **Edit forms** - Allow editing parsed data
-7. **Error recovery** - Retry failed analyzers UI
+5. ~~**Google Docs Export** - OAuth integration + Docs API~~ ✅ Done
+6. **Docs Feature Templates** - Generate docs from brand data (see `12-DOCS_FEATURE.md`) ← **CURRENT**
+7. **Edit forms** - Allow editing parsed data
+8. **Error recovery** - Retry failed analyzers UI
+9. **Additional Integrations** - Notion, Google Slides (follow same pattern as Google Docs)
 
 ---
 
@@ -919,4 +940,6 @@ Check the other docs in `AI_DEV_DOCS/`:
 - `09-FILE_STRUCTURE.md` - Where things go
 - `10-API_PATTERNS.md` - React Query and API patterns
 - `11-IMPLEMENTATION_ROADMAP.md` - Full feature checklist
-- `12-DOCS_FEATURE.md` - **Docs feature implementation plan**
+- `12-DOCS_FEATURE.md` - Docs feature implementation plan
+- `13-GOOGLE_DOCS_EXPORT.md` - **Google Docs export (IMPLEMENTED)**
+- `14-GOOGLE_CLOUD_SETUP.md` - Step-by-step Google Cloud setup guide

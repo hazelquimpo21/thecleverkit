@@ -33,13 +33,24 @@ function ErrorContent() {
   const errorMessage = ERROR_MESSAGES[errorCode] || ERROR_MESSAGES.server_error;
 
   useEffect(() => {
-    // Post message to opener (parent window)
+    // Method 1: Try postMessage (works if COOP is same-origin-allow-popups)
     if (window.opener) {
-      window.opener.postMessage(
-        { type: 'GOOGLE_OAUTH_ERROR', error: errorCode },
-        '*'
-      );
+      try {
+        window.opener.postMessage(
+          { type: 'GOOGLE_OAUTH_ERROR', error: errorCode },
+          window.location.origin
+        );
+      } catch {
+        // COOP might block this, use fallback
+      }
     }
+
+    // Method 2: Use localStorage for cross-tab communication (always works)
+    localStorage.setItem('google_oauth_result', JSON.stringify({
+      type: 'error',
+      error: errorCode,
+      timestamp: Date.now(),
+    }));
   }, [errorCode]);
 
   const handleClose = () => {

@@ -2,7 +2,11 @@
  * GOOGLE OAUTH SUCCESS PAGE
  * ===========================
  * Shown after successful Google OAuth.
- * Posts a message to the opener window and closes itself.
+ * Notifies the opener window and closes itself.
+ *
+ * Uses multiple methods to ensure communication works:
+ * 1. postMessage (preferred, but blocked by COOP)
+ * 2. localStorage event (fallback, works cross-origin)
  *
  * @created 2025-12-19 - Google Docs export feature
  */
@@ -14,12 +18,24 @@ import { CheckCircle2 } from 'lucide-react';
 
 export default function GoogleOAuthSuccessPage() {
   useEffect(() => {
-    // Post message to opener (parent window)
+    // Method 1: Try postMessage (works if COOP is same-origin-allow-popups)
     if (window.opener) {
-      window.opener.postMessage({ type: 'GOOGLE_OAUTH_SUCCESS' }, '*');
-      // Close this popup after a short delay
-      setTimeout(() => window.close(), 1500);
+      try {
+        window.opener.postMessage({ type: 'GOOGLE_OAUTH_SUCCESS' }, window.location.origin);
+      } catch {
+        // COOP might block this, use fallback
+      }
     }
+
+    // Method 2: Use localStorage for cross-tab communication (always works)
+    // The parent window listens for storage events
+    localStorage.setItem('google_oauth_result', JSON.stringify({
+      type: 'success',
+      timestamp: Date.now(),
+    }));
+
+    // Close this popup after a short delay
+    setTimeout(() => window.close(), 1500);
   }, []);
 
   return (

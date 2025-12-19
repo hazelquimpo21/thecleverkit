@@ -1,6 +1,6 @@
 # Architecture
 
-> **Updated December 19, 2025**: Added docs generation architecture. Core MVP complete. See `00-SESSION_NOTES.md` for implementation notes.
+> **Updated December 19, 2025**: Added Google Docs export integration. Core MVP + Google OAuth complete. See `00-SESSION_NOTES.md` for implementation notes.
 
 ## System Overview
 
@@ -303,12 +303,121 @@ We use shadcn/ui components with custom OKLCH color tokens:
 | Full analysis (3 analyzers) | < 60s | Running concurrently |
 | Realtime update latency | < 500ms | Supabase handles this |
 
+## Integrations Architecture
+
+### Google Docs Export (✅ Implemented)
+
+The integrations module follows a modular pattern for third-party OAuth connections:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    INTEGRATIONS MODULE                           │
+│                                                                  │
+│  lib/integrations/                                               │
+│  ├── types.ts                 # Shared IntegrationStatus type    │
+│  └── google/                                                     │
+│      ├── config.ts            # OAuth config, scopes, URLs       │
+│      ├── client.ts            # Token management (refresh, etc.) │
+│      ├── docs.ts              # Google Docs API wrapper          │
+│      └── index.ts             # Exports                          │
+└─────────────────────────────────────────────────────────────────┘
+            │
+            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     API ROUTES                                   │
+│                                                                  │
+│  app/api/integrations/google/                                    │
+│  ├── auth/route.ts            # POST: Initiate OAuth popup       │
+│  ├── callback/route.ts        # GET: Handle OAuth callback       │
+│  ├── disconnect/route.ts      # POST: Revoke & delete tokens     │
+│  └── status/route.ts          # GET: Check connection status     │
+│                                                                  │
+│  app/api/export/google-docs/route.ts                             │
+│  └── POST: Create Google Doc from generated_doc                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### OAuth Flow (Popup-Based)
+
+```
+User clicks "Save to Google Docs"
+    │
+    ├─── Not connected: ─────────────────────────────────────────┐
+    │                                                             │
+    │    Show GoogleConnectModal                                  │
+    │        ↓                                                    │
+    │    User clicks [Connect Google]                             │
+    │        ↓                                                    │
+    │    POST /api/integrations/google/auth                       │
+    │        ↓                                                    │
+    │    Open popup with Google OAuth consent                     │
+    │        ↓                                                    │
+    │    User grants permission                                   │
+    │        ↓                                                    │
+    │    GET /api/integrations/google/callback                    │
+    │        ↓                                                    │
+    │    Exchange code for tokens, store refresh_token            │
+    │        ↓                                                    │
+    │    Popup redirects to /integrations/google/success          │
+    │        ↓                                                    │
+    │    Parent window detects success, closes popup              │
+    │        ↓                                                    │
+    │    Continue with export                                     │
+    │                                                             │
+    ├─── Already connected: ─────────────────────────────────────┤
+    │                                                             │
+    │    POST /api/export/google-docs { docId }                   │
+    │        ↓                                                    │
+    │    Get refresh_token from profiles table                    │
+    │        ↓                                                    │
+    │    getValidAccessToken() — refresh if needed                │
+    │        ↓                                                    │
+    │    createGoogleDoc() — Create doc via API                   │
+    │        ↓                                                    │
+    │    Store google_doc_id + google_doc_url in generated_docs   │
+    │        ↓                                                    │
+    │    Return { success, googleDocUrl }                         │
+    │                                                             │
+    └─────────────────────────────────────────────────────────────┘
+```
+
+### Token Management
+
+- **Refresh tokens** stored in `profiles.google_refresh_token`
+- **Access tokens** are short-lived (1 hour), fetched on-demand
+- `getValidAccessToken()` handles automatic refresh
+- If refresh fails → show "reconnect" prompt to user
+
+### Markdown to Google Docs Conversion
+
+The `createGoogleDoc()` function converts markdown to Google Docs format:
+
+```typescript
+// lib/integrations/google/docs.ts
+export async function createGoogleDoc(accessToken: string, options: {
+  title: string;
+  markdownContent: string;
+}) {
+  // 1. Create empty doc
+  // 2. Parse markdown into paragraphs, headings, lists
+  // 3. Use batchUpdate to insert formatted content
+  // 4. Return { documentId, documentUrl }
+}
+```
+
+**Formatting supported:**
+- Headings (H1, H2, H3)
+- Paragraphs with proper spacing
+- Bold text (`**text**`)
+- Italic text (`*text*`)
+- Bullet lists
+
 ## Scaling Considerations (Post-MVP)
 
 - **More analyzers**: Execution plan handles any DAG
 - **Longer analyses**: Could move to background jobs (Vercel cron or Supabase Edge Functions)
 - **More scrapers**: Each adds to `scraped_sources` array on brand
 - **More doc templates**: Registry pattern handles any number
-- **Export integrations**: Add exporters (Google Docs, PDF) as separate modules
+- **Export integrations**: Google Docs ✅ implemented. Add Notion, Slides, PDF as separate modules
 - **Team features**: Add `team_id` to brands, update RLS policies
 - **Higher volume**: Supabase scales, may need GPT rate limit handling
