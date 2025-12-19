@@ -18,6 +18,10 @@ export type Profile = {
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
+  // Google OAuth integration
+  google_refresh_token: string | null;
+  google_email: string | null;
+  google_connected_at: string | null;
 };
 
 // ============================================================================
@@ -87,6 +91,10 @@ export type ProfileInsert = {
   email?: string | null;
   full_name?: string | null;
   avatar_url?: string | null;
+  // Google OAuth integration (optional on insert)
+  google_refresh_token?: string | null;
+  google_email?: string | null;
+  google_connected_at?: string | null;
 };
 
 /**

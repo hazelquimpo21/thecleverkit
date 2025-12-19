@@ -72,6 +72,19 @@ export type GeneratedDoc = {
 
   /** When the doc was last updated */
   updated_at: string;
+
+  // ============================================================================
+  // GOOGLE DOCS EXPORT
+  // ============================================================================
+
+  /** Google Docs document ID (if exported) */
+  google_doc_id: string | null;
+
+  /** Direct URL to the Google Doc */
+  google_doc_url: string | null;
+
+  /** When the doc was last exported to Google Docs */
+  google_exported_at: string | null;
 };
 
 // ============================================================================
@@ -90,6 +103,10 @@ export type GeneratedDocInsert = {
   source_data: Record<string, unknown>;
   status?: DocStatus;
   error_message?: string | null;
+  // Google Docs export (optional on insert)
+  google_doc_id?: string | null;
+  google_doc_url?: string | null;
+  google_exported_at?: string | null;
 };
 
 /**

@@ -11,7 +11,7 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { FileText, Eye, Trash2, MoreVertical, Loader2 } from 'lucide-react';
+import { FileText, Eye, Trash2, MoreVertical, Loader2, ExternalLink } from 'lucide-react';
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { DocExportMenu } from './doc-export-menu';
+import { GoogleIcon } from '@/components/integrations';
 import { formatRelativeTime } from '@/lib/utils/format';
 import { useDeleteDoc } from '@/hooks';
 import { cn } from '@/lib/utils/cn';
@@ -126,6 +127,9 @@ export function DocListItem({ doc, onView }: DocListItemProps) {
   // Format the date
   const dateText = formatRelativeTime(doc.created_at);
 
+  // Check if exported to Google Docs
+  const hasGoogleDoc = !!doc.google_doc_url;
+
   return (
     <>
       <div className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary/20 transition-colors">
@@ -136,7 +140,26 @@ export function DocListItem({ doc, onView }: DocListItemProps) {
           </div>
           <div className="min-w-0">
             <p className="font-medium text-sm truncate">{doc.title}</p>
-            <p className="text-xs text-muted-foreground">{dateText}</p>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>{dateText}</span>
+              {/* Show Google Docs link if exported */}
+              {hasGoogleDoc && (
+                <>
+                  <span>•</span>
+                  <a
+                    href={doc.google_doc_url!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-primary hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <GoogleIcon className="w-3 h-3" />
+                    <span>Google Docs</span>
+                    <ExternalLink className="w-2.5 h-2.5" />
+                  </a>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
@@ -151,6 +174,7 @@ export function DocListItem({ doc, onView }: DocListItemProps) {
             <DocExportMenu
               markdown={doc.content_markdown}
               title={doc.title}
+              docId={doc.id}
               trigger={
                 <Button variant="ghost" size="sm">
                   Export

@@ -1,24 +1,33 @@
 # Session Notes for AI Developers
 
 > Last updated: December 19, 2025
-> Status: Dashboard & Core MVP Complete. Docs Feature in Planning. (Build Passing)
+> Status: Dashboard & Core MVP Complete. Docs + Google Docs Export Implemented. (Build Passing)
 
 This document provides context for future AI developers working on this codebase. Read this first!
 
 ---
 
-## Current Focus: Docs Feature
+## Current Focus: Google Docs Export ✅
 
-**Next major feature**: Document generation from brand intelligence. See `12-DOCS_FEATURE.md` for the full implementation plan.
+**Just implemented**: Full Google OAuth integration for exporting docs to Google Docs.
 
-**Summary**: Users will be able to generate docs (like a "Golden Circle" doc) from their brand's analyzed data. The UI will show available templates with readiness status, and users can export docs as markdown or PDF.
+**See documentation:**
+- `12-DOCS_FEATURE.md` - Docs feature implementation plan
+- `13-GOOGLE_DOCS_EXPORT.md` - Google Docs export implementation plan
+- `14-GOOGLE_CLOUD_SETUP.md` - Step-by-step Google Cloud setup guide
 
-**Key decisions made:**
-- Docs tab on brand profile page (not a separate section)
-- Same two-step AI pattern as analyzers
-- Modular template system (easy to add new doc types)
-- Golden Circle as first template
-- Copy markdown + PDF export for v1 (Google Docs later)
+**What's now available:**
+- Export any generated doc directly to Google Docs
+- OAuth flow with popup-based connection
+- Google connection status in Settings page
+- Docs show "Saved to Google Docs" link after export
+- Disconnect/reconnect Google anytime
+
+**Key architecture decisions:**
+- Separate OAuth (not tied to login) - more flexible
+- Token stored in profiles table
+- Google Doc reference stored in generated_docs table
+- Modular integrations pattern (ready for Notion, etc.)
 
 ---
 

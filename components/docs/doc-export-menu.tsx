@@ -2,24 +2,28 @@
  * DOC EXPORT MENU
  * =================
  * Dropdown menu for exporting generated docs.
- * Supports copy to clipboard and PDF download.
+ * Supports copy to clipboard, PDF download, and Google Docs export.
  *
  * @created 2025-12-19 - Initial docs feature implementation
+ * @updated 2025-12-19 - Added Google Docs export option
  */
 
 'use client';
 
-import { Copy, Download, ChevronDown, Check } from 'lucide-react';
+import { Copy, Download, ChevronDown, Check, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from '@/components/ui/sonner';
 import { log } from '@/lib/utils/logger';
+import { useGoogleIntegration } from '@/hooks';
+import { GoogleConnectModal, GoogleIcon } from '@/components/integrations';
 
 // ============================================================================
 // TYPES
@@ -34,6 +38,12 @@ interface DocExportMenuProps {
 
   /** Optional: custom trigger button */
   trigger?: React.ReactNode;
+
+  /** Document ID for Google Docs export */
+  docId?: string;
+
+  /** Callback when Google export completes */
+  onGoogleExported?: (url: string) => void;
 }
 
 // ============================================================================
@@ -44,10 +54,28 @@ interface DocExportMenuProps {
  * Dropdown menu with export options for a doc.
  *
  * @example
- * <DocExportMenu markdown={doc.content_markdown} title={doc.title} />
+ * <DocExportMenu
+ *   markdown={doc.content_markdown}
+ *   title={doc.title}
+ *   docId={doc.id}
+ * />
  */
-export function DocExportMenu({ markdown, title, trigger }: DocExportMenuProps) {
+export function DocExportMenu({
+  markdown,
+  title,
+  trigger,
+  docId,
+  onGoogleExported,
+}: DocExportMenuProps) {
   const [copied, setCopied] = useState(false);
+  const [showConnectModal, setShowConnectModal] = useState(false);
+
+  // Google integration hook
+  const {
+    isConnected: isGoogleConnected,
+    exportToGoogleDocs,
+    isExporting,
+  } = useGoogleIntegration();
 
   // Copy markdown to clipboard
   const handleCopyMarkdown = async () => {
@@ -119,31 +147,91 @@ export function DocExportMenu({ markdown, title, trigger }: DocExportMenuProps) 
     toast.success('Print dialog opened');
   };
 
+  // Export to Google Docs
+  const handleGoogleDocsExport = () => {
+    if (!docId) {
+      toast.error('Document ID is required for Google Docs export');
+      return;
+    }
+
+    if (!isGoogleConnected) {
+      // Show connect modal
+      setShowConnectModal(true);
+      return;
+    }
+
+    // Proceed with export
+    exportToGoogleDocs(docId, {
+      onSuccess: (data) => {
+        onGoogleExported?.(data.googleDocUrl);
+      },
+    });
+  };
+
+  // Handle when Google is connected via modal
+  const handleGoogleConnected = () => {
+    if (docId) {
+      // Automatically export after connecting
+      exportToGoogleDocs(docId, {
+        onSuccess: (data) => {
+          onGoogleExported?.(data.googleDocUrl);
+        },
+      });
+    }
+  };
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        {trigger || (
-          <Button variant="outline" size="sm">
-            Export
-            <ChevronDown className="w-4 h-4 ml-1" />
-          </Button>
-        )}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={handleCopyMarkdown}>
-          {copied ? (
-            <Check className="w-4 h-4 mr-2 text-success" />
-          ) : (
-            <Copy className="w-4 h-4 mr-2" />
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          {trigger || (
+            <Button variant="outline" size="sm">
+              Export
+              <ChevronDown className="w-4 h-4 ml-1" />
+            </Button>
           )}
-          Copy as Markdown
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleDownloadPDF}>
-          <Download className="w-4 h-4 mr-2" />
-          Download PDF
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={handleCopyMarkdown}>
+            {copied ? (
+              <Check className="w-4 h-4 mr-2 text-success" />
+            ) : (
+              <Copy className="w-4 h-4 mr-2" />
+            )}
+            Copy as Markdown
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleDownloadPDF}>
+            <Download className="w-4 h-4 mr-2" />
+            Download PDF
+          </DropdownMenuItem>
+
+          {/* Google Docs export - only show if docId is provided */}
+          {docId && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleGoogleDocsExport}
+                disabled={isExporting}
+              >
+                {isExporting ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <GoogleIcon className="w-4 h-4 mr-2" />
+                )}
+                {isExporting ? 'Saving...' : 'Save to Google Docs'}
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Connect Google modal */}
+      <GoogleConnectModal
+        open={showConnectModal}
+        onOpenChange={setShowConnectModal}
+        onConnected={handleGoogleConnected}
+      />
+    </>
   );
 }
 
