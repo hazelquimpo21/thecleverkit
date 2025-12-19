@@ -90,7 +90,16 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id);
 
     if (updateError) {
-      log.error('Google OAuth: Failed to store tokens', { error: updateError.message });
+      log.error('Google OAuth: Failed to store tokens', {
+        error: updateError.message,
+        code: updateError.code,
+        hint: updateError.hint,
+        details: updateError.details,
+      });
+      // Common cause: migration not run (column doesn't exist)
+      if (updateError.message?.includes('column') || updateError.code === '42703') {
+        log.error('HINT: Run the migration: supabase/migrations/001_google_docs_export.sql');
+      }
       return redirectWithError('storage_failed', request);
     }
 

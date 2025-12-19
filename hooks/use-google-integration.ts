@@ -69,6 +69,9 @@ export function useGoogleIntegration() {
     mutationFn: async (): Promise<void> => {
       log.info('🔗 Google: Initiating connection');
 
+      // Clear any previous OAuth result from localStorage
+      localStorage.removeItem('google_oauth_result');
+
       // Get auth URL from API
       const response = await fetch('/api/integrations/google/auth', {
         method: 'POST',
@@ -97,30 +100,107 @@ export function useGoogleIntegration() {
         throw new Error('Popup blocked. Please allow popups for this site.');
       }
 
-      // Wait for popup to post message
+      // Wait for popup to complete via postMessage OR localStorage
       return new Promise((resolve, reject) => {
+        let resolved = false;
+        let checkClosedInterval: ReturnType<typeof setInterval>;
+
+        const cleanup = () => {
+          resolved = true;
+          window.removeEventListener('message', handleMessage);
+          window.removeEventListener('storage', handleStorage);
+          if (checkClosedInterval) clearInterval(checkClosedInterval);
+        };
+
+        // Method 1: Listen for postMessage (preferred)
         const handleMessage = (event: MessageEvent) => {
-          // Verify origin in production
+          if (resolved) return;
+          // Verify origin
+          if (event.origin !== window.location.origin) return;
+
           if (event.data?.type === 'GOOGLE_OAUTH_SUCCESS') {
-            window.removeEventListener('message', handleMessage);
-            log.success('🔗 Google: Connection successful');
+            cleanup();
+            log.success('🔗 Google: Connection successful (postMessage)');
             resolve();
           } else if (event.data?.type === 'GOOGLE_OAUTH_ERROR') {
-            window.removeEventListener('message', handleMessage);
+            cleanup();
             log.error('🔗 Google: Connection failed', { error: event.data.error });
-            reject(new Error('Google connection failed'));
+            reject(new Error(event.data.error || 'Google connection failed'));
+          }
+        };
+
+        // Method 2: Listen for localStorage changes (fallback for COOP issues)
+        const handleStorage = (event: StorageEvent) => {
+          if (resolved) return;
+          if (event.key !== 'google_oauth_result') return;
+
+          try {
+            const result = JSON.parse(event.newValue || '{}');
+            // Only process recent results (within 30 seconds)
+            if (Date.now() - result.timestamp > 30000) return;
+
+            if (result.type === 'success') {
+              cleanup();
+              log.success('🔗 Google: Connection successful (localStorage)');
+              localStorage.removeItem('google_oauth_result');
+              resolve();
+            } else if (result.type === 'error') {
+              cleanup();
+              log.error('🔗 Google: Connection failed', { error: result.error });
+              localStorage.removeItem('google_oauth_result');
+              reject(new Error(result.error || 'Google connection failed'));
+            }
+          } catch {
+            // Ignore parse errors
           }
         };
 
         window.addEventListener('message', handleMessage);
+        window.addEventListener('storage', handleStorage);
 
-        // Also check if popup was closed without completing
-        const checkClosed = setInterval(() => {
-          if (oauthPopupRef.current?.closed) {
-            clearInterval(checkClosed);
-            window.removeEventListener('message', handleMessage);
-            // Don't reject - user might have just closed the popup
-            log.warn('🔗 Google: Popup closed');
+        // Also poll localStorage in case storage event doesn't fire (same tab)
+        checkClosedInterval = setInterval(() => {
+          if (resolved) return;
+
+          // Check localStorage directly as backup
+          try {
+            const stored = localStorage.getItem('google_oauth_result');
+            if (stored) {
+              const result = JSON.parse(stored);
+              if (Date.now() - result.timestamp < 30000) {
+                if (result.type === 'success') {
+                  cleanup();
+                  log.success('🔗 Google: Connection successful (localStorage poll)');
+                  localStorage.removeItem('google_oauth_result');
+                  resolve();
+                  return;
+                } else if (result.type === 'error') {
+                  cleanup();
+                  log.error('🔗 Google: Connection failed', { error: result.error });
+                  localStorage.removeItem('google_oauth_result');
+                  reject(new Error(result.error || 'Google connection failed'));
+                  return;
+                }
+              }
+            }
+          } catch {
+            // Ignore parse errors
+          }
+
+          // Check if popup was closed without completing (with COOP-safe try/catch)
+          try {
+            if (oauthPopupRef.current?.closed) {
+              // Wait a bit more in case localStorage update is pending
+              setTimeout(() => {
+                if (resolved) return;
+                cleanup();
+                log.warn('🔗 Google: Popup closed without completing');
+                // Don't reject, resolve - status query will update
+                resolve();
+              }, 500);
+            }
+          } catch {
+            // COOP blocks window.closed access - rely on localStorage/postMessage
           }
         }, 1000);
       });
