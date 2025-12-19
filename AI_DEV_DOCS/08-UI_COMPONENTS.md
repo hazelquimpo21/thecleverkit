@@ -1,5 +1,7 @@
 # UI Components & Design System
 
+> **Updated December 18, 2025**: shadcn/ui v2 integrated with OKLCH color system. All components now use semantic color tokens.
+
 ## Design Principles
 
 ### 1. Breathable & Soothing
@@ -22,51 +24,96 @@
 - Readable data presentation
 - Works on laptop screens (1280px+)
 
-## Color System
+## Color System (OKLCH)
+
+We use **OKLCH color space** for perceptually uniform colors. This is the modern standard that makes colors look consistent across the spectrum.
+
+### Why OKLCH?
+- **Perceptually uniform**: Equal steps in lightness look equal to humans
+- **Better for theming**: Easy to create consistent light/dark variants
+- **Modern standard**: Supported in all major browsers
+
+### CSS Variables
 
 ```css
+/* Light Mode - Warm stone palette with orange primary */
 :root {
-  /* Base - Warm neutrals */
-  --background: 30 20% 98%;        /* Soft cream, not pure white */
-  --foreground: 30 10% 15%;        /* Warm dark gray */
-  
-  /* Card surfaces */
-  --card: 30 15% 99%;
-  --card-foreground: 30 10% 15%;
-  
-  /* Muted elements */
-  --muted: 30 10% 94%;
-  --muted-foreground: 30 5% 45%;
-  
-  /* Primary - Warm orange (from inspo) */
-  --primary: 28 90% 55%;           /* Action buttons, links */
-  --primary-foreground: 0 0% 100%;
-  
-  /* Secondary - Soft warm gray */
-  --secondary: 30 10% 92%;
-  --secondary-foreground: 30 10% 25%;
-  
-  /* Accent - For highlights */
-  --accent: 28 85% 95%;            /* Light orange tint */
-  --accent-foreground: 28 90% 35%;
-  
+  /* Base surfaces */
+  --background: oklch(0.985 0.002 75);      /* Soft cream (#faf9f7) */
+  --foreground: oklch(0.216 0.006 56.04);   /* Warm charcoal (#1c1917) */
+
+  /* Card surfaces (slightly elevated) */
+  --card: oklch(1 0 0);                      /* Pure white */
+  --card-foreground: oklch(0.216 0.006 56.04);
+
+  /* Muted/secondary text */
+  --muted: oklch(0.97 0.001 75);             /* Light stone (#f5f5f4) */
+  --muted-foreground: oklch(0.553 0.013 58.07); /* Mid gray (#78716c) */
+
+  /* Primary brand color - Warm orange */
+  --primary: oklch(0.646 0.222 41.116);      /* Orange (#ea580c) */
+  --primary-foreground: oklch(1 0 0);        /* White text on orange */
+
+  /* Secondary - Subtle stone */
+  --secondary: oklch(0.97 0.001 75);
+  --secondary-foreground: oklch(0.216 0.006 56.04);
+
+  /* Accent - Light orange tint */
+  --accent: oklch(0.97 0.001 75);
+  --accent-foreground: oklch(0.216 0.006 56.04);
+
+  /* Destructive - Red for errors/danger */
+  --destructive: oklch(0.577 0.245 27.325);  /* Red (#dc2626) */
+  --destructive-foreground: oklch(0.985 0.002 75);
+
   /* Status colors */
-  --success: 142 70% 45%;          /* Green */
-  --success-foreground: 0 0% 100%;
-  --warning: 38 95% 50%;           /* Amber */
-  --warning-foreground: 38 95% 15%;
-  --error: 0 85% 55%;              /* Red */
-  --error-foreground: 0 0% 100%;
-  
-  /* Border */
-  --border: 30 10% 88%;
-  --input: 30 10% 88%;
-  --ring: 28 90% 55%;
-  
-  /* Radius - Soft, not sharp */
-  --radius: 0.75rem;               /* 12px - friendly, not clinical */
+  --success: oklch(0.627 0.194 149.214);     /* Green (#16a34a) */
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.769 0.188 70.08);       /* Amber (#eab308) */
+  --warning-foreground: oklch(0.216 0.006 56.04);
+
+  /* UI elements */
+  --border: oklch(0.869 0.005 56.37);        /* Light border (#e7e5e4) */
+  --input: oklch(0.869 0.005 56.37);
+  --ring: oklch(0.646 0.222 41.116);         /* Focus ring = primary */
+
+  /* Radius */
+  --radius: 0.625rem;                        /* 10px - soft but not round */
 }
 ```
+
+### Semantic Color Usage
+
+Always use semantic classes, never hardcoded colors:
+
+```tsx
+// ✅ GOOD - Semantic colors
+<div className="bg-primary text-primary-foreground" />
+<p className="text-muted-foreground" />
+<div className="border-border" />
+
+// ❌ BAD - Hardcoded colors
+<div className="bg-orange-600 text-white" />
+<p className="text-stone-500" />
+<div className="border-stone-200" />
+```
+
+### Badge Color Variants
+
+The Badge component has semantic variants for different use cases:
+
+| Variant | Use Case | Example |
+|---------|----------|---------|
+| `default` | Primary actions | Active filters |
+| `secondary` | Neutral/default | Tags, labels |
+| `destructive` | Errors, danger | Delete confirmation |
+| `outline` | Subtle emphasis | Low-priority tags |
+| `success` | Positive states | "Complete", "Active" |
+| `warning` | Caution states | "Pending", "Review" |
+| `muted` | Disabled/inactive | Inactive items |
+| `error` | Error states | Status badges |
+| `info` | Informational | "New", "Beta" |
+| `orange` | Brand accent | Primary category |
 
 ## Typography
 
@@ -109,47 +156,92 @@
 
 ```
 /components/
-  ui/                     ← shadcn/ui primitives (don't edit much)
-    button.tsx
-    card.tsx
-    input.tsx
-    badge.tsx
-    avatar.tsx
-    dropdown-menu.tsx
-    dialog.tsx
-    skeleton.tsx
-    progress.tsx
-    
+  ui/                     ← shadcn/ui primitives (Radix-based)
+    button.tsx            ← Primary action buttons
+    card.tsx              ← Container with header/content/footer
+    input.tsx             ← Text input with focus ring
+    badge.tsx             ← Status/category labels (10 variants!)
+    skeleton.tsx          ← Loading placeholder animation
+    label.tsx             ← Form field labels (Radix)
+    checkbox.tsx          ← Toggle with indeterminate state (Radix)
+    dialog.tsx            ← Modal overlay (Radix)
+    dropdown-menu.tsx     ← Context menus (Radix)
+    tooltip.tsx           ← Hover hints (Radix)
+    separator.tsx         ← Visual divider (Radix)
+    sonner.tsx            ← Toast notifications
+
   layout/                 ← App shell components
     header.tsx            ← Top nav with logo, user menu
     page-container.tsx    ← Consistent page padding/max-width
     page-header.tsx       ← Page title + actions pattern
-    
+
   brands/                 ← Brand-related components
     brand-card.tsx        ← Brand in list view
     brand-list.tsx        ← List of brand cards
     brand-empty.tsx       ← Empty state for dashboard
     add-brand-form.tsx    ← URL input form
-    
+    status-badge.tsx      ← Analysis status indicator
+
   analysis/               ← Analysis-related components
     progress-list.tsx     ← List of analyzers with status
     progress-item.tsx     ← Single analyzer status row
     analyzer-card.tsx     ← Base card for displaying results
-    
+
   analysis/cards/         ← Specific display for each analyzer
     basics-card.tsx
     customer-card.tsx
     products-card.tsx
-    
-  analysis/forms/         ← Edit forms for each analyzer
+
+  analysis/forms/         ← Edit forms for each analyzer (planned)
     basics-form.tsx
     customer-form.tsx
     products-form.tsx
-    
+
   brand-profile/          ← Brand profile page components
     profile-header.tsx    ← Brand name, URL, actions
     coming-soon.tsx       ← Future docs teaser
 ```
+
+### UI Components Deep Dive
+
+#### Installed Radix Primitives
+
+| Component | Package | Purpose |
+|-----------|---------|---------|
+| Label | `@radix-ui/react-label` | Accessible form labels |
+| Checkbox | `@radix-ui/react-checkbox` | Toggle with states |
+| Dialog | `@radix-ui/react-dialog` | Modal overlays |
+| DropdownMenu | `@radix-ui/react-dropdown-menu` | Context menus |
+| Tooltip | `@radix-ui/react-tooltip` | Hover information |
+| Separator | `@radix-ui/react-separator` | Visual dividers |
+| Slot | `@radix-ui/react-slot` | Component composition |
+
+#### Toast Notifications (Sonner)
+
+We use Sonner for toast notifications - it's lightweight and beautiful:
+
+```tsx
+import { toast } from 'sonner';
+
+// Success
+toast.success('Brand added successfully!');
+
+// Error
+toast.error('Failed to analyze brand');
+
+// With action
+toast('Analysis complete', {
+  action: {
+    label: 'View',
+    onClick: () => router.push(`/brands/${id}`),
+  },
+});
+```
+
+The Toaster is configured in `lib/providers/index.tsx`:
+- Position: bottom-right
+- Rich colors enabled
+- Close button on all toasts
 
 ## Key Components
 

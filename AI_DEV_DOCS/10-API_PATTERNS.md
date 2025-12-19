@@ -1,5 +1,7 @@
 # API Patterns
 
+> **Updated December 18, 2025**: Added TanStack React Query v5 implementation with query key factory pattern.
+
 ## OpenAI Integration
 
 All GPT calls go through thin wrappers in `lib/api/openai.ts`.
@@ -381,6 +383,83 @@ export async function updateBrand(
 
 ## TanStack Query Patterns
 
+### Provider Setup
+
+The QueryClient is configured in `lib/providers/query-provider.tsx` with SSR-safe initialization:
+
+```typescript
+// lib/providers/query-provider.tsx
+
+'use client';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
+import { toast } from 'sonner';
+
+/**
+ * Creates a new QueryClient with optimized defaults for the app.
+ *
+ * Configuration choices:
+ * - staleTime: 60s - Data is fresh for 1 minute, reducing unnecessary refetches
+ * - gcTime: 10min - Keep unused data in cache for 10 minutes for quick navigation
+ * - retry: 1 - Single retry on failure (network issues are usually transient)
+ * - refetchOnWindowFocus: false - Don't spam the API when user switches tabs
+ */
+function makeQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000,        // 60 seconds
+        gcTime: 10 * 60 * 1000,       // 10 minutes
+        retry: 1,
+        refetchOnWindowFocus: false,
+      },
+      mutations: {
+        onError: (error) => {
+          toast.error(error instanceof Error ? error.message : 'Something went wrong');
+        },
+      },
+    },
+  });
+}
+
+// SSR-safe singleton pattern
+let browserQueryClient: QueryClient | undefined = undefined;
+
+function getQueryClient() {
+  if (typeof window === 'undefined') {
+    return makeQueryClient(); // Server: always make a new client
+  }
+  if (!browserQueryClient) {
+    browserQueryClient = makeQueryClient(); // Browser: reuse singleton
+  }
+  return browserQueryClient;
+}
+```
+
+### Query Key Factory Pattern
+
+We use a factory pattern for query keys to ensure consistency and enable smart invalidation:
+
+```typescript
+// hooks/use-brands.ts
+
+/**
+ * Query key factory for brand-related queries.
+ * Enables smart invalidation:
+ * - brandKeys.all → invalidates everything
+ * - brandKeys.lists() → invalidates all lists
+ * - brandKeys.detail(id) → invalidates specific brand
+ */
+export const brandKeys = {
+  all: ['brands'] as const,
+  lists: () => [...brandKeys.all, 'list'] as const,
+  list: (filters: Record<string, unknown>) => [...brandKeys.lists(), filters] as const,
+  details: () => [...brandKeys.all, 'detail'] as const,
+  detail: (id: string) => [...brandKeys.details(), id] as const,
+};
+```
+
 ### Query Hooks
 
 ```typescript
@@ -388,40 +467,52 @@ export async function updateBrand(
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
+import type { Brand, AnalysisRun } from '@/types/database';
 
+// Type for brand with analysis runs included
+type BrandWithAnalysis = Brand & { analysis_runs: AnalysisRun[] };
+
+/**
+ * Fetch all brands for the current user.
+ * Includes analysis runs for status display.
+ */
 export function useBrands() {
   const supabase = createClient();
 
   return useQuery({
-    queryKey: ['brands'],
-    queryFn: async () => {
+    queryKey: brandKeys.lists(),
+    queryFn: async (): Promise<BrandWithAnalysis[]> => {
       const { data, error } = await supabase
         .from('brands')
         .select('*, analysis_runs(*)')
         .order('updated_at', { ascending: false });
-      
+
       if (error) throw error;
-      return data;
+      return data as BrandWithAnalysis[];
     },
   });
 }
 
+/**
+ * Fetch a single brand by ID.
+ * Includes analysis runs for the detail view.
+ */
 export function useBrand(brandId: string) {
   const supabase = createClient();
 
   return useQuery({
-    queryKey: ['brands', brandId],
-    queryFn: async () => {
+    queryKey: brandKeys.detail(brandId),
+    queryFn: async (): Promise<BrandWithAnalysis> => {
       const { data, error } = await supabase
         .from('brands')
         .select('*, analysis_runs(*)')
         .eq('id', brandId)
         .single();
-      
+
       if (error) throw error;
-      return data;
+      return data as BrandWithAnalysis;
     },
-    enabled: !!brandId,
+    enabled: !!brandId, // Only run if brandId is truthy
   });
 }
 ```
@@ -431,32 +522,115 @@ export function useBrand(brandId: string) {
 ```typescript
 // hooks/use-brands.ts (continued)
 
+/**
+ * Create a new brand and start analysis.
+ * Calls the /api/brands/analyze endpoint.
+ */
 export function useCreateBrand() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (input: { url: string; isOwnBrand: boolean }) => {
-      const response = await fetch('/api/brands', {
+      const response = await fetch('/api/brands/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),
       });
-      
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error);
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create brand');
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['brands'] });
+      // Invalidate all brand lists to include the new brand
+      queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
+    },
+  });
+}
+
+/**
+ * Delete a brand and all its analysis runs.
+ */
+export function useDeleteBrand() {
+  const queryClient = useQueryClient();
+  const supabase = createClient();
+
+  return useMutation({
+    mutationFn: async (brandId: string) => {
+      const { error } = await supabase
+        .from('brands')
+        .delete()
+        .eq('id', brandId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: brandKeys.all });
+    },
+  });
+}
+
+/**
+ * Re-run analysis for an existing brand.
+ */
+export function useReanalyzeBrand() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (brandId: string) => {
+      const response = await fetch(`/api/brands/${brandId}/analyze`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to start analysis');
+      }
+
+      return response.json();
+    },
+    onSuccess: (_, brandId) => {
+      queryClient.invalidateQueries({ queryKey: brandKeys.detail(brandId) });
     },
   });
 }
 ```
 
-### Realtime Subscription
+### Prefetching
+
+```typescript
+// hooks/use-brands.ts (continued)
+
+/**
+ * Prefetch a brand's data for faster navigation.
+ * Use this on hover or when a link is visible.
+ */
+export function usePrefetchBrand() {
+  const queryClient = useQueryClient();
+  const supabase = createClient();
+
+  return (brandId: string) => {
+    queryClient.prefetchQuery({
+      queryKey: brandKeys.detail(brandId),
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from('brands')
+          .select('*, analysis_runs(*)')
+          .eq('id', brandId)
+          .single();
+
+        if (error) throw error;
+        return data;
+      },
+    });
+  };
+}
+```
+
+### Realtime Subscription with React Query
 
 ```typescript
 // hooks/use-realtime-analysis.ts
@@ -464,12 +638,19 @@ export function useCreateBrand() {
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
+import { brandKeys } from './use-brands';
 
+/**
+ * Subscribe to realtime updates for a brand's analysis runs.
+ * Automatically invalidates the cache when updates arrive.
+ */
 export function useRealtimeAnalysis(brandId: string) {
   const supabase = createClient();
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    if (!brandId) return;
+
     const channel = supabase
       .channel(`analysis_runs:${brandId}`)
       .on(
@@ -480,10 +661,10 @@ export function useRealtimeAnalysis(brandId: string) {
           table: 'analysis_runs',
           filter: `brand_id=eq.${brandId}`,
         },
-        (payload) => {
-          // Invalidate to refetch
-          queryClient.invalidateQueries({ 
-            queryKey: ['brands', brandId] 
+        () => {
+          // Invalidate to trigger refetch with fresh data
+          queryClient.invalidateQueries({
+            queryKey: brandKeys.detail(brandId)
           });
         }
       )
@@ -493,6 +674,44 @@ export function useRealtimeAnalysis(brandId: string) {
       supabase.removeChannel(channel);
     };
   }, [brandId, supabase, queryClient]);
+}
+```
+
+### Usage Examples
+
+```tsx
+// In a component
+function BrandList() {
+  const { data: brands, isLoading, error } = useBrands();
+
+  if (isLoading) return <Skeleton />;
+  if (error) return <ErrorState message={error.message} />;
+
+  return (
+    <div>
+      {brands?.map(brand => (
+        <BrandCard key={brand.id} brand={brand} />
+      ))}
+    </div>
+  );
+}
+
+// With mutations
+function AddBrandForm() {
+  const createBrand = useCreateBrand();
+  const router = useRouter();
+
+  async function handleSubmit(url: string) {
+    try {
+      const result = await createBrand.mutateAsync({
+        url,
+        isOwnBrand: false
+      });
+      router.push(`/brands/${result.brandId}`);
+    } catch (error) {
+      // Error toast is shown automatically by mutation config
+    }
+  }
 }
 ```
 

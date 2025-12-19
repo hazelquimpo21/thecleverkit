@@ -1,5 +1,7 @@
 # File Structure
 
+> **Updated December 18, 2025**: Added shadcn/ui config, React Query providers, and brand hooks.
+
 ## Overview
 
 The project uses Next.js 14 App Router with a modular structure. No file should exceed ~400 lines.
@@ -21,9 +23,9 @@ clever-kit/
 clever-kit/
 │
 ├── app/
-│   ├── layout.tsx                    ← Root layout with Header
-│   ├── page.tsx                      ← Home page (add brand form)
-│   ├── globals.css                   ← Global styles, CSS variables
+│   ├── layout.tsx                    ← Root layout with Providers + Header ✅
+│   ├── page.tsx                      ← Home page (add brand form) ✅
+│   ├── globals.css                   ← OKLCH CSS variables + Tailwind v4 ✅
 │   │
 │   ├── login/
 │   │   ├── page.tsx                  ← Login page (magic link auth) ✅
@@ -52,20 +54,22 @@ clever-kit/
 │               └── route.ts          ← Main analysis endpoint ✅
 │
 ├── components/
-│   ├── ui/                           ← shadcn/ui primitives
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── input.tsx
-│   │   ├── badge.tsx
-│   │   ├── avatar.tsx
-│   │   ├── dropdown-menu.tsx
-│   │   ├── dialog.tsx
-│   │   ├── skeleton.tsx
-│   │   ├── checkbox.tsx
-│   │   └── form.tsx                  ← react-hook-form integration
+│   ├── ui/                           ← shadcn/ui primitives (Radix-based)
+│   │   ├── button.tsx                ← Primary action buttons ✅
+│   │   ├── card.tsx                  ← Container with header/content/footer ✅
+│   │   ├── input.tsx                 ← Text input with focus ring ✅
+│   │   ├── badge.tsx                 ← 10 variants: default, secondary, etc. ✅
+│   │   ├── skeleton.tsx              ← Loading placeholder animation ✅
+│   │   ├── label.tsx                 ← Form field labels (Radix) ✅ NEW
+│   │   ├── checkbox.tsx              ← Toggle with indeterminate (Radix) ✅ NEW
+│   │   ├── dialog.tsx                ← Modal overlay (Radix) ✅ NEW
+│   │   ├── dropdown-menu.tsx         ← Context menus (Radix) ✅ NEW
+│   │   ├── tooltip.tsx               ← Hover hints (Radix) ✅ NEW
+│   │   ├── separator.tsx             ← Visual divider (Radix) ✅ NEW
+│   │   └── sonner.tsx                ← Toast notifications ✅ NEW
 │   │
 │   ├── layout/
-│   │   ├── header.tsx                ← App header with auth-aware nav
+│   │   ├── header.tsx                ← App header with auth-aware nav ✅
 │   │   ├── page-container.tsx        ← Page width wrapper
 │   │   └── page-header.tsx           ← Title + actions pattern
 │   │
@@ -77,11 +81,11 @@ clever-kit/
 │   │   ├── brand-card.tsx            ← Single brand in list
 │   │   ├── brand-list.tsx            ← Grid of brand cards
 │   │   ├── brand-empty.tsx           ← Empty state
-│   │   ├── add-brand-form.tsx        ← URL input form
-│   │   └── status-badge.tsx          ← Analysis status indicator
+│   │   ├── add-brand-form.tsx        ← URL input form ✅
+│   │   └── status-badge.tsx          ← Analysis status indicator ✅
 │   │
 │   ├── analysis/
-│   │   ├── progress-list.tsx         ← Full progress view
+│   │   ├── progress-list.tsx         ← Full progress view ✅
 │   │   ├── progress-item.tsx         ← Single analyzer row
 │   │   ├── analyzer-card.tsx         ← Base results card
 │   │   ├── field.tsx                 ← Label/value display
@@ -89,11 +93,11 @@ clever-kit/
 │   │   └── loading-state.tsx         ← Skeleton loader
 │   │
 │   ├── analysis/cards/               ← Analyzer-specific result displays
-│   │   ├── basics-card.tsx
-│   │   ├── customer-card.tsx
-│   │   └── products-card.tsx
+│   │   ├── basics-card.tsx           ← Business basics ✅
+│   │   ├── customer-card.tsx         ← Customer profile
+│   │   └── products-card.tsx         ← Products & pricing
 │   │
-│   ├── analysis/forms/               ← Analyzer-specific edit forms
+│   ├── analysis/forms/               ← Analyzer-specific edit forms (planned)
 │   │   ├── basics-form.tsx
 │   │   ├── customer-form.tsx
 │   │   └── products-form.tsx
@@ -103,6 +107,10 @@ clever-kit/
 │       └── coming-soon.tsx           ← Future docs teaser
 │
 ├── lib/
+│   ├── providers/                    ← React context providers ✅ NEW
+│   │   ├── index.tsx                 ← Provider composition (Query + Tooltip + Toaster)
+│   │   └── query-provider.tsx        ← TanStack Query client setup
+│   │
 │   ├── analyzers/
 │   │   ├── types.ts                  ← Shared analyzer types
 │   │   ├── index.ts                  ← Analyzer registry
@@ -158,20 +166,19 @@ clever-kit/
 ├── hooks/
 │   ├── use-auth.ts                   ← Auth hook (user, isLoading, signOut) ✅
 │   ├── use-auth-gate.ts              ← Auth gating hook (redirects to login) ✅
-│   ├── use-brands.ts                 ← TanStack Query: brands (planned)
-│   ├── use-brand.ts                  ← TanStack Query: single brand (planned)
-│   ├── use-analysis-runs.ts          ← TanStack Query: analysis runs (planned)
-│   ├── use-realtime-analysis.ts      ← Supabase realtime subscription (planned)
-│   └── index.ts                      ← Hook exports
+│   ├── use-brands.ts                 ← TanStack Query: brands + mutations ✅ NEW
+│   └── index.ts                      ← Hook exports ✅
 │
 ├── types/
 │   ├── database.ts                   ← Supabase table types
+│   ├── analyzers.ts                  ← Analyzer output types
 │   └── index.ts                      ← Re-exports
 │
 ├── public/
 │   ├── logo.svg
 │   └── favicon.ico
 │
+├── components.json                   ← shadcn/ui configuration ✅ NEW
 ├── middleware.ts                     ← Auth protection
 │
 ├── .env.local                        ← Environment variables (gitignored)

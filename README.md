@@ -20,6 +20,8 @@ Paste a URL, get instant brand insights in 60 seconds.
 | Auth UI | ✅ | Login page with magic link, header sign in/out |
 | Route Protection | ✅ | Middleware protects /dashboard, /brands, /analyze |
 | Auth-Gated Analysis | ✅ | Smart flow preserves URL across login |
+| shadcn/ui Components | ✅ | Full suite with OKLCH colors |
+| React Query | ✅ | Provider + hooks wired up |
 | Dashboard/Brand List | ❌ | Need list view |
 | Realtime Updates | ✅ | Auto-refresh with Supabase subscriptions + fallback polling |
 | Edit Forms | ❌ | View-only currently |
@@ -350,8 +352,21 @@ If a file grows too large, split it!
 - **Framework:** Next.js 14 (App Router)
 - **Database:** Supabase (Postgres + Auth + Realtime)
 - **AI:** OpenAI GPT-4o-mini
-- **Styling:** Tailwind CSS
+- **Styling:** Tailwind CSS v4 + OKLCH color system
+- **UI Components:** shadcn/ui (Radix UI primitives)
+- **State Management:** TanStack React Query v5
+- **Notifications:** Sonner (toast library)
 - **Hosting:** Vercel
+
+### Key Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `@tanstack/react-query` | ^5 | Server state caching |
+| `@radix-ui/react-*` | ^1 | Accessible UI primitives |
+| `sonner` | ^1 | Toast notifications |
+| `clsx` | ^2 | Conditional classnames |
+| `tailwind-merge` | ^2 | Tailwind class merging |
 
 ---
 

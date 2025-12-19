@@ -1,6 +1,6 @@
 # Session Notes for AI Developers
 
-> Last updated: December 18, 2025
+> Last updated: December 19, 2025
 > Status: MVP Core Implementation Complete (Build Passing)
 
 This document provides context for future AI developers working on this codebase. Read this first!
@@ -25,7 +25,9 @@ The MVP core has been implemented with a working build. Here's what exists:
 | OpenAI GPT wrapper | ✅ Complete | Analysis + parsing with function calling |
 | API route: `/api/brands/analyze` | ✅ Complete | Full analysis pipeline |
 | API route: `/api/auth/callback` | ✅ Complete | Supabase auth callback |
-| UI components | ✅ Complete | Button, Card, Input, Badge, Skeleton |
+| **shadcn/ui components** | ✅ Complete | Full suite with semantic CSS variables |
+| **React Query (TanStack Query)** | ✅ Complete | Provider + hooks wired up |
+| **Toast notifications (Sonner)** | ✅ Complete | Integrated with React Query mutations |
 | Brand detail page | ✅ Complete | Shows analysis results |
 | Home page | ✅ Complete | Add brand form |
 | Logger utility | ✅ Complete | Emoji-rich, formatted logging |
@@ -44,7 +46,6 @@ The MVP core has been implemented with a working build. Here's what exists:
 | Edit forms for analysis data | Medium | View-only currently |
 | Retry failed analyzers | Medium | API exists conceptually |
 | User settings page | Low | |
-| TanStack Query hooks | Low | Using direct Supabase calls |
 
 ---
 
@@ -58,6 +59,7 @@ The MVP core has been implemented with a working build. Here's what exists:
 | `types/analyzers.ts` | Parsed output types for each analyzer |
 | `lib/supabase/server.ts` | Server-side Supabase client creation |
 | `supabase/schema.sql` | Database schema - run this in Supabase SQL editor |
+| `components.json` | **NEW** - shadcn/ui configuration |
 
 ### Authentication
 
@@ -82,6 +84,14 @@ The MVP core has been implemented with a working build. Here's what exists:
 | `lib/scrapers/web-homepage/index.ts` | Homepage scraper |
 | `app/api/brands/analyze/route.ts` | Main analysis endpoint |
 
+### Providers & State Management (NEW)
+
+| File | Purpose |
+|------|---------|
+| `lib/providers/index.tsx` | **NEW** - Composes all providers (Query, Tooltip, Toaster) |
+| `lib/providers/query-provider.tsx` | **NEW** - React Query client configuration |
+| `hooks/use-brands.ts` | **NEW** - React Query hooks for brand data |
+
 ### Each Analyzer Module
 
 ```
@@ -91,6 +101,188 @@ lib/analyzers/{name}/
 ├── parser.ts    # Function schema for structured extraction
 ├── types.ts     # TypeScript types for parsed output
 └── index.ts     # Exports AnalyzerDefinition
+```
+
+---
+
+## shadcn/ui Setup (NEW - December 19, 2025)
+
+### What Was Installed
+
+Full shadcn/ui component suite using Tailwind v4 with OKLCH colors:
+
+**Core UI Components:**
+- `button.tsx` - Primary, secondary, destructive, outline, ghost, link variants
+- `card.tsx` - Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter
+- `input.tsx` - Text input with error state support
+- `badge.tsx` - Status badges with success, warning, error, info, muted, orange variants
+- `skeleton.tsx` - Loading placeholder
+
+**New Accessible Components (Radix UI primitives):**
+- `label.tsx` - Form labels
+- `checkbox.tsx` - Checkboxes with checked/unchecked states
+- `dialog.tsx` - Modal dialogs with overlay
+- `dropdown-menu.tsx` - Full dropdown menu system
+- `tooltip.tsx` - Accessible tooltips
+- `separator.tsx` - Visual dividers
+- `sonner.tsx` - Toast notification wrapper
+
+### CSS Variables (OKLCH Color System)
+
+Colors are defined in `app/globals.css` using OKLCH for better color interpolation:
+
+```css
+:root {
+  --background: oklch(0.985 0.002 75);      /* Warm cream */
+  --foreground: oklch(0.147 0.004 49.25);   /* Dark text */
+  --primary: oklch(0.646 0.222 41.116);     /* Orange accent */
+  --muted: oklch(0.97 0.001 106.424);       /* Light gray */
+  --destructive: oklch(0.577 0.245 27.325); /* Red */
+  --success: oklch(0.648 0.15 160);         /* Green */
+  --warning: oklch(0.769 0.188 70.08);      /* Amber */
+  /* ... and more */
+}
+```
+
+### Using Semantic Colors
+
+**DO THIS:**
+```tsx
+<div className="bg-background text-foreground">
+<div className="bg-primary text-primary-foreground">
+<div className="text-muted-foreground">
+<div className="border-border">
+```
+
+**DON'T DO THIS:**
+```tsx
+<div className="bg-stone-100 text-stone-900">  // Hardcoded colors
+<div className="bg-orange-500 text-white">     // Use bg-primary instead
+```
+
+### Configuration File
+
+`components.json` configures shadcn/ui for the project:
+
+```json
+{
+  "style": "new-york",
+  "tailwind": {
+    "baseColor": "stone",
+    "cssVariables": true
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui"
+  }
+}
+```
+
+---
+
+## React Query Setup (NEW - December 19, 2025)
+
+### Provider Architecture
+
+The app is wrapped with providers in this order:
+
+```
+<QueryProvider>           ← React Query for server state
+  <TooltipProvider>       ← Radix tooltip context
+    {children}
+    <Toaster />           ← Sonner toast notifications
+  </TooltipProvider>
+</QueryProvider>
+```
+
+### Query Client Configuration
+
+Located in `lib/providers/query-provider.tsx`:
+
+```typescript
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,        // Data fresh for 60s
+      gcTime: 10 * 60 * 1000,      // Cache for 10 min
+      retry: 1,                     // Single retry
+      refetchOnWindowFocus: false,  // No refetch on tab switch
+    },
+    mutations: {
+      retry: 1,
+      onError: (error) => {
+        toast.error(error.message); // Global error toast
+      },
+    },
+  },
+});
+```
+
+### Available Hooks
+
+All hooks exported from `hooks/index.ts`:
+
+```typescript
+// Brand data fetching
+import {
+  useBrands,        // Fetch all brands
+  useBrand,         // Fetch single brand with analysis runs
+  useCreateBrand,   // Create mutation with cache invalidation
+  useDeleteBrand,   // Delete mutation
+  usePrefetchBrand, // Prefetch for faster navigation
+  brandKeys,        // Query key factory
+} from '@/hooks';
+```
+
+### Query Key Structure
+
+```typescript
+// Query key factory for cache management
+const brandKeys = {
+  all: ['brands'],
+  lists: () => [...brandKeys.all, 'list'],
+  list: (filters) => [...brandKeys.lists(), filters],
+  details: () => [...brandKeys.all, 'detail'],
+  detail: (id) => [...brandKeys.details(), id],
+};
+```
+
+### Using React Query Hooks
+
+```typescript
+// Fetch all brands
+const { data: brands, isLoading, error } = useBrands();
+
+// Fetch single brand
+const { data: brand } = useBrand(brandId);
+
+// Create brand mutation
+const createBrand = useCreateBrand();
+await createBrand.mutateAsync({ url: 'https://example.com' });
+
+// Prefetch on hover
+const prefetch = usePrefetchBrand();
+<Link onMouseEnter={() => prefetch(brand.id)}>
+```
+
+### Toast Notifications
+
+Using Sonner, imported from `@/components/ui/sonner`:
+
+```typescript
+import { toast } from '@/components/ui/sonner';
+
+// Success
+toast.success('Brand analysis started!');
+
+// Error
+toast.error('Failed to create brand');
+
+// With description
+toast.success('Complete', {
+  description: 'All analyzers finished successfully',
+});
 ```
 
 ---
@@ -183,6 +375,44 @@ return createClient<Database>(url, key, {...});
 ```typescript
 // app/layout.tsx
 <body className="font-sans antialiased">
+```
+
+### 6. Tailwind v4 with shadcn/ui (NEW)
+
+**Problem**: shadcn/ui expects Tailwind v3 configuration.
+
+**Solution Applied**:
+- Use `@theme inline` directive in globals.css for Tailwind v4
+- Define all CSS variables in `:root` with OKLCH values
+- Map variables to Tailwind theme using `--color-*` convention
+
+```css
+@theme inline {
+  --color-background: var(--background);
+  --color-primary: var(--primary);
+  /* ... maps all CSS vars to Tailwind */
+}
+```
+
+### 7. Badge Variant Type Safety (NEW)
+
+**Problem**: Badge component used in status-badge.tsx needs `info` and `error` variants.
+
+**Solution Applied**: Extended badge variants to include all status types:
+```typescript
+// components/ui/badge.tsx
+variant: {
+  default: '...',
+  secondary: '...',
+  destructive: '...',
+  outline: '...',
+  success: '...',    // Green
+  warning: '...',    // Amber
+  muted: '...',      // Gray
+  error: '...',      // Same as destructive
+  info: '...',       // Blue
+  orange: '...',     // Primary tint
+}
 ```
 
 ---
@@ -434,6 +664,41 @@ npm start
 
 ---
 
+## Adding a New UI Component
+
+### Using shadcn/ui pattern:
+
+1. Create file in `components/ui/{name}.tsx`
+2. Use semantic color classes (`bg-primary`, `text-muted-foreground`, etc.)
+3. Use `cn()` helper for conditional classes
+4. Export from the file
+
+### Example:
+
+```typescript
+// components/ui/alert.tsx
+import { cn } from '@/lib/utils/cn';
+
+interface AlertProps {
+  variant?: 'default' | 'destructive';
+  children: React.ReactNode;
+}
+
+export function Alert({ variant = 'default', children }: AlertProps) {
+  return (
+    <div className={cn(
+      'rounded-lg border p-4',
+      variant === 'default' && 'bg-background text-foreground',
+      variant === 'destructive' && 'bg-destructive/10 text-destructive border-destructive/50'
+    )}>
+      {children}
+    </div>
+  );
+}
+```
+
+---
+
 ## Common Tasks
 
 ### Modify an analyzer's output fields
@@ -457,6 +722,13 @@ const MODEL = 'gpt-4o-mini'; // Change this
 3. Register in `lib/scrapers/index.ts`
 4. Call from API route when needed
 
+### Add a new React Query hook
+
+1. Create in `hooks/use-{name}.ts`
+2. Define query keys for cache management
+3. Export from `hooks/index.ts`
+4. Use `toast` for mutation error handling
+
 ---
 
 ## Code Style Notes
@@ -466,6 +738,7 @@ const MODEL = 'gpt-4o-mini'; // Change this
 - **Imports**: Use `@/` path alias for absolute imports
 - **Types**: Export from `@/types` barrel file
 - **Comments**: Focus on "why" not "what", keep evergreen
+- **Colors**: Always use semantic classes (`text-primary`, `bg-muted`), never hardcoded (`text-orange-500`)
 
 ---
 
@@ -481,15 +754,47 @@ Note: Without proper auth setup, you may need to test API routes directly or add
 
 ---
 
+## Frequently Asked Questions
+
+### Q: Why OKLCH colors instead of HSL?
+
+OKLCH provides perceptually uniform color interpolation. When you do `bg-primary/50` (50% opacity), the color looks more natural than with HSL. It's the modern standard for CSS colors.
+
+### Q: Why is React Query configured with 60s staleTime?
+
+Brand data doesn't change during a session. 60s prevents redundant fetches when navigating between pages while still keeping data reasonably fresh.
+
+### Q: Why separate QueryProvider from other providers?
+
+React Query's QueryClient must be created carefully for SSR. The pattern in `query-provider.tsx` handles both server (new client per request) and browser (singleton) correctly.
+
+### Q: Can I use the old `stone-*` color classes?
+
+Avoid them. Use semantic classes instead:
+- `stone-100` → `bg-muted`
+- `stone-500` → `text-muted-foreground`
+- `stone-900` → `text-foreground`
+- `orange-500` → `text-primary`
+
+### Q: How do I add dark mode?
+
+The CSS variables for `.dark` are already defined in `globals.css`. You just need to:
+1. Add a theme toggle component
+2. Add/remove the `dark` class on `<html>`
+3. Consider using `next-themes` package
+
+---
+
 ## Next Steps for Future Development
 
 Priority order for completing MVP:
 
 1. ~~**Auth UI** - Create login/signup pages with Supabase Auth~~ ✅ Done
 2. ~~**Realtime UI** - Wire up Supabase realtime to show live progress~~ ✅ Done
-3. **Dashboard** - Brand list view at `/dashboard`
-4. **Edit forms** - Allow editing parsed data
-5. **Error recovery** - Retry failed analyzers UI
+3. ~~**shadcn/ui + React Query** - Install and wire up~~ ✅ Done
+4. **Dashboard** - Brand list view at `/dashboard`
+5. **Edit forms** - Allow editing parsed data
+6. **Error recovery** - Retry failed analyzers UI
 
 ---
 
@@ -500,5 +805,7 @@ Check the other docs in `AI_DEV_DOCS/`:
 - `02-ARCHITECTURE.md` - System design
 - `03-DATA_MODEL.md` - Database schema explanation
 - `05-ANALYZERS.md` - Analyzer architecture deep dive
+- `08-UI_COMPONENTS.md` - Component inventory and patterns
 - `09-FILE_STRUCTURE.md` - Where things go
+- `10-API_PATTERNS.md` - React Query and API patterns
 - `11-IMPLEMENTATION_ROADMAP.md` - Full feature checklist

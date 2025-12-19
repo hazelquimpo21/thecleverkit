@@ -2,6 +2,7 @@
  * INPUT COMPONENT
  * =================
  * Text input with consistent styling.
+ * Uses shadcn/ui patterns with semantic color classes.
  */
 
 import * as React from 'react';
@@ -32,22 +33,22 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           type={type}
           className={cn(
             // Base styles
-            `flex h-11 w-full rounded-lg border bg-white px-4 py-2
-             text-base text-stone-900 shadow-sm transition-colors
-             placeholder:text-stone-400
-             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500
+            `flex h-11 w-full rounded-lg border bg-background px-4 py-2
+             text-base text-foreground shadow-sm transition-colors
+             placeholder:text-muted-foreground
+             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
              disabled:cursor-not-allowed disabled:opacity-50`,
             // Error state
             error
-              ? 'border-red-300 focus-visible:ring-red-500'
-              : 'border-stone-300',
+              ? 'border-destructive focus-visible:ring-destructive'
+              : 'border-input',
             className
           )}
           ref={ref}
           {...props}
         />
         {error && (
-          <p className="mt-1.5 text-sm text-red-600">{error}</p>
+          <p className="mt-1.5 text-sm text-destructive">{error}</p>
         )}
       </div>
     );

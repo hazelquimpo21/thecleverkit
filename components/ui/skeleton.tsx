@@ -2,6 +2,7 @@
  * SKELETON COMPONENT
  * ===================
  * Loading placeholder with shimmer animation.
+ * Uses shadcn/ui patterns with semantic color classes.
  */
 
 import { cn } from '@/lib/utils/cn';
@@ -23,7 +24,7 @@ function Skeleton({ className, ...props }: SkeletonProps) {
   return (
     <div
       className={cn(
-        'animate-pulse rounded-md bg-stone-200',
+        'animate-pulse rounded-md bg-muted',
         className
       )}
       {...props}

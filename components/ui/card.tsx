@@ -2,6 +2,7 @@
  * CARD COMPONENT
  * ===============
  * Card container with header, content, and footer sections.
+ * Uses shadcn/ui patterns with semantic color classes.
  */
 
 import * as React from 'react';
@@ -18,7 +19,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'rounded-xl border border-stone-200 bg-white shadow-sm',
+      'rounded-xl border border-border bg-card text-card-foreground shadow-sm',
       className
     )}
     {...props}
@@ -47,13 +48,13 @@ CardHeader.displayName = 'CardHeader';
 // ============================================================================
 
 const CardTitle = React.forwardRef<
-  HTMLHeadingElement,
-  React.HTMLAttributes<HTMLHeadingElement>
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <h3
+  <div
     ref={ref}
     className={cn(
-      'text-lg font-semibold leading-none tracking-tight text-stone-900',
+      'text-lg font-semibold leading-none tracking-tight',
       className
     )}
     {...props}
@@ -71,7 +72,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn('text-sm text-stone-500', className)}
+    className={cn('text-sm text-muted-foreground', className)}
     {...props}
   />
 ));

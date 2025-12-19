@@ -2,6 +2,7 @@
  * BADGE COMPONENT
  * =================
  * Small status indicators and labels.
+ * Uses shadcn/ui patterns with semantic color classes.
  */
 
 import * as React from 'react';
@@ -14,18 +15,24 @@ import { cn } from '@/lib/utils/cn';
 
 const badgeVariants = cva(
   // Base styles
-  `inline-flex items-center gap-1 rounded-full px-2.5 py-0.5
+  `inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5
    text-xs font-medium transition-colors`,
   {
     variants: {
       variant: {
-        default: 'bg-stone-100 text-stone-700',
-        secondary: 'bg-stone-200 text-stone-800',
-        success: 'bg-green-100 text-green-700',
-        warning: 'bg-amber-100 text-amber-700',
-        error: 'bg-red-100 text-red-700',
-        info: 'bg-blue-100 text-blue-700',
-        orange: 'bg-orange-100 text-orange-700',
+        default: 'border-transparent bg-primary text-primary-foreground',
+        secondary: 'border-transparent bg-secondary text-secondary-foreground',
+        destructive: 'border-transparent bg-destructive text-destructive-foreground',
+        outline: 'border-border text-foreground',
+        // Extended variants for app-specific use cases
+        success: 'border-transparent bg-success text-success-foreground',
+        warning: 'border-transparent bg-warning text-warning-foreground',
+        muted: 'border-transparent bg-muted text-muted-foreground',
+        // Aliases for common use cases
+        error: 'border-transparent bg-destructive text-destructive-foreground',
+        info: 'border-transparent bg-blue-100 text-blue-700',
+        // Orange brand accent variant
+        orange: 'border-transparent bg-primary/10 text-primary',
       },
     },
     defaultVariants: {

@@ -1,6 +1,6 @@
 # Architecture
 
-> **Implementation Status (December 17, 2025)**: Core architecture implemented and working. See `00-SESSION_NOTES.md` for implementation notes.
+> **Updated December 18, 2025**: Added React Query provider setup and shadcn/ui integration. Core architecture implemented and working. See `00-SESSION_NOTES.md` for implementation notes.
 
 ## System Overview
 
@@ -133,6 +133,70 @@ This means:
 - Mutations update optimistically where safe
 - Supabase is always the source of truth
 - Realtime syncs state across tabs/devices
+
+### 7. Provider Composition Pattern
+
+The app uses a layered provider architecture in `lib/providers/`:
+
+```
+<QueryProvider>              ← React Query for server state caching
+  <TooltipProvider>          ← Radix UI tooltip context
+    {children}
+    <Toaster />              ← Sonner toast notifications
+  </TooltipProvider>
+</QueryProvider>
+```
+
+**Why this order?**
+- QueryProvider wraps everything so any component can use React Query
+- TooltipProvider must wrap components that use Tooltip
+- Toaster is a sibling to children so toasts render above the app
+
+**Configuration in `lib/providers/query-provider.tsx`:**
+
+| Option | Value | Reason |
+|--------|-------|--------|
+| `staleTime` | 60 seconds | Reduces unnecessary refetches |
+| `gcTime` | 10 minutes | Keeps data for fast back-navigation |
+| `retry` | 1 | Single retry for transient failures |
+| `refetchOnWindowFocus` | false | Prevents API spam on tab switch |
+
+### 8. shadcn/ui + Tailwind v4 Integration
+
+We use shadcn/ui components with custom OKLCH color tokens:
+
+```
+┌─────────────────────────────────────────────┐
+│              globals.css                     │
+│  ┌────────────────────────────────────────┐ │
+│  │ :root { --primary: oklch(...) }        │ │
+│  │        { --background: oklch(...) }    │ │
+│  └────────────────────────────────────────┘ │
+│  ┌────────────────────────────────────────┐ │
+│  │ @theme inline {                        │ │  ← Maps CSS vars to Tailwind
+│  │   --color-primary: var(--primary);     │ │
+│  │ }                                      │ │
+│  └────────────────────────────────────────┘ │
+└─────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│           components/ui/*.tsx                │
+│  Use semantic classes:                       │
+│    bg-primary, text-muted-foreground        │
+│    border-border, ring-ring                 │
+└─────────────────────────────────────────────┘
+```
+
+**Color Semantic Meaning:**
+
+| Token | Usage |
+|-------|-------|
+| `--primary` | Brand orange, CTAs, focus rings |
+| `--secondary` | Subtle backgrounds, secondary buttons |
+| `--muted` | Disabled states, placeholder text |
+| `--destructive` | Delete actions, errors |
+| `--success` | Completed states, confirmations |
+| `--warning` | Pending states, caution |
 
 ## Error Handling Strategy
 
