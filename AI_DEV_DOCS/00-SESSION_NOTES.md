@@ -1,15 +1,39 @@
 # Session Notes for AI Developers
 
 > Last updated: December 19, 2025
-> Status: Dashboard & Core MVP Complete. Docs + Google Docs Export Implemented. (Build Passing)
+> Status: Dashboard & Core MVP Complete. Docs + Google Docs Export + Intelligent Buttons Implemented. (Build Passing)
 
 This document provides context for future AI developers working on this codebase. Read this first!
 
 ---
 
-## Current Focus: Google Docs Export ✅
+## Current Focus: Intelligent Buttons ✅
 
-**Just implemented**: Full Google OAuth integration for exporting docs to Google Docs.
+**Just implemented**: Smart buttons that adapt based on doc state (generated/stale, exported/not).
+
+**See documentation:**
+- `12-DOCS_FEATURE.md` → "Intelligent Buttons Feature" section
+
+**What's now available:**
+- Template cards show intelligent buttons based on doc state
+- "View" vs "Generate" vs "Regenerate" based on context
+- Freshness warnings when brand data changed since doc was generated
+- Export menu shows "Open in Docs" vs "Save to Google Docs"
+- Inline doc viewing in Store tab (no separate Documents tab needed)
+- Quick access bar for all generated docs at top of Store
+
+**Key files created/modified:**
+- `lib/docs/state.ts` - Doc state detection utilities
+- `components/store/template-gallery-card.tsx` - Intelligent action buttons
+- `components/store/store-tab-content.tsx` - Inline doc viewer, quick access bar
+- `components/docs/doc-viewer.tsx` - Freshness banner, regenerate button
+- `components/docs/doc-export-menu.tsx` - State-aware export options
+
+---
+
+## Previous Focus: Google Docs Export ✅
+
+**Implemented**: Full Google OAuth integration for exporting docs to Google Docs.
 
 **See documentation:**
 - `12-DOCS_FEATURE.md` - Docs feature implementation plan
