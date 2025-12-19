@@ -194,9 +194,14 @@
    ============================================================================ */
 
 @theme inline {
-  /* Core colors */
+  /* Core colors
+     NOTE: Tailwind v4 requires explicit --color-* mappings for utility classes.
+     e.g. text-foreground-muted needs --color-foreground-muted to be defined here.
+     Without these, text colors won't resolve and content becomes invisible. */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-subtle: var(--foreground-subtle);
   --color-surface: var(--surface);
   --color-surface-elevated: var(--surface-elevated);
   --color-surface-muted: var(--surface-muted);
@@ -220,6 +225,10 @@
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-error: var(--error);
+  --color-error-foreground: var(--error-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
