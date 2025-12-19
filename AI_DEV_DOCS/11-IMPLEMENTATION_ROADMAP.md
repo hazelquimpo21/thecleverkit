@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-> **STATUS UPDATE (December 19, 2025)**: Phases 1-6 complete. shadcn/ui and React Query now installed and wired up. Build passes. See `00-SESSION_NOTES.md` for implementation details and gotchas.
+> **STATUS UPDATE (December 19, 2025)**: Phases 1-6 complete + Dashboard. shadcn/ui and React Query now installed and wired up. Build passes. See `00-SESSION_NOTES.md` for implementation details and gotchas.
 
 ## Build Order
 
@@ -50,7 +50,7 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 - [x] Create PageContainer component
 - [x] Build home page with add brand form
 - [x] Create UserMenu (shows user email + sign out)
-- [ ] Build `/dashboard` page
+- [x] Build `/dashboard` page
 
 **Checkpoint**: ✅ Auth complete. Users can sign in with magic link, protected routes work. Unauthenticated users trying to analyze get a smooth redirect flow that preserves their URL.
 
@@ -60,14 +60,16 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 
 **Goal**: Users can add brands and see them listed.
 
-**STATUS: ✅ CORE COMPLETE** (Dashboard/list view not built)
+**STATUS: ✅ COMPLETE**
 
 ### 2.1 Dashboard Page
 - [x] Create `useBrands` hook (TanStack Query)
-- [ ] Build BrandEmptyState component
-- [ ] Build BrandCard component
-- [ ] Build BrandList component
-- [ ] Dashboard shows empty state or brand list
+- [x] Build BrandEmptyState component
+- [x] Build BrandCard component
+- [x] Build BrandList component (integrated in dashboard-content.tsx)
+- [x] Dashboard shows empty state or brand list
+- [x] Header navigation with "My Brands" and "Add Brand" links
+- [x] Delete brand with confirmation dialog
 
 ### 2.2 Add Brand Flow
 - [x] Build AddBrandForm (URL input + checkbox)
@@ -79,8 +81,9 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 - [x] Build ProfileHeader component
 - [x] Show brand URL and analysis status
 - [x] Create `useBrand` hook (TanStack Query)
+- [x] Back link to dashboard
 
-**Checkpoint**: ⚠️ Can add brands and view profiles. Need dashboard list.
+**Checkpoint**: ✅ Full brand management flow working. Dashboard shows all brands with status.
 
 ---
 
@@ -322,16 +325,16 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 | Phase | Status | Remaining Effort |
 |-------|--------|------------------|
 | 1. Foundation | ✅ Complete | - |
-| 2. Brand Management | ✅ Core done | Dashboard: ~0.5 day |
+| 2. Brand Management | ✅ Complete | - |
 | 3. Scraping | ✅ Complete | - |
 | 4. Analyzers | ✅ Complete | - |
 | 5. Real-Time Progress | ✅ Complete | - |
 | 6. Brand Profile Display | ✅ Complete | - |
 | 7. Edit & Retry | ❌ Not started | ~1 day |
-| 8. Polish | 🔶 Partial | ~1 day |
+| 8. Polish | 🔶 Partial | ~0.5 day |
 | 9. Deploy | ❌ Not started | ~0.5 day |
 
-**Remaining: ~3 days for full MVP completion**
+**Remaining: ~2 days for full MVP completion**
 
 ---
 
