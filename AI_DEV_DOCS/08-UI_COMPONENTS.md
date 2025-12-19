@@ -1,24 +1,22 @@
 # UI Components & Design System
 
-> **Updated December 19, 2025**: Major redesign planned. See `15-REDESIGN-VISION.md` for new design direction.
+> **Updated December 19, 2025**: Redesign COMPLETE. All phases implemented.
 
 ---
 
-## ⚠️ REDESIGN IN PROGRESS
+## ✅ REDESIGN COMPLETE
 
-This document contains the **current** design system. A significant redesign is planned with:
+The 1960s science textbook aesthetic has been fully implemented:
 
-- **New aesthetic**: 1960s science textbook feel with muted pastels
-- **New color palette**: Burnt sienna primary, sage/rose/mustard/teal semantic colors
-- **New layout**: Left sidebar navigation instead of top header
-- **New feature**: Template Store tab on brand profiles
+- **New aesthetic**: Warm paper-like backgrounds with geometric illustrations
+- **New color palette**: Burnt sienna primary (`oklch(0.55 0.14 35)`), sage/rose/mustard/teal semantic colors
+- **New layout**: 260px left sidebar navigation, PageHeader with integrated tabs
+- **New feature**: Template Store tab on brand profiles with category organization
 
-**Redesign documentation:**
+**Related documentation:**
 - `15-REDESIGN-VISION.md` — Complete design philosophy and specs
-- `16-REDESIGN-TASKS.md` — Implementation task breakdown
-- `17-TEMPLATE-STORE.md` — Template store feature spec
-
-When implementing, **follow the redesign docs** for new work. This document will be fully updated after redesign implementation.
+- `16-REDESIGN-TASKS.md` — Implementation task breakdown (ALL COMPLETE)
+- `17-TEMPLATE-STORE.md` — Template store feature spec (IMPLEMENTED)
 
 ---
 
@@ -122,18 +120,26 @@ Always use semantic classes, never hardcoded colors:
 
 The Badge component has semantic variants for different use cases:
 
-| Variant | Use Case | Example |
-|---------|----------|---------|
-| `default` | Primary actions | Active filters |
-| `secondary` | Neutral/default | Tags, labels |
-| `destructive` | Errors, danger | Delete confirmation |
-| `outline` | Subtle emphasis | Low-priority tags |
-| `success` | Positive states | "Complete", "Active" |
-| `warning` | Caution states | "Pending", "Review" |
-| `muted` | Disabled/inactive | Inactive items |
-| `error` | Error states | Status badges |
-| `info` | Informational | "New", "Beta" |
-| `orange` | Brand accent | Primary category |
+| Variant | Use Case | Color | Example |
+|---------|----------|-------|---------|
+| `default` | Primary actions | Primary | Active filters |
+| `secondary` | Neutral/default | Stone | Tags, labels |
+| `outline` | Subtle emphasis | Border | Low-priority tags |
+| `success` | Positive states | Green | "Complete", "Active" |
+| `warning` | Caution states | Amber | "Pending", "Review" |
+| `error` | Error states | Red | Error badges |
+| `info` | Informational | Blue | "New", "Beta" |
+| `basics` | Business Basics analyzer | Sage | Analyzer badge |
+| `customer` | Customer analyzer | Rose | Analyzer badge |
+| `products` | Products analyzer | Mustard | Analyzer badge |
+| `docs` | Docs analyzer | Teal | Docs badge |
+| `accent` | Accent highlight | Primary light | Accent badge |
+
+**Usage with dot indicator:**
+```tsx
+<Badge variant="success" dot>Ready</Badge>
+<Badge variant="warning" dot>Needs Data</Badge>
+```
 
 ## Typography
 
@@ -177,11 +183,13 @@ The Badge component has semantic variants for different use cases:
 ```
 /components/
   ui/                     ← shadcn/ui primitives (Radix-based)
-    button.tsx            ← Primary action buttons
-    card.tsx              ← Container with header/content/footer
-    input.tsx             ← Text input with focus ring
-    badge.tsx             ← Status/category labels (10 variants!)
-    skeleton.tsx          ← Loading placeholder animation
+    button.tsx            ← Primary action buttons (+ success variant, icon-sm size)
+    card.tsx              ← Container with warm shadows (+ interactive prop)
+    input.tsx             ← Text input with label/hint support
+    badge.tsx             ← Semantic variants (basics, customer, products, docs)
+    skeleton.tsx          ← Warm shimmer animation
+    empty-state.tsx       ← Reusable empty state pattern ✅ NEW
+    error-state.tsx       ← Reusable error state with retry ✅ NEW
     label.tsx             ← Form field labels (Radix)
     checkbox.tsx          ← Toggle with indeterminate state (Radix)
     dialog.tsx            ← Modal overlay (Radix)
@@ -190,15 +198,24 @@ The Badge component has semantic variants for different use cases:
     separator.tsx         ← Visual divider (Radix)
     sonner.tsx            ← Toast notifications
 
-  layout/                 ← App shell components
-    header.tsx            ← Top nav with logo, user menu
-    page-container.tsx    ← Consistent page padding/max-width
-    page-header.tsx       ← Page title + actions pattern
+  layout/                 ← App shell components ✅ REDESIGNED
+    sidebar/              ← Left navigation sidebar
+      sidebar.tsx         ← Main sidebar component (260px fixed)
+      sidebar-nav-item.tsx ← Navigation links
+      sidebar-brand-item.tsx ← Brand list items with status
+      sidebar-section.tsx ← Section grouping
+      sidebar-user-menu.tsx ← User dropdown with sign out
+      index.ts            ← Exports
+    app-shell.tsx         ← Layout wrapper with conditional sidebar
+    page-container.tsx    ← Sidebar-aware page padding
+    page-header.tsx       ← Title + tabs + actions pattern ✅ NEW
+    index.ts              ← Layout exports
 
   brands/                 ← Brand-related components
-    brand-card.tsx        ← Brand in list view
+    brand-card.tsx        ← Interactive Card with semantic colors
+    brand-analysis-content.tsx ← Realtime analysis with 3 tabs
     brand-list.tsx        ← List of brand cards
-    brand-empty.tsx       ← Empty state for dashboard
+    brand-empty-state.tsx ← Empty state for dashboard
     add-brand-form.tsx    ← URL input form
     status-badge.tsx      ← Analysis status indicator
 
@@ -208,28 +225,26 @@ The Badge component has semantic variants for different use cases:
     analyzer-card.tsx     ← Base card for displaying results
 
   analysis/cards/         ← Specific display for each analyzer
-    basics-card.tsx
-    customer-card.tsx
-    products-card.tsx
+    basics-card.tsx       ← Uses Badge variant="basics"
+    customer-card.tsx     ← Uses Badge variant="customer"
+    products-card.tsx     ← Uses Badge variant="products"
 
-  analysis/forms/         ← Edit forms for each analyzer (planned)
-    basics-form.tsx
-    customer-form.tsx
-    products-form.tsx
+  store/                  ← Template Store components ✅ NEW
+    store-tab-content.tsx ← Main store with category sections
+    template-gallery-card.tsx ← Card with illustration + readiness
+    template-illustration.tsx ← CSS-based geometric illustrations
+    index.ts              ← Exports
 
-  brand-profile/          ← Brand profile page components
-    profile-header.tsx    ← Brand name, URL, actions
-    profile-tabs.tsx      ← Overview / Docs tab navigation
-
-  docs/                   ← Document generation components (planned)
+  docs/                   ← Document generation components
+    docs-tab-content.tsx  ← Docs tab with template grid + doc list
     doc-template-card.tsx ← Single template in grid (shows readiness)
     doc-template-grid.tsx ← Grid of available templates
     doc-list.tsx          ← User's generated docs
-    doc-list-item.tsx     ← Single doc in list
-    doc-viewer.tsx        ← Renders doc content (markdown)
-    doc-export-menu.tsx   ← Export dropdown (copy, PDF)
-    readiness-badge.tsx   ← "Ready" or "Needs X" indicator
+    doc-list-item.tsx     ← Single doc in list (+ Google Docs link)
+    doc-viewer-dialog.tsx ← Modal doc viewer with markdown
+    doc-export-menu.tsx   ← Export dropdown (+ Google Docs option)
     missing-data-dialog.tsx ← Shows what's needed for template
+    index.ts              ← Exports
 ```
 
 ### UI Components Deep Dive

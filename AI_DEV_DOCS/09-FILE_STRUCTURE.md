@@ -1,10 +1,10 @@
 # File Structure
 
-> **Updated December 19, 2025**: Added Google Docs export integration. Settings page + integrations module implemented.
+> **Updated December 19, 2025**: UI Redesign complete. Template Store implemented. Sidebar navigation + store components added.
 
 ## Overview
 
-The project uses Next.js 14 App Router with a modular structure. No file should exceed ~400 lines.
+The project uses Next.js 16 App Router with a modular structure. No file should exceed ~400 lines.
 
 ```
 clever-kit/
@@ -75,70 +75,80 @@ clever-kit/
 │
 ├── components/
 │   ├── ui/                           ← shadcn/ui primitives (Radix-based)
-│   │   ├── button.tsx                ← Primary action buttons ✅
-│   │   ├── card.tsx                  ← Container with header/content/footer ✅
-│   │   ├── input.tsx                 ← Text input with focus ring ✅
-│   │   ├── badge.tsx                 ← 10 variants: default, secondary, etc. ✅
-│   │   ├── skeleton.tsx              ← Loading placeholder animation ✅
-│   │   ├── label.tsx                 ← Form field labels (Radix) ✅ NEW
-│   │   ├── checkbox.tsx              ← Toggle with indeterminate (Radix) ✅ NEW
-│   │   ├── dialog.tsx                ← Modal overlay (Radix) ✅ NEW
-│   │   ├── dropdown-menu.tsx         ← Context menus (Radix) ✅ NEW
-│   │   ├── tooltip.tsx               ← Hover hints (Radix) ✅ NEW
-│   │   ├── separator.tsx             ← Visual divider (Radix) ✅ NEW
-│   │   └── sonner.tsx                ← Toast notifications ✅ NEW
+│   │   ├── button.tsx                ← Primary buttons (+ success, icon-sm) ✅
+│   │   ├── card.tsx                  ← Warm shadows (+ interactive prop) ✅
+│   │   ├── input.tsx                 ← Label/hint/error support ✅
+│   │   ├── badge.tsx                 ← Semantic variants (basics/customer/etc) ✅
+│   │   ├── skeleton.tsx              ← Warm shimmer animation ✅
+│   │   ├── empty-state.tsx           ← Reusable empty state ✅ NEW
+│   │   ├── error-state.tsx           ← Reusable error with retry ✅ NEW
+│   │   ├── label.tsx                 ← Form field labels (Radix) ✅
+│   │   ├── checkbox.tsx              ← Toggle with indeterminate (Radix) ✅
+│   │   ├── dialog.tsx                ← Modal overlay (Radix) ✅
+│   │   ├── dropdown-menu.tsx         ← Context menus (Radix) ✅
+│   │   ├── tooltip.tsx               ← Hover hints (Radix) ✅
+│   │   ├── separator.tsx             ← Visual divider (Radix) ✅
+│   │   ├── sonner.tsx                ← Toast notifications ✅
+│   │   └── index.ts                  ← Exports ✅
 │   │
-│   ├── layout/
-│   │   ├── header.tsx                ← App header with auth-aware nav ✅
-│   │   ├── page-container.tsx        ← Page width wrapper
-│   │   └── page-header.tsx           ← Title + actions pattern
+│   ├── layout/                       ← ✅ REDESIGNED
+│   │   ├── sidebar/                  ← Left navigation ✅ NEW
+│   │   │   ├── sidebar.tsx           ← 260px fixed sidebar
+│   │   │   ├── sidebar-nav-item.tsx  ← Navigation links
+│   │   │   ├── sidebar-brand-item.tsx ← Brand items with status
+│   │   │   ├── sidebar-section.tsx   ← Section grouping
+│   │   │   ├── sidebar-user-menu.tsx ← User dropdown
+│   │   │   └── index.ts              ← Exports
+│   │   ├── app-shell.tsx             ← Layout with conditional sidebar ✅ NEW
+│   │   ├── page-container.tsx        ← Sidebar-aware padding ✅
+│   │   ├── page-header.tsx           ← Title + tabs + actions ✅ NEW
+│   │   └── index.ts                  ← Layout exports ✅
 │   │
 │   ├── auth/
-│   │   ├── login-form.tsx            ← Magic link login form
-│   │   └── index.ts                  ← Auth component exports
+│   │   ├── login-form.tsx            ← Magic link login form ✅
+│   │   └── index.ts                  ← Auth component exports ✅
 │   │
 │   ├── brands/
-│   │   ├── brand-card.tsx            ← Single brand in list
-│   │   ├── brand-list.tsx            ← Grid of brand cards
-│   │   ├── brand-empty.tsx           ← Empty state
+│   │   ├── brand-card.tsx            ← Interactive card ✅
+│   │   ├── brand-analysis-content.tsx ← 3 tabs (Overview/Store/Docs) ✅
+│   │   ├── brand-list.tsx            ← Grid of brand cards ✅
+│   │   ├── brand-empty-state.tsx     ← Empty state ✅
 │   │   ├── add-brand-form.tsx        ← URL input form ✅
-│   │   └── status-badge.tsx          ← Analysis status indicator ✅
+│   │   ├── status-badge.tsx          ← Analysis status indicator ✅
+│   │   ├── completion-celebration.tsx ← Success toast ✅
+│   │   └── connection-status.tsx     ← Realtime connection status ✅
 │   │
 │   ├── analysis/
 │   │   ├── progress-list.tsx         ← Full progress view ✅
-│   │   ├── progress-item.tsx         ← Single analyzer row
-│   │   ├── analyzer-card.tsx         ← Base results card
-│   │   ├── field.tsx                 ← Label/value display
-│   │   ├── error-state.tsx           ← Error with retry
-│   │   └── loading-state.tsx         ← Skeleton loader
+│   │   ├── progress-item.tsx         ← Single analyzer row ✅
+│   │   ├── analyzer-card.tsx         ← Base results card ✅
+│   │   └── field.tsx                 ← Label/value display ✅
 │   │
-│   ├── analysis/cards/               ← Analyzer-specific result displays
-│   │   ├── basics-card.tsx           ← Business basics ✅
-│   │   ├── customer-card.tsx         ← Customer profile
-│   │   └── products-card.tsx         ← Products & pricing
+│   ├── analysis/cards/               ← Analyzer-specific displays
+│   │   ├── basics-card.tsx           ← Badge variant="basics" ✅
+│   │   ├── customer-card.tsx         ← Badge variant="customer" ✅
+│   │   └── products-card.tsx         ← Badge variant="products" ✅
 │   │
-│   ├── analysis/forms/               ← Analyzer-specific edit forms (planned)
-│   │   ├── basics-form.tsx
-│   │   ├── customer-form.tsx
-│   │   └── products-form.tsx
-│   │
-│   ├── brand-profile/
-│   │   ├── profile-header.tsx        ← Brand name, URL, actions
-│   │   └── profile-tabs.tsx          ← Overview / Docs tab navigation (planned)
+│   ├── store/                        ← Template Store ✅ NEW
+│   │   ├── store-tab-content.tsx     ← Main store with categories
+│   │   ├── template-gallery-card.tsx ← Card with illustration
+│   │   ├── template-illustration.tsx ← CSS geometric illustrations
+│   │   └── index.ts                  ← Exports
 │   │
 │   ├── integrations/                 ← ✅ IMPLEMENTED
-│   │   ├── google-connect-modal.tsx  ← First-time Google OAuth connect modal ✅
-│   │   └── index.ts                  ← Exports GoogleConnectModal, GoogleIcon ✅
+│   │   ├── google-connect-modal.tsx  ← Google OAuth connect modal ✅
+│   │   └── index.ts                  ← Exports ✅
 │   │
-│   └── docs/                         ← Document generation (partial)
-│       ├── doc-template-card.tsx     ← Single template in grid
-│       ├── doc-template-grid.tsx     ← Grid of available templates
-│       ├── doc-list.tsx              ← User's generated docs
-│       ├── doc-list-item.tsx         ← Single doc in list (+ Google Docs link ✅)
-│       ├── doc-viewer.tsx            ← Renders doc content
-│       ├── doc-export-menu.tsx       ← Export dropdown (+ Google Docs option ✅)
-│       ├── readiness-badge.tsx       ← "Ready" or "Needs data" indicator
-│       └── missing-data-dialog.tsx   ← Shows what's needed for template
+│   └── docs/                         ← Document generation ✅
+│       ├── docs-tab-content.tsx      ← Docs tab container ✅
+│       ├── doc-template-card.tsx     ← Single template in grid ✅
+│       ├── doc-template-grid.tsx     ← Grid of templates ✅
+│       ├── doc-list.tsx              ← User's generated docs ✅
+│       ├── doc-list-item.tsx         ← Single doc (+ Google Docs link) ✅
+│       ├── doc-viewer-dialog.tsx     ← Modal doc viewer ✅
+│       ├── doc-export-menu.tsx       ← Export dropdown ✅
+│       ├── missing-data-dialog.tsx   ← Shows needed data ✅
+│       └── index.ts                  ← Exports ✅
 │
 ├── lib/
 │   ├── providers/                    ← React context providers ✅ NEW

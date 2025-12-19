@@ -107,7 +107,7 @@ export function ProductsCard({ data, isLoading }: ProductsCardProps) {
         {/* Offering Type & Price Positioning */}
         <div className="flex items-center gap-3">
           <Badge variant="secondary">{data.offering_type}</Badge>
-          <Badge variant="orange">{data.price_positioning}</Badge>
+          <Badge variant="products">{data.price_positioning}</Badge>
         </div>
 
         {/* Primary Offer */}

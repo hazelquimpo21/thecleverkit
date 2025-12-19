@@ -2,7 +2,13 @@
  * BUTTON COMPONENT
  * =================
  * Versatile button with multiple variants and sizes.
- * Uses shadcn/ui patterns with semantic color classes.
+ * Updated for 1960s science textbook aesthetic.
+ *
+ * @update 2025-12-19 - Updated styling for redesign
+ *   - Burnt sienna primary color
+ *   - Warm shadows
+ *   - Active scale effect
+ *   - Updated border-radius
  */
 
 import * as React from 'react';
@@ -16,41 +22,48 @@ import { Loader2 } from 'lucide-react';
 
 const buttonVariants = cva(
   // Base styles
-  `inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg
-   text-sm font-medium transition-all duration-200
+  `inline-flex items-center justify-center gap-2 whitespace-nowrap
+   rounded-[var(--radius-md)] text-sm font-medium
+   transition-all duration-150
    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
    disabled:pointer-events-none disabled:opacity-50
+   active:scale-[0.98]
    [&_svg]:pointer-events-none [&_svg]:shrink-0`,
   {
     variants: {
       variant: {
-        // Primary action button
-        default: `bg-primary text-primary-foreground shadow-sm
-                  hover:bg-primary/90 active:bg-primary/80`,
+        // Primary action - burnt sienna with warm shadow
+        default: `bg-primary text-primary-foreground shadow-warm-sm
+                  hover:bg-[var(--primary-hover)] hover:shadow-warm-md`,
 
         // Destructive action
-        destructive: `bg-destructive text-destructive-foreground shadow-sm
-                      hover:bg-destructive/90 active:bg-destructive/80`,
+        destructive: `bg-destructive text-destructive-foreground shadow-warm-sm
+                      hover:bg-destructive/90`,
+
+        // Secondary - surface with border
+        secondary: `bg-surface border border-border text-foreground shadow-warm-sm
+                    hover:bg-surface-muted`,
 
         // Outline button
-        outline: `border border-input bg-background text-foreground shadow-sm
-                  hover:bg-accent hover:text-accent-foreground`,
-
-        // Secondary/subtle button
-        secondary: `bg-secondary text-secondary-foreground shadow-sm
-                    hover:bg-secondary/80`,
+        outline: `border border-border bg-transparent text-foreground
+                  hover:bg-surface-muted`,
 
         // Ghost/text button
-        ghost: `text-foreground hover:bg-accent hover:text-accent-foreground`,
+        ghost: `text-foreground-muted hover:bg-surface-muted hover:text-foreground`,
 
         // Link style
         link: `text-primary underline-offset-4 hover:underline`,
+
+        // Success variant for positive actions
+        success: `bg-success text-success-foreground shadow-warm-sm
+                  hover:bg-success/90`,
       },
       size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-8 px-3 text-xs',
-        lg: 'h-12 px-6 text-base',
+        default: 'h-10 px-5 py-2',
+        sm: 'h-8 px-4 text-xs',
+        lg: 'h-12 px-8 text-base',
         icon: 'h-10 w-10',
+        'icon-sm': 'h-8 w-8',
       },
     },
     defaultVariants: {

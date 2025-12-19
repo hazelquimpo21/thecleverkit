@@ -1,33 +1,74 @@
 /**
  * PAGE CONTAINER COMPONENT
  * =========================
- * Consistent page wrapper with max-width and padding.
+ * Consistent page wrapper with padding.
+ * Works with sidebar layout - content fills available width.
+ *
+ * @update 2025-12-19 - Adapted for sidebar layout
  */
 
 import { cn } from '@/lib/utils/cn';
 
 // ============================================================================
+// TYPES
+// ============================================================================
+
+export interface PageContainerProps {
+  children: React.ReactNode;
+  /** Additional CSS classes */
+  className?: string;
+  /** Optional max-width constraint (for non-sidebar pages like login) */
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+}
+
+// ============================================================================
+// MAX WIDTH CLASSES
+// ============================================================================
+
+const maxWidthClasses = {
+  sm: 'max-w-2xl',
+  md: 'max-w-3xl',
+  lg: 'max-w-4xl',
+  xl: 'max-w-6xl',
+  '2xl': 'max-w-7xl',
+  full: 'max-w-full',
+};
+
+// ============================================================================
 // COMPONENT
 // ============================================================================
 
-interface PageContainerProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
 /**
- * Page container with consistent max-width and padding.
+ * Page container with consistent padding.
+ * In sidebar layout, content fills available width naturally.
  *
- * @example
+ * @example Basic usage
  * <PageContainer>
- *   <h1>Page Title</h1>
- *   <p>Page content...</p>
+ *   <PageHeader title="Dashboard" />
+ *   <Content />
+ * </PageContainer>
+ *
+ * @example With max-width (for centered content like login)
+ * <PageContainer maxWidth="sm">
+ *   <LoginForm />
  * </PageContainer>
  */
-export function PageContainer({ children, className }: PageContainerProps) {
+export function PageContainer({
+  children,
+  className,
+  maxWidth,
+}: PageContainerProps) {
   return (
-    <main className={cn('mx-auto max-w-6xl px-4 py-8', className)}>
+    <div
+      className={cn(
+        // Padding
+        'px-6 py-8 lg:px-10 lg:py-10',
+        // Max width (only if specified)
+        maxWidth && [maxWidthClasses[maxWidth], 'mx-auto'],
+        className
+      )}
+    >
       {children}
-    </main>
+    </div>
   );
 }

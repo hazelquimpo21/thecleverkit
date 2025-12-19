@@ -1,134 +1,207 @@
 /**
  * THE CLEVER KIT - GLOBAL STYLES
  * ================================
- * Base styles and CSS variables for the app.
- * Uses shadcn/ui with a warm, breathable design and orange accents.
+ * Design system inspired by 1960s science textbooks.
+ * Warm, paper-like backgrounds with burnt sienna accents.
+ *
+ * @redesign 2025-12-19 - Updated to 1960s science textbook aesthetic
+ *   - Warm cream backgrounds (paper-like)
+ *   - Burnt sienna primary color
+ *   - Semantic analyzer colors (sage, rose, mustard, teal)
+ *   - Warm-tinted shadows
+ *   - Updated radius scale
  */
 
 @import "tailwindcss";
 
 /* ============================================================================
-   SHADCN/UI CSS VARIABLES - LIGHT MODE
-   Using stone as base color with orange accent (warm brand palette)
+   DESIGN SYSTEM - CSS CUSTOM PROPERTIES
    ============================================================================ */
 
 :root {
-  /* Background colors - warm cream, not stark white */
-  --background: oklch(0.985 0.002 75);
-  --foreground: oklch(0.147 0.004 49.25);
+  /* === BACKGROUNDS ===
+     Warm paper-like tones that feel tactile and inviting */
 
-  /* Card surfaces */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.147 0.004 49.25);
+  --background: oklch(0.96 0.015 85);          /* Warm paper cream - main app bg */
+  --surface: oklch(0.99 0.008 85);              /* Bright cream - card surfaces */
+  --surface-elevated: oklch(1 0 0);             /* Pure white - modals, popovers */
+  --surface-muted: oklch(0.94 0.012 85);        /* Subtle surface - inactive areas */
 
-  /* Popover */
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.147 0.004 49.25);
+  /* === TEXT ===
+     Warm charcoal tones, never pure black */
 
-  /* Primary - Orange accent */
-  --primary: oklch(0.646 0.222 41.116);
-  --primary-foreground: oklch(0.985 0.001 106.423);
+  --foreground: oklch(0.28 0.01 60);            /* Primary text - warm charcoal */
+  --foreground-muted: oklch(0.58 0.015 60);     /* Secondary text - warm gray */
+  --foreground-subtle: oklch(0.72 0.012 60);    /* Tertiary text - placeholders */
 
-  /* Secondary - Stone tones */
-  --secondary: oklch(0.97 0.001 106.424);
-  --secondary-foreground: oklch(0.216 0.006 56.043);
+  /* === BRAND & PRIMARY ACTIONS ===
+     Burnt sienna - the signature color */
 
-  /* Muted */
-  --muted: oklch(0.97 0.001 106.424);
-  --muted-foreground: oklch(0.553 0.013 58.071);
+  --primary: oklch(0.55 0.14 35);               /* Burnt sienna */
+  --primary-hover: oklch(0.50 0.14 35);         /* Darker on hover */
+  --primary-foreground: oklch(0.99 0.008 85);   /* Cream text on primary */
 
-  /* Accent - Light stone tint */
-  --accent: oklch(0.97 0.001 106.424);
-  --accent-foreground: oklch(0.216 0.006 56.043);
+  /* === SEMANTIC COLORS - ANALYZER CATEGORIES ===
+     Each analyzer has a distinctive, muted color */
 
-  /* Destructive - Red */
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0.001 106.423);
+  /* Basics - Sage green (knowledge, stability) */
+  --color-basics: oklch(0.62 0.08 155);
+  --color-basics-light: oklch(0.92 0.03 155);
 
-  /* Success - Green */
-  --success: oklch(0.648 0.15 160);
-  --success-foreground: oklch(0.985 0.001 106.423);
+  /* Customer - Dusty rose (people, warmth) */
+  --color-customer: oklch(0.65 0.08 15);
+  --color-customer-light: oklch(0.94 0.025 15);
 
-  /* Warning - Amber */
-  --warning: oklch(0.769 0.188 70.08);
-  --warning-foreground: oklch(0.216 0.006 56.043);
+  /* Products - Warm mustard (commerce, energy) */
+  --color-products: oklch(0.72 0.12 85);
+  --color-products-light: oklch(0.95 0.04 85);
 
-  /* Borders and inputs */
-  --border: oklch(0.869 0.005 56.366);
-  --input: oklch(0.869 0.005 56.366);
-  --ring: oklch(0.646 0.222 41.116);
+  /* Documents - Dusty teal (content, depth) */
+  --color-docs: oklch(0.60 0.06 220);
+  --color-docs-light: oklch(0.94 0.02 220);
+
+  /* === STATUS COLORS ===
+     Muted versions that don't scream */
+
+  --success: oklch(0.62 0.10 155);
+  --success-light: oklch(0.94 0.03 155);
+  --success-foreground: oklch(0.99 0.008 85);
+
+  --warning: oklch(0.75 0.12 70);
+  --warning-light: oklch(0.95 0.04 70);
+  --warning-foreground: oklch(0.28 0.01 60);
+
+  --error: oklch(0.55 0.12 25);
+  --error-light: oklch(0.94 0.03 25);
+  --error-foreground: oklch(0.99 0.008 85);
+
+  --info: oklch(0.60 0.06 240);
+  --info-light: oklch(0.94 0.02 240);
+  --info-foreground: oklch(0.99 0.008 85);
+
+  /* === UI ELEMENTS === */
+
+  /* Borders - warm, subtle */
+  --border: oklch(0.88 0.01 70);
+  --border-strong: oklch(0.80 0.015 70);
+
+  /* Focus ring */
+  --ring: oklch(0.55 0.14 35);
+  --ring-offset: oklch(0.96 0.015 85);
+
+  /* Shadows - warm tinted (HSL for shadow color) */
+  --shadow-color: 40 30% 20%;
+
+  /* === RADIUS SCALE ===
+     Soft, friendly corners */
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+
+  /* === LAYOUT ===
+     Sidebar navigation dimensions */
+
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 72px;
+  --header-height: 64px;
+
+  /* === SHADCN/UI COMPATIBILITY ===
+     Map new variables to shadcn expected names */
+
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-elevated);
+  --popover-foreground: var(--foreground);
+  --secondary: var(--surface-muted);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--surface-muted);
+  --muted-foreground: var(--foreground-muted);
+  --accent: var(--surface-muted);
+  --accent-foreground: var(--foreground);
+  --destructive: var(--error);
+  --destructive-foreground: var(--error-foreground);
+  --input: var(--border);
+  --radius: var(--radius-lg);
 
   /* Chart colors for data viz */
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --chart-1: var(--primary);
+  --chart-2: var(--color-basics);
+  --chart-3: var(--color-customer);
+  --chart-4: var(--color-products);
+  --chart-5: var(--color-docs);
 
-  /* Radius - Soft, not sharp */
-  --radius: 0.625rem;
-
-  /* Sidebar (for future dashboard layout) */
-  --sidebar: oklch(0.985 0.002 75);
-  --sidebar-foreground: oklch(0.147 0.004 49.25);
-  --sidebar-primary: oklch(0.646 0.222 41.116);
-  --sidebar-primary-foreground: oklch(0.985 0.001 106.423);
-  --sidebar-accent: oklch(0.97 0.001 106.424);
-  --sidebar-accent-foreground: oklch(0.216 0.006 56.043);
-  --sidebar-border: oklch(0.869 0.005 56.366);
-  --sidebar-ring: oklch(0.646 0.222 41.116);
+  /* Sidebar variables */
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--surface-muted);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 /* ============================================================================
-   DARK MODE (Future support)
+   DARK MODE (Future support - preserving for later)
    ============================================================================ */
 
 .dark {
-  --background: oklch(0.147 0.004 49.25);
-  --foreground: oklch(0.985 0.001 106.423);
-  --card: oklch(0.216 0.006 56.043);
-  --card-foreground: oklch(0.985 0.001 106.423);
-  --popover: oklch(0.216 0.006 56.043);
-  --popover-foreground: oklch(0.985 0.001 106.423);
-  --primary: oklch(0.646 0.222 41.116);
-  --primary-foreground: oklch(0.216 0.006 56.043);
-  --secondary: oklch(0.268 0.007 34.298);
-  --secondary-foreground: oklch(0.985 0.001 106.423);
-  --muted: oklch(0.268 0.007 34.298);
-  --muted-foreground: oklch(0.709 0.01 56.259);
-  --accent: oklch(0.268 0.007 34.298);
-  --accent-foreground: oklch(0.985 0.001 106.423);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0.001 106.423);
-  --success: oklch(0.696 0.17 162.48);
-  --success-foreground: oklch(0.216 0.006 56.043);
-  --warning: oklch(0.769 0.188 70.08);
-  --warning-foreground: oklch(0.216 0.006 56.043);
-  --border: oklch(0.268 0.007 34.298);
-  --input: oklch(0.268 0.007 34.298);
-  --ring: oklch(0.553 0.013 58.071);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.985 0.001 106.423);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.216 0.006 56.043);
-  --sidebar-foreground: oklch(0.985 0.001 106.423);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0.001 106.423);
-  --sidebar-accent: oklch(0.268 0.007 34.298);
-  --sidebar-accent-foreground: oklch(0.985 0.001 106.423);
-  --sidebar-border: oklch(0.268 0.007 34.298);
-  --sidebar-ring: oklch(0.553 0.013 58.071);
+  --background: oklch(0.16 0.01 60);
+  --surface: oklch(0.20 0.01 60);
+  --surface-elevated: oklch(0.24 0.01 60);
+  --surface-muted: oklch(0.18 0.01 60);
+
+  --foreground: oklch(0.95 0.008 85);
+  --foreground-muted: oklch(0.72 0.012 60);
+  --foreground-subtle: oklch(0.55 0.01 60);
+
+  --primary: oklch(0.60 0.14 35);
+  --primary-hover: oklch(0.55 0.14 35);
+  --primary-foreground: oklch(0.16 0.01 60);
+
+  --border: oklch(0.28 0.01 60);
+  --border-strong: oklch(0.35 0.01 60);
+  --ring: oklch(0.60 0.14 35);
+  --ring-offset: oklch(0.16 0.01 60);
+
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-elevated);
+  --popover-foreground: var(--foreground);
+  --secondary: var(--surface-muted);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--surface-muted);
+  --muted-foreground: var(--foreground-muted);
+  --accent: var(--surface-muted);
+  --accent-foreground: var(--foreground);
+
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--surface-muted);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 /* ============================================================================
    TAILWIND V4 THEME INTEGRATION
+   Expose CSS variables to Tailwind's theme system
    ============================================================================ */
 
 @theme inline {
+  /* Core colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-muted: var(--surface-muted);
+
+  /* shadcn compatibility */
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -150,11 +223,25 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  /* Semantic analyzer colors */
+  --color-basics: var(--color-basics);
+  --color-basics-light: var(--color-basics-light);
+  --color-customer: var(--color-customer);
+  --color-customer-light: var(--color-customer-light);
+  --color-products: var(--color-products);
+  --color-products-light: var(--color-products-light);
+  --color-docs: var(--color-docs);
+  --color-docs-light: var(--color-docs-light);
+
+  /* Chart colors */
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
+  /* Sidebar */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -163,10 +250,13 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Radius */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
 }
 
 /* ============================================================================
@@ -176,10 +266,11 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
 }
 
 /* Border color fallback */
@@ -188,9 +279,39 @@ body {
 }
 
 /* ============================================================================
+   SHADOW UTILITIES
+   Warm-tinted shadows for the 1960s aesthetic
+   ============================================================================ */
+
+.shadow-warm-sm {
+  box-shadow:
+    0 1px 2px hsl(var(--shadow-color) / 0.04),
+    0 1px 3px hsl(var(--shadow-color) / 0.06);
+}
+
+.shadow-warm-md {
+  box-shadow:
+    0 2px 4px hsl(var(--shadow-color) / 0.04),
+    0 4px 8px hsl(var(--shadow-color) / 0.08);
+}
+
+.shadow-warm-lg {
+  box-shadow:
+    0 4px 8px hsl(var(--shadow-color) / 0.04),
+    0 8px 24px hsl(var(--shadow-color) / 0.10);
+}
+
+.shadow-warm-xl {
+  box-shadow:
+    0 8px 16px hsl(var(--shadow-color) / 0.06),
+    0 16px 48px hsl(var(--shadow-color) / 0.12);
+}
+
+/* ============================================================================
    ANIMATIONS
    ============================================================================ */
 
+/* Shimmer for loading skeletons */
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -203,12 +324,58 @@ body {
 .animate-shimmer {
   background: linear-gradient(
     90deg,
-    rgba(0, 0, 0, 0.05) 25%,
-    rgba(0, 0, 0, 0.1) 50%,
-    rgba(0, 0, 0, 0.05) 75%
+    var(--surface-muted) 25%,
+    var(--surface) 50%,
+    var(--surface-muted) 75%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 1.5s ease infinite;
+}
+
+/* Pulse animation for analyzing states */
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+/* Slide in from right for toasts */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 200ms ease-out;
+}
+
+/* Scale in for modals */
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 200ms ease-out;
 }
 
 /* ============================================================================
@@ -226,19 +393,20 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.8 0.005 56);
+  background: var(--border);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.65 0.01 56);
+  background: var(--border-strong);
 }
 
 /* ============================================================================
    FOCUS STYLES
+   Consistent, accessible focus indicators
    ============================================================================ */
 
-/* Remove default focus ring, we add our own */
+/* Remove default focus ring */
 *:focus {
   outline: none;
 }
@@ -247,4 +415,41 @@ body {
 *:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
+}
+
+/* ============================================================================
+   TRANSITION UTILITIES
+   Smooth, purposeful animations
+   ============================================================================ */
+
+.transition-lift {
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.transition-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Interactive card effect */
+.card-interactive {
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+}
+
+/* ============================================================================
+   LAYOUT UTILITIES
+   ============================================================================ */
+
+/* Main content area when sidebar is present */
+.main-with-sidebar {
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+}
+
+/* Sidebar transition for future collapsible feature */
+.sidebar-transition {
+  transition: width 200ms ease;
 }

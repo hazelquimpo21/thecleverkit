@@ -9,24 +9,26 @@
  * - Auto-updating analyzer cards
  * - Completion celebration animation
  * - Connection status indicator
- * - Realtime header status updates (analyzing pill)
- * - Tabs for Overview and Docs views
+ * - Integrated PageHeader with tabs (Overview, Store, Documents)
  *
- * @update 2025-12-19 - Added tabs for docs feature integration
+ * @update 2025-12-19 - Updated for sidebar layout redesign with PageHeader
+ * @update 2025-12-19 - Added Store tab for Template Store feature
  */
 
 'use client';
 
 import { useState, useMemo, useRef } from 'react';
+import { RefreshCw } from 'lucide-react';
+import { PageHeader } from '@/components/layout';
+import { Badge } from '@/components/ui/badge';
 import { useBrandAnalysis, useBrandDocs } from '@/hooks';
-import { extractDomain } from '@/lib/utils/format';
+import { extractDomain, decodeHtmlEntities, formatRelativeTime } from '@/lib/utils/format';
 import { ProgressList } from '@/components/analysis/progress-list';
 import { BasicsCard } from '@/components/analysis/cards/basics-card';
 import { CustomerCard } from '@/components/analysis/cards/customer-card';
 import { ProductsCard } from '@/components/analysis/cards/products-card';
 import { DocsTabContent } from '@/components/docs';
-import { BrandHeader } from './brand-header';
-import { ProfileTabs, type ProfileTab } from './profile-tabs';
+import { StoreTabContent } from '@/components/store';
 import { CompletionCelebration } from './completion-celebration';
 import { ConnectionStatus } from './connection-status';
 import type { AnalysisRun, Brand } from '@/types';
@@ -45,20 +47,15 @@ interface BrandAnalysisContentProps {
   initialDisplayName: string;
 }
 
+type ProfileTab = 'overview' | 'store' | 'docs';
+
 // ============================================================================
 // COMPONENT
 // ============================================================================
 
 /**
  * Client component for displaying brand analysis with realtime updates.
- * Includes the brand header so it can display realtime analyzing status.
- *
- * @example
- * <BrandAnalysisContent
- *   brand={brand}
- *   initialRuns={runs}
- *   initialDisplayName="Acme Corp"
- * />
+ * Uses PageHeader with integrated tabs for navigation.
  */
 export function BrandAnalysisContent({
   brand,
@@ -110,7 +107,6 @@ export function BrandAnalysisContent({
     : null;
 
   // Compute display name - updates when basicsData becomes available
-  // Priority: brand.name > basicsData.business_name > initial display name > domain
   const displayName = useMemo(() => {
     return (
       brand.name ||
@@ -125,14 +121,34 @@ export function BrandAnalysisContent({
   const customerLoading = customerRun?.status === 'analyzing' || customerRun?.status === 'parsing';
   const productsLoading = productsRun?.status === 'analyzing' || productsRun?.status === 'parsing';
 
+  // Build subtitle with URL and timing
+  const subtitle = `${extractDomain(brand.source_url)} • Added ${formatRelativeTime(brand.created_at)}`;
+
+  // Tab configuration
+  const tabs = [
+    { value: 'overview', label: 'Overview' },
+    { value: 'store', label: 'Store' },
+    { value: 'docs', label: 'Documents', badge: docsCount > 0 ? docsCount : undefined },
+  ];
+
   return (
     <>
-      {/* Brand Header with realtime analyzing status */}
-      <BrandHeader
-        displayName={displayName}
-        sourceUrl={brand.source_url}
-        createdAt={brand.created_at}
-        isAnalyzing={isAnalyzing}
+      {/* Page Header with back link and tabs */}
+      <PageHeader
+        backLink={{ href: '/dashboard', label: 'Back to Dashboard' }}
+        title={decodeHtmlEntities(displayName)}
+        subtitle={subtitle}
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(tab) => setActiveTab(tab as ProfileTab)}
+        actions={
+          isAnalyzing ? (
+            <Badge variant="warning" className="animate-pulse-soft">
+              <RefreshCw className="h-3 w-3 animate-spin mr-1.5" />
+              Analyzing...
+            </Badge>
+          ) : null
+        }
       />
 
       {/* Completion celebration toast */}
@@ -140,15 +156,8 @@ export function BrandAnalysisContent({
         <CompletionCelebration onDismiss={acknowledgeCompletion} />
       )}
 
-      {/* Tab Navigation */}
-      <ProfileTabs
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        docsCount={docsCount}
-      />
-
       {/* Tab Content */}
-      {activeTab === 'overview' ? (
+      {activeTab === 'overview' && (
         <OverviewContent
           runs={runs}
           isAnalyzing={isAnalyzing}
@@ -161,7 +170,11 @@ export function BrandAnalysisContent({
           customerLoading={customerLoading}
           productsLoading={productsLoading}
         />
-      ) : (
+      )}
+      {activeTab === 'store' && (
+        <StoreTabContent brandId={brand.id} runs={runs} />
+      )}
+      {activeTab === 'docs' && (
         <DocsTabContent brandId={brand.id} runs={runs} />
       )}
     </>
@@ -169,7 +182,7 @@ export function BrandAnalysisContent({
 }
 
 // ============================================================================
-// OVERVIEW CONTENT (extracted for readability)
+// OVERVIEW CONTENT
 // ============================================================================
 
 interface OverviewContentProps {
@@ -200,7 +213,7 @@ function OverviewContent({
   return (
     <>
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         {/* Left Column - Progress & Status */}
         <div className="lg:col-span-1 space-y-6">
           <ProgressList runs={runs} />
@@ -216,25 +229,16 @@ function OverviewContent({
 
         {/* Right Column - Analysis Results */}
         <div className="lg:col-span-2 space-y-6">
-          <BasicsCard
-            data={basicsData}
-            isLoading={basicsLoading}
-          />
-          <CustomerCard
-            data={customerData}
-            isLoading={customerLoading}
-          />
-          <ProductsCard
-            data={productsData}
-            isLoading={productsLoading}
-          />
+          <BasicsCard data={basicsData} isLoading={basicsLoading} />
+          <CustomerCard data={customerData} isLoading={customerLoading} />
+          <ProductsCard data={productsData} isLoading={productsLoading} />
         </div>
       </div>
 
       {/* Status message at bottom */}
       {isAnalyzing && (
         <div className="mt-8 text-center">
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-foreground-muted">
             Analysis in progress. Results will appear automatically.
           </p>
         </div>

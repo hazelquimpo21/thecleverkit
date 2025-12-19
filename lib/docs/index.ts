@@ -18,9 +18,12 @@ export {
   docTemplates,
   docTemplateIds,
   docTemplateConfigs,
+  allTemplateConfigs,
   getDocTemplate,
   getDocTemplateConfig,
+  getTemplatesByCategory,
   isValidTemplateId,
+  isImplementedTemplateId,
 } from './registry';
 
 // Readiness checking

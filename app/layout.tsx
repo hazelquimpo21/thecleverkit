@@ -3,10 +3,12 @@
  * ============
  * The root layout for the entire app.
  * Sets up metadata, global providers, and app shell.
+ *
+ * @update 2025-12-19 - Switched from Header to sidebar-based AppShell
  */
 
 import type { Metadata } from 'next';
-import { Header } from '@/components/layout/header';
+import { AppShell } from '@/components/layout';
 import { Providers } from '@/lib/providers';
 import './globals.css';
 
@@ -36,8 +38,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased min-h-screen bg-background text-foreground">
         <Providers>
-          <Header />
-          {children}
+          <AppShell>{children}</AppShell>
         </Providers>
       </body>
     </html>

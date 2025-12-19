@@ -9,6 +9,8 @@
  * - Shows analysis status with badge
  * - Displays "Your Brand" star for user's own brand
  * - Dropdown menu for delete action
+ *
+ * @update 2025-12-19 - Updated styling for redesign with interactive Card
  */
 
 'use client';
@@ -114,14 +116,14 @@ export function BrandCard({ brand, onDelete }: BrandCardProps) {
   const updatedAt = formatRelativeTime(brand.updated_at);
 
   return (
-    <Card className="group relative transition-all hover:shadow-md hover:border-primary/20">
+    <Card interactive className="group relative">
       {/* Main clickable area */}
       <Link
         href={`/brands/${brand.id}`}
         onMouseEnter={() => prefetchBrand(brand.id)}
         className="block"
       >
-        <CardContent className="p-4">
+        <CardContent className="p-5">
           <div className="flex items-start justify-between gap-3">
             {/* Brand info */}
             <div className="flex-1 min-w-0">
@@ -138,7 +140,7 @@ export function BrandCard({ brand, onDelete }: BrandCardProps) {
               </div>
 
               {/* URL / Domain */}
-              <p className="text-sm text-muted-foreground truncate mb-2">
+              <p className="text-sm text-muted-foreground truncate mb-3">
                 {domain}
               </p>
 
@@ -155,13 +157,13 @@ export function BrandCard({ brand, onDelete }: BrandCardProps) {
       </Link>
 
       {/* Actions menu - positioned absolute so it doesn't interfere with card click */}
-      <div className="absolute top-3 right-3">
+      <div className="absolute top-4 right-4">
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              size="icon-sm"
+              className="opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreHorizontal className="h-4 w-4" />
@@ -194,7 +196,7 @@ export function BrandCard({ brand, onDelete }: BrandCardProps) {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem
-              className="flex items-center gap-2 text-destructive focus:text-destructive"
+              className="flex items-center gap-2 text-[var(--error)] focus:text-[var(--error)]"
               onClick={(e) => {
                 e.stopPropagation();
                 setMenuOpen(false);

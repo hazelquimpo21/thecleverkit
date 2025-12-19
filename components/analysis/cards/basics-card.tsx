@@ -141,7 +141,7 @@ export function BasicsCard({ data, isLoading }: BasicsCardProps) {
 
         {/* Business Model */}
         <div className="pt-2">
-          <Badge variant="orange">{data.business_model}</Badge>
+          <Badge variant="basics">{data.business_model}</Badge>
         </div>
       </CardContent>
     </Card>
