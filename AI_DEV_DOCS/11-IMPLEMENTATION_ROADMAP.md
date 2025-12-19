@@ -303,10 +303,48 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 - Tone of Voice analyzer
 - Visual Identity analyzer
 
-### Phase 12: Document Generation
-- Brand Brief generator
-- Customer Persona generator
-- Content Pillars generator
+### Phase 12: Document Generation (In Planning)
+
+**See `12-DOCS_FEATURE.md` for full implementation plan.**
+
+**Goal**: Generate useful documents from brand intelligence.
+
+#### 12.1 Foundation
+- [ ] Create `generated_docs` table in Supabase
+- [ ] Create `lib/docs/types.ts` (DocTemplate, GeneratedDoc types)
+- [ ] Create `lib/docs/registry.ts` (template registry)
+- [ ] Create `lib/docs/generator.ts` (orchestrates generation)
+- [ ] Create `lib/docs/readiness.ts` (data sufficiency checks)
+
+#### 12.2 Golden Circle Template
+- [ ] Create `lib/docs/templates/golden-circle/` folder
+- [ ] Implement config (required analyzers: basics, customer)
+- [ ] Implement prompt (generates Why/How/What)
+- [ ] Implement parser (structured output)
+- [ ] Test generation end-to-end
+
+#### 12.3 UI Components
+- [ ] Create DocTemplateCard component
+- [ ] Create DocTemplateGrid component
+- [ ] Create DocList + DocListItem components
+- [ ] Create DocViewer component
+- [ ] Create ReadinessBadge component
+- [ ] Create MissingDataDialog component
+
+#### 12.4 Brand Profile Integration
+- [ ] Add tabs to brand profile (Overview / Docs)
+- [ ] Build Docs tab content
+- [ ] Wire up generation flow
+- [ ] Test full user flow
+
+#### 12.5 Export
+- [ ] Copy to clipboard (markdown)
+- [ ] PDF export (using react-pdf or similar)
+
+#### 12.6 Additional Templates (Future)
+- [ ] Brand Brief template
+- [ ] Customer Persona template
+- [ ] Content Pillars template
 
 ### Phase 13: Enhanced Input
 - Chat interface for adding brand info
@@ -333,8 +371,10 @@ This is the recommended sequence for building The Clever Kit MVP. Each phase res
 | 7. Edit & Retry | ❌ Not started | ~1 day |
 | 8. Polish | 🔶 Partial | ~0.5 day |
 | 9. Deploy | ❌ Not started | ~0.5 day |
+| 12. Docs Feature | 📋 Planning | ~2-3 days |
 
-**Remaining: ~2 days for full MVP completion**
+**Remaining for MVP: ~2 days**
+**Remaining for Docs Feature: ~2-3 days additional**
 
 ---
 
